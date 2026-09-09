@@ -47,6 +47,41 @@ export const services = [
   },
 ] as const;
 
+/* ── Preselección desde el catálogo visual de Servicios (#servicios) ──
+   La sección de Servicios muestra 8 especialidades; el asistente maneja
+   6 servicios reservables. Este mapa traduce el título EXACTO del catálogo
+   (services.tsx, campo `titulo`) al id reservable.
+   ⚠️ MANTENIMIENTO: si se renombra un `titulo` en services.tsx,
+   actualizar este mapa (la búsqueda devuelve null y el enlace «Agendar»
+   de esa tarjeta dejaría de preseleccionar). */
+export type ServicioReservableId = (typeof services)[number]["id"];
+
+export const serviceMapFromCatalog: Readonly<
+  Record<string, ServicioReservableId>
+> = {
+  "Geriatría y medicina senior": "geriatria",
+  "Manejo del dolor y movilidad": "dolor",
+  "Medicina interna": "geriatria",
+  "Medicina preventiva": "preventivo",
+  "Diagnóstico por imagen": "diagnostico",
+  "Laboratorio clínico": "diagnostico",
+  "Odontología veterinaria": "odontologia",
+  "Cuidado paliativo y duelo": "paliativo",
+};
+
+/** Título del catálogo de Servicios → id reservable (null si no hay mapeo). */
+export function servicioReservableDeCatalogo(
+  tituloCatalogo: string,
+): ServicioReservableId | null {
+  return serviceMapFromCatalog[tituloCatalogo] ?? null;
+}
+
+/* ── Evento global para preseleccionar servicio en el asistente ──
+   Las tarjetas de #servicios disparan CustomEvent detail { serviceId }
+   y el asistente de reserva (booking-section.tsx) lo escucha. */
+export const EVENTO_PRESELECCION_SERVICIO =
+  "longivet:preseleccionar-servicio" as const;
+
 /* ── Profesionales disponibles ── */
 export const vets = [
   {

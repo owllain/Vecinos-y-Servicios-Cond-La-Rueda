@@ -1,0 +1,1254 @@
+     1→"use client";
+     2→
+     3→/* ─────────────────────────────────────────────────────────────
+     4→   LONGIVET · Sección «Agendar cita»
+     5→   Asistente multipaso (Ley de Miller: 4 pasos) conectado a la
+     6→   API real (/api/availability y /api/appointments) con Prisma.
+     7→   ───────────────────────────────────────────────────────────── */
+     8→
+     9→import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
+    10→import { AnimatePresence, MotionConfig, motion } from "framer-motion";
+    11→import { toast } from "sonner";
+    12→import {
+    13→  BadgeCheck,
+    14→  CalendarCheck,
+    15→  CalendarClock,
+    16→  Cat,
+    17→  Check,
+    18→  ChevronLeft,
+    19→  ChevronRight,
+    20→  Dog,
+    21→  Info,
+    22→  Loader2,
+    23→  MessageCircle,
+    24→  PawPrint,
+    25→  Phone,
+    26→  Siren,
+    27→} from "lucide-react";
+    28→
+    29→import { Button } from "@/components/ui/button";
+    30→import { Checkbox } from "@/components/ui/checkbox";
+    31→import { Input } from "@/components/ui/input";
+    32→import { Label } from "@/components/ui/label";
+    33→import { Toaster as ToasterSonner } from "@/components/ui/sonner";
+    34→import { Skeleton } from "@/components/ui/skeleton";
+    35→import { Textarea } from "@/components/ui/textarea";
+    36→import {
+    37→  afternoonSlots,
+    38→  EVENTO_PRESELECCION_SERVICIO,
+    39→  formatFechaLarga,
+    40→  morningSlots,
+    41→  services,
+    42→  vets,
+    43→  type AppointmentInput,
+    44→} from "@/lib/booking";
+    45→import { site } from "@/lib/site";
+    46→import { cn } from "@/lib/utils";
+    47→
+    48→/* ── Tipos y constantes locales ── */
+    49→
+    50→type Especie = "perro" | "gato" | "otro";
+    51→
+    52→interface Formulario {
+    53→  petName: string;
+    54→  species: Especie | "";
+    55→  breed: string;
+    56→  ageYears: number | null;
+    57→  service: string;
+    58→  preferredVet: string;
+    59→  date: string;
+    60→  timeSlot: string;
+    61→  tutorName: string;
+    62→  email: string;
+    63→  phone: string;
+    64→  notes: string;
+    65→  consent: boolean;
+    66→}
+    67→
+    68→const FORM_INICIAL: Formulario = {
+    69→  petName: "",
+    70→  species: "",
+    71→  breed: "",
+    72→  ageYears: null,
+    73→  service: "",
+    74→  preferredVet: "sin-preferencia",
+    75→  date: "",
+    76→  timeSlot: "",
+    77→  tutorName: "",
+    78→  email: "",
+    79→  phone: "",
+    80→  notes: "",
+    81→  consent: false,
+    82→};
+    83→
+    84→interface Confirmacion {
+    85→  code: string;
+    86→  date: string;
+    87→  timeSlot: string;
+    88→  service: string;
+    89→  petName: string;
+    90→  tutorName: string;
+    91→}
+    92→
+    93→interface DiaOption {
+    94→  iso: string;
+    95→  weekday: string;
+    96→  diaMes: string;
+    97→  esDomingo: boolean;
+    98→}
+    99→
+   100→const PASOS = [
+   101→  { numero: 1, titulo: "Mascota" },
+   102→  { numero: 2, titulo: "Profesional" },
+   103→  { numero: 3, titulo: "Fecha y hora" },
+   104→  { numero: 4, titulo: "Tus datos" },
+   105→] as const;
+   106→
+   107→const OPCIONES_ESPECIE = [
+   108→  { valor: "perro", etiqueta: "Perro", Icono: Dog },
+   109→  { valor: "gato", etiqueta: "Gato", Icono: Cat },
+   110→  { valor: "otro", etiqueta: "Otro", Icono: PawPrint },
+   111→] as const;
+   112→
+   113→const OPCIONES_EDAD = [
+   114→  { valor: "", etiqueta: "Edad (opcional)" },
+   115→  { valor: "0.5", etiqueta: "Menos de 1 año" },
+   116→  { valor: "2", etiqueta: "1–3 años" },
+   117→  { valor: "5", etiqueta: "4–6 años" },
+   118→  { valor: "8", etiqueta: "7–9 años" },
+   119→  { valor: "11", etiqueta: "10–12 años" },
+   120→  { valor: "13", etiqueta: "13+ años" },
+   121→] as const;
+   122→
+   123→const DESPUES_DE_RESERVAR = [
+   124→  {
+   125→    Icono: BadgeCheck,
+   126→    titulo: "Confirmación inmediata con código",
+   127→    detalle: "Tu código LV-XXXXXX aparece al terminar y queda asociado a tu cita.",
+   128→  },
+   129→  {
+   130→    Icono: MessageCircle,
+   131→    titulo: "Recordatorio por WhatsApp",
+   132→    detalle: "Te escribimos 24 horas y 2 horas antes de la consulta.",
+   133→  },
+   134→  {
+   135→    Icono: CalendarClock,
+   136→    titulo: "Reprogramación sin costo",
+   137→    detalle: "Mueve tu cita sin cargo hasta 24 horas antes.",
+   138→  },
+   139→] as const;
+   140→
+   141→const DIAS_HORIZONTE = 21;
+   142→const DURACION_DESTELLO_MS = 2200;
+   143→
+   144→/* ── Helpers puros ── */
+   145→
+   146→/**
+   147→ * Genera los próximos `cantidad` días (hoy incluido) según la fecha de
+   148→ * Costa Rica. Solo debe ejecutarse EN CLIENTE (tras el mount) para no
+   149→ * romper la hidratación: depende del reloj del dispositivo.
+   150→ */
+   151→function generarDias(cantidad: number): DiaOption[] {
+   152→  const hoyCR = new Date().toLocaleDateString("en-CA", { timeZone: "America/Costa_Rica" });
+   153→  const partes = hoyCR.split("-");
+   154→  const base = new Date(Date.UTC(Number(partes[0]), Number(partes[1]) - 1, Number(partes[2])));
+   155→  const fmtSemana = new Intl.DateTimeFormat("es-CR", { weekday: "short", timeZone: "UTC" });
+   156→  const fmtDia = new Intl.DateTimeFormat("es-CR", { day: "numeric", timeZone: "UTC" });
+   157→  const dias: DiaOption[] = [];
+   158→  for (let i = 0; i < cantidad; i++) {
+   159→    const fecha = new Date(base.getTime() + i * 86_400_000);
+   160→    dias.push({
+   161→      iso: fecha.toISOString().slice(0, 10),
+   162→      weekday: fmtSemana.format(fecha).replace(".", ""),
+   163→      diaMes: fmtDia.format(fecha),
+   164→      esDomingo: fecha.getUTCDay() === 0,
+   165→    });
+   166→  }
+   167→  return dias;
+   168→}
+   169→
+   170→/** «Dra. Mariana Solís» → «MS» · «Sin preferencia» → «SP». */
+   171→function inicialesProfesional(label: string): string {
+   172→  const limpio = label.replace(/^Dra?\.?\s+/i, "");
+   173→  const iniciales = limpio
+   174→    .split(/\s+/)
+   175→    .filter(Boolean)
+   176→    .slice(0, 2)
+   177→    .map((palabra) => palabra.charAt(0).toUpperCase());
+   178→  return iniciales.join("") || "LV";
+   179→}
+   180→
+   181→/* ── Piezas visuales reutilizables ── */
+   182→
+   183→function FilaResumen({ termino, valor }: { termino: string; valor: string }) {
+   184→  return (
+   185→    <div className="flex items-baseline justify-between gap-4">
+   186→      <dt className="shrink-0 text-muted-foreground">{termino}</dt>
+   187→      <dd className="text-right font-semibold text-foreground">{valor}</dd>
+   188→    </div>
+   189→  );
+   190→}
+   191→
+   192→function GrupoHorarios({
+   193→  titulo,
+   194→  slots,
+   195→  ocupados,
+   196→  valor,
+   197→  onSelect,
+   198→}: {
+   199→  titulo: string;
+   200→  slots: readonly string[];
+   201→  ocupados: string[];
+   202→  valor: string;
+   203→  onSelect: (slot: string) => void;
+   204→}) {
+   205→  return (
+   206→    <div>
+   207→      <h4 className="mb-2 text-sm font-bold text-foreground">{titulo}</h4>
+   208→      <div className="grid grid-cols-4 gap-2">
+   209→        {slots.map((slot) => {
+   210→          const ocupado = ocupados.includes(slot);
+   211→          const activo = valor === slot;
+   212→          return (
+   213→            <button
+   214→              key={slot}
+   215→              type="button"
+   216→              disabled={ocupado}
+   217→              title={ocupado ? "Reservado" : undefined}
+   218→              aria-pressed={activo}
+   219→              onClick={() => onSelect(slot)}
+   220→              className={cn(
+   221→                "flex h-12 items-center justify-center rounded-xl border text-sm font-semibold tabular-nums transition-all",
+   222→                ocupado
+   223→                  ? "cursor-not-allowed border-border bg-muted/50 text-muted-foreground line-through opacity-40"
+   224→                  : activo
+   225→                    ? "border-transparent bg-brand-teal-dark text-white shadow-sm"
+   226→                    : "border-border bg-card hover:border-brand-teal hover:shadow-sm",
+   227→              )}
+   228→            >
+   229→              {slot}
+   230→            </button>
+   231→          );
+   232→        })}
+   233→      </div>
+   234→    </div>
+   235→  );
+   236→}
+   237→
+   238→/* ── Sección principal ── */
+   239→
+   240→export default function BookingSection() {
+   241→  const [paso, setPaso] = useState(1);
+   242→  const [form, setForm] = useState<Formulario>(FORM_INICIAL);
+   243→  const [errores, setErrores] = useState<Record<string, string>>({});
+   244→  const [dias, setDias] = useState<DiaOption[]>([]);
+   245→  const [disponibilidad, setDisponibilidad] = useState<{ closed: boolean; taken: string[] } | null>(null);
+   246→  const [cargandoDispo, setCargandoDispo] = useState(false);
+   247→  const [errorDispo, setErrorDispo] = useState(false);
+   248→  const [enviando, setEnviando] = useState(false);
+   249→  const [confirmacion, setConfirmacion] = useState<Confirmacion | null>(null);
+   250→  const [servicioDestacado, setServicioDestacado] = useState<string | null>(null);
+   251→  const tarjetaRef = useRef<HTMLDivElement>(null);
+   252→
+   253→  /* Actualiza un campo y limpia su error asociado. */
+   254→  const actualizar = useCallback(<K extends keyof Formulario>(campo: K, valor: Formulario[K]) => {
+   255→    setForm((prev) => ({ ...prev, [campo]: valor }));
+   256→    setErrores((prev) => {
+   257→      if (!(campo in prev)) return prev;
+   258→      const siguientes = { ...prev };
+   259→      delete siguientes[campo as string];
+   260→      return siguientes;
+   261→    });
+   262→  }, []);
+   263→
+   264→  /* Días del calendario: se generan tras el mount (hidratación segura). */
+   265→  useEffect(() => {
+   266→    setDias(generarDias(DIAS_HORIZONTE));
+   267→  }, []);
+   268→
+   269→  /* Mantiene el asistente a la vista al cambiar de paso o al confirmar. */
+   270→  useEffect(() => {
+   271→    tarjetaRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+   272→  }, [paso, confirmacion]);
+   273→
+   274→  /* Preselección de servicio desde las tarjetas de #servicios:
+   275→     el enlace «Agendar» dispara un CustomEvent global; aquí lo recibimos,
+   276→     volvemos al paso 1, precargamos el servicio y avisamos con un toast.
+   277→     Los setters de React son estables, así que el listener se registra una
+   278→     sola vez (el scroll al ancla lo hace el navegador de forma nativa). */
+   279→  useEffect(() => {
+   280→    const preseleccionar = (evento: Event) => {
+   281→      const detail = (evento as CustomEvent<{ serviceId?: unknown }>).detail;
+   282→      const serviceId = typeof detail?.serviceId === "string" ? detail.serviceId : "";
+   283→      const servicio = services.find((s) => s.id === serviceId);
+   284→      if (!servicio) return; // id desconocido: se ignora el evento
+   285→
+   286→      setConfirmacion(null); // si había una confirmación en pantalla, volver al asistente
+   287→      setPaso(1);
+   288→      setErrores({});
+   289→      setForm((prev) => ({ ...prev, service: servicio.id }));
+   290→      setServicioDestacado(servicio.id);
+   291→      toast.success(`Servicio seleccionado: ${servicio.label} — continúa con tu reserva`, {
+   292→        description: "Revisa los datos de tu mascota y elige el día de tu cita.",
+   293→      });
+   294→    };
+   295→
+   296→    window.addEventListener(EVENTO_PRESELECCION_SERVICIO, preseleccionar);
+   297→    return () =>
+   298→      window.removeEventListener(EVENTO_PRESELECCION_SERVICIO, preseleccionar);
+   299→  }, []);
+   300→
+   301→  /* El resaltado del servicio preseleccionado dura ~2 s. */
+   302→  useEffect(() => {
+   303→    if (!servicioDestacado) return;
+   304→    const temporizador = setTimeout(() => setServicioDestacado(null), DURACION_DESTELLO_MS);
+   305→    return () => clearTimeout(temporizador);
+   306→  }, [servicioDestacado]);
+   307→
+   308→  const consultarDisponibilidad = useCallback(async (fecha: string) => {
+   309→    setCargandoDispo(true);
+   310→    setErrorDispo(false);
+   311→    try {
+   312→      const res = await fetch(`/api/availability?date=${encodeURIComponent(fecha)}`, { cache: "no-store" });
+   313→      const datos = (await res.json().catch(() => null)) as {
+   314→        ok?: boolean;
+   315→        closed?: boolean;
+   316→        taken?: string[];
+   317→        error?: string;
+   318→      } | null;
+   319→      if (!res.ok || !datos?.ok) throw new Error(datos?.error ?? "Error de disponibilidad");
+   320→      setDisponibilidad({ closed: Boolean(datos.closed), taken: Array.isArray(datos.taken) ? datos.taken : [] });
+   321→    } catch {
+   322→      setDisponibilidad(null);
+   323→      setErrorDispo(true);
+   324→    } finally {
+   325→      setCargandoDispo(false);
+   326→    }
+   327→  }, []);
+   328→
+   329→  const elegirDia = (iso: string) => {
+   330→    setForm((prev) => ({ ...prev, date: iso, timeSlot: "" }));
+   331→    setErrores((prev) => {
+   332→      if (!prev.date && !prev.timeSlot) return prev;
+   333→      const siguientes = { ...prev };
+   334→      delete siguientes.date;
+   335→      delete siguientes.timeSlot;
+   336→      return siguientes;
+   337→    });
+   338→    void consultarDisponibilidad(iso);
+   339→  };
+   340→
+   341→  /* Validación manual por paso (campos requeridos visibles + error inline). */
+   342→  const validarPaso = (numero: number): Record<string, string> => {
+   343→    const encontrados: Record<string, string> = {};
+   344→    if (numero === 1) {
+   345→      if (form.petName.trim().length < 2) {
+   346→        encontrados.petName = "Escribe el nombre de tu mascota (mínimo 2 letras).";
+   347→      }
+   348→      if (!form.species) encontrados.species = "Selecciona la especie de tu mascota.";
+   349→      if (!form.service) encontrados.service = "Selecciona el servicio que tu mascota necesita.";
+   350→      if (form.breed.trim().length > 60) encontrados.breed = "La raza no puede superar los 60 caracteres.";
+   351→    }
+   352→    if (numero === 3) {
+   353→      if (!form.date) encontrados.date = "Elige el día de tu cita.";
+   354→      if (!form.timeSlot) encontrados.timeSlot = "Elige un horario disponible.";
+   355→    }
+   356→    if (numero === 4) {
+   357→      if (form.tutorName.trim().length < 3) encontrados.tutorName = "Escribe tu nombre completo.";
+   358→      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
+   359→        encontrados.email = "Escribe un correo electrónico válido.";
+   360→      }
+   361→      const tel = form.phone.trim();
+   362→      if (tel.length < 8 || !/^[\d\s+()-]+$/.test(tel)) {
+   363→        encontrados.phone = "Escribe un teléfono válido (mínimo 8 dígitos).";
+   364→      }
+   365→      if (form.notes.length > 500) encontrados.notes = "Las notas no pueden superar los 500 caracteres.";
+   366→      if (!form.consent) encontrados.consent = "Necesitamos tu autorización para coordinar la cita.";
+   367→    }
+   368→    return encontrados;
+   369→  };
+   370→
+   371→  const avanzar = () => {
+   372→    const encontrados = validarPaso(paso);
+   373→    if (Object.keys(encontrados).length > 0) {
+   374→      setErrores(encontrados);
+   375→      return;
+   376→    }
+   377→    setErrores({});
+   378→    setPaso((prev) => Math.min(PASOS.length, prev + 1));
+   379→  };
+   380→
+   381→  const retroceder = () => {
+   382→    setErrores({});
+   383→    setPaso((prev) => Math.max(1, prev - 1));
+   384→  };
+   385→
+   386→  /* Enter en pasos 1–3 solo avanza (nunca envía); en el paso 4 envía. */
+   387→  const enviarReserva = async (evento: FormEvent<HTMLFormElement>) => {
+   388→    evento.preventDefault();
+   389→    if (paso < PASOS.length) {
+   390→      avanzar();
+   391→      return;
+   392→    }
+   393→
+   394→    const encontrados = validarPaso(4);
+   395→    if (Object.keys(encontrados).length > 0) {
+   396→      setErrores(encontrados);
+   397→      return;
+   398→    }
+   399→    setErrores({});
+   400→    setEnviando(true);
+   401→
+   402→    try {
+   403→      const payload: AppointmentInput = {
+   404→        petName: form.petName.trim(),
+   405→        species: form.species as Especie,
+   406→        breed: form.breed.trim(),
+   407→        ageYears: form.ageYears,
+   408→        service: form.service,
+   409→        preferredVet: form.preferredVet,
+   410→        date: form.date,
+   411→        timeSlot: form.timeSlot,
+   412→        tutorName: form.tutorName.trim(),
+   413→        email: form.email.trim(),
+   414→        phone: form.phone.trim(),
+   415→        notes: form.notes.trim(),
+   416→        consent: true,
+   417→      };
+   418→
+   419→      const res = await fetch("/api/appointments", {
+   420→        method: "POST",
+   421→        headers: { "Content-Type": "application/json" },
+   422→        body: JSON.stringify(payload),
+   423→      });
+   424→      const json = (await res.json().catch(() => null)) as {
+   425→        ok?: boolean;
+   426→        code?: string;
+   427→        error?: string;
+   428→        fieldErrors?: Record<string, string>;
+   429→        appointment?: { date: string; timeSlot: string; service: string; petName: string; tutorName: string };
+   430→      } | null;
+   431→
+   432→      if (res.status === 409) {
+   433→        // La franja se ocupó mientras agendábamos: volver al paso 3 y refrescar.
+   434→        toast.error(json?.error ?? "Lo sentimos, esa franja acaba de ser reservada. Elige otro horario.");
+   435→        setForm((prev) => ({ ...prev, timeSlot: "" }));
+   436→        setErrores((prev) => {
+   437→          const siguientes = { ...prev };
+   438→          delete siguientes.timeSlot;
+   439→          return siguientes;
+   440→        });
+   441→        setPaso(3);
+   442→        if (form.date) void consultarDisponibilidad(form.date);
+   443→        return;
+   444→      }
+   445→
+   446→      if (!res.ok || !json?.ok || !json.code || !json.appointment) {
+   447→        if (json?.fieldErrors) setErrores(json.fieldErrors);
+   448→        toast.error(json?.error ?? "No pudimos registrar tu reserva. Revisa los datos e intenta de nuevo.");
+   449→        return;
+   450→      }
+   451→
+   452→      setConfirmacion({ code: json.code, ...json.appointment });
+   453→      toast.success("¡Reserva confirmada! Te esperamos.");
+   454→    } catch {
+   455→      toast.error("Tuvimos un problema de conexión. Verifica tu internet e intenta de nuevo.");
+   456→    } finally {
+   457→      setEnviando(false);
+   458→    }
+   459→  };
+   460→
+   461→  const reiniciar = () => {
+   462→    setForm(FORM_INICIAL);
+   463→    setErrores({});
+   464→    setPaso(1);
+   465→    setDisponibilidad(null);
+   466→    setErrorDispo(false);
+   467→    setCargandoDispo(false);
+   468→    setConfirmacion(null);
+   469→  };
+   470→
+   471→  const servicioElegido = services.find((servicio) => servicio.id === form.service);
+   472→  const profesionalElegido = vets.find((vet) => vet.id === form.preferredVet);
+   473→  const tituloPasoActual = PASOS[paso - 1]?.titulo ?? "";
+   474→  const pasoActual = confirmacion ? PASOS.length : paso;
+   475→
+   476→  /* Enlace de WhatsApp con confirmación prellenada (solo tras confirmar). */
+   477→  const waConfirmHref = confirmacion
+   478→    ? `https://wa.me/${site.whatsappNumber}?text=${encodeURIComponent(
+   479→        `Hola LONGIVET, confirmo mi cita ${confirmacion.code} para ${confirmacion.petName} el ${formatFechaLarga(
+   480→          confirmacion.date,
+   481→        )} a las ${confirmacion.timeSlot}.`,
+   482→      )}`
+   483→    : "#";
+   484→
+   485→  return (
+   486→    <MotionConfig reducedMotion="user">
+   487→      {/* Sonner: montado aquí porque el layout solo monta el Toaster de radix;
+   488→          así los toasts de sonner (preselección, 409, éxito) sí se ven. */}
+   489→      <ToasterSonner position="top-center" closeButton />
+   490→      <section id="agendar" aria-labelledby="titulo-agendar" className="bg-background py-20 lg:py-24">
+   491→        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+   492→          {/* Encabezado de la sección */}
+   493→          <div className="mx-auto mb-12 max-w-2xl text-center lg:mb-16">
+   494→            <p className="text-sm font-bold uppercase tracking-[0.2em] text-brand-teal">
+   495→              Reserva en menos de 1 minuto
+   496→            </p>
+   497→            <h2
+   498→              id="titulo-agendar"
+   499→              className="mt-3 text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl"
+   500→            >
+   501→              Agenda la cita de tu compañero
+   502→            </h2>
+   503→            <p className="mt-4 text-lg text-muted-foreground">
+   504→              Cuatro pasos sencillos para reservar la consulta de tu mascota senior: sin registros ni llamadas
+   505→              obligatorias.
+   506→            </p>
+   507→          </div>
+   508→
+   509→          <div className="grid gap-8 lg:grid-cols-5">
+   510→            {/* ── Panel informativo (sticky) ── */}
+   511→            <div className="lg:col-span-2">
+   512→              <div className="space-y-4 lg:sticky lg:top-24">
+   513→                <div className="rounded-3xl bg-primary p-8 text-primary-foreground dark:bg-brand-navy">
+   514→                  <h3 className="text-xl font-bold tracking-tight">Qué pasa después de reservar</h3>
+   515→                  <ul className="mt-6 space-y-5">
+   516→                    {DESPUES_DE_RESERVAR.map((item) => (
+   517→                      <li key={item.titulo} className="flex items-start gap-3">
+   518→                        <item.Icono className="mt-0.5 h-6 w-6 shrink-0 text-brand-teal-soft" aria-hidden="true" />
+   519→                        <p className="text-sm leading-snug">
+   520→                          <span className="block font-bold">{item.titulo}</span>
+   521→                          <span className="mt-0.5 block text-primary-foreground/80">{item.detalle}</span>
+   522→                        </p>
+   523→                      </li>
+   524→                    ))}
+   525→                  </ul>
+   526→
+   527→                  <div className="mt-8 rounded-2xl border border-white/20 bg-white/10 p-4">
+   528→                    <p className="flex items-start gap-3 text-sm leading-snug">
+   529→                      <Siren className="mt-0.5 h-5 w-5 shrink-0 text-brand-gold" aria-hidden="true" />
+   530→                      <span>
+   531→                        <strong className="font-bold">¿Es una urgencia?</strong> No agendes:{" "}
+   532→                        <a
+   533→                          href={site.emergencyPhoneHref}
+   534→                          className="font-bold underline underline-offset-2 transition-colors hover:text-brand-gold"
+   535→                          aria-label={`Llamar ahora a urgencias veterinarias al ${site.emergencyPhone}`}
+   536→                        >
+   537→                          llámanos ya
+   538→                        </a>{" "}
+   539→                        y te guiamos durante el traslado.
+   540→                      </span>
+   541→                    </p>
+   542→                  </div>
+   543→
+   544→                  <div className="mt-5 flex flex-col gap-2">
+   545→                    <a
+   546→                      href={site.phoneHref}
+   547→                      className="flex min-h-[44px] items-center gap-2.5 rounded-xl bg-white/5 px-3 text-sm font-semibold transition-colors hover:bg-white/15"
+   548→                    >
+   549→                      <Phone className="h-4 w-4 shrink-0" aria-hidden="true" />
+   550→                      {site.phone}
+   551→                      <span className="sr-only">— llamada directa a la clínica</span>
+   552→                    </a>
+   553→                    <a
+   554→                      href={site.whatsappHref}
+   555→                      target="_blank"
+   556→                      rel="noopener noreferrer"
+   557→                      className="flex min-h-[44px] items-center gap-2.5 rounded-xl bg-white/5 px-3 text-sm font-semibold transition-colors hover:bg-white/15"
+   558→                    >
+   559→                      <MessageCircle className="h-4 w-4 shrink-0" aria-hidden="true" />
+   560→                      WhatsApp directo
+   561→                      <span className="sr-only">(abre en una pestaña nueva)</span>
+   562→                    </a>
+   563→                  </div>
+   564→                </div>
+   565→              </div>
+   566→            </div>
+   567→
+   568→            {/* ── Asistente de reserva ── */}
+   569→            <div ref={tarjetaRef} className="lg:col-span-3">
+   570→              <div className="rounded-3xl border border-border bg-card p-6 shadow-sm md:p-8">
+   571→                <AnimatePresence mode="wait" initial={false}>
+   572→                  {confirmacion ? (
+   573→                    /* ══ Pantalla de éxito (solo se renderiza tras la interacción) ══ */
+   574→                    <motion.div
+   575→                      key="exito"
+   576→                      initial={{ opacity: 0, scale: 0.96 }}
+   577→                      animate={{ opacity: 1, scale: 1 }}
+   578→                      exit={{ opacity: 0, scale: 0.96 }}
+   579→                      transition={{ duration: 0.3, ease: "easeOut" }}
+   580→                      role="status"
+   581→                      className="flex flex-col items-center py-4 text-center"
+   582→                    >
+   583→                      <motion.div
+   584→                        initial={{ scale: 0.6, opacity: 0 }}
+   585→                        animate={{ scale: 1, opacity: 1 }}
+   586→                        transition={{ type: "spring", stiffness: 260, damping: 18, delay: 0.05 }}
+   587→                        className="flex h-20 w-20 items-center justify-center rounded-full bg-brand-emerald/15"
+   588→                      >
+   589→                        <motion.svg
+   590→                          viewBox="0 0 52 52"
+   591→                          fill="none"
+   592→                          className="h-10 w-10 text-brand-emerald"
+   593→                          aria-hidden="true"
+   594→                        >
+   595→                          <motion.path
+   596→                            d="M14 27l8 8 16-16"
+   597→                            stroke="currentColor"
+   598→                            strokeWidth={5}
+   599→                            strokeLinecap="round"
+   600→                            strokeLinejoin="round"
+   601→                            initial={{ pathLength: 0 }}
+   602→                            animate={{ pathLength: 1 }}
+   603→                            transition={{ duration: 0.45, delay: 0.25, ease: "easeOut" }}
+   604→                          />
+   605→                        </motion.svg>
+   606→                      </motion.div>
+   607→
+   608→                      <h3 className="mt-6 text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl">
+   609→                        ¡Reserva confirmada, {confirmacion.tutorName.split(/\s+/)[0] || confirmacion.tutorName}!
+   610→                      </h3>
+   611→                      <p className="mt-2 max-w-md text-sm text-muted-foreground">
+   612→                        Guarda tu código de confirmación:
+   613→                      </p>
+   614→
+   615→                      <p className="mt-5 rounded-xl bg-brand-navy px-6 py-3 font-mono text-2xl font-bold tracking-widest text-white">
+   616→                        {confirmacion.code}
+   617→                      </p>
+   618→                      <p className="mt-2 text-xs font-bold uppercase tracking-wide text-muted-foreground">
+   619→                        Preséntalo al llegar a la clínica
+   620→                      </p>
+   621→
+   622→                      <dl className="mt-6 w-full max-w-sm space-y-1.5 rounded-2xl bg-brand-sand p-4 text-sm dark:bg-muted">
+   623→                        <FilaResumen termino="Mascota" valor={confirmacion.petName} />
+   624→                        <FilaResumen
+   625→                          termino="Servicio"
+   626→                          valor={
+   627→                            services.find((servicio) => servicio.id === confirmacion.service)?.label ??
+   628→                            confirmacion.service
+   629→                          }
+   630→                        />
+   631→                        <FilaResumen termino="Fecha" valor={formatFechaLarga(confirmacion.date)} />
+   632→                        <FilaResumen termino="Hora" valor={`${confirmacion.timeSlot} h`} />
+   633→                      </dl>
+   634→
+   635→                      <div className="mt-6 flex w-full max-w-sm flex-col gap-2 sm:flex-row">
+   636→                        <Button
+   637→                          asChild
+   638→                          className="h-11 flex-1 rounded-xl bg-brand-teal-dark font-bold text-white hover:bg-brand-teal"
+   639→                        >
+   640→                          <a href={waConfirmHref} target="_blank" rel="noopener noreferrer">
+   641→                            <MessageCircle className="h-4 w-4" aria-hidden="true" />
+   642→                            Confirmar por WhatsApp
+   643→                          </a>
+   644→                        </Button>
+   645→                        <Button variant="outline" onClick={reiniciar} className="h-11 flex-1 rounded-xl">
+   646→                          Agendar otra cita
+   647→                        </Button>
+   648→                      </div>
+   649→                    </motion.div>
+   650→                  ) : (
+   651→                    /* ══ Asistente de 4 pasos ══ */
+   652→                    <motion.div
+   653→                      key="asistente"
+   654→                      initial={{ opacity: 0 }}
+   655→                      animate={{ opacity: 1 }}
+   656→                      exit={{ opacity: 0 }}
+   657→                      transition={{ duration: 0.2 }}
+   658→                    >
+   659→                      <h3 className="sr-only">Asistente de reserva en cuatro pasos</h3>
+   660→
+   661→                      {/* Encabezado de pasos */}
+   662→                      <ol aria-label="Progreso del asistente" className="mb-6 flex items-start">
+   663→                        {PASOS.map((item, indice) => {
+   664→                          const completado = pasoActual > item.numero;
+   665→                          const actual = pasoActual === item.numero;
+   666→                          return (
+   667→                            <li
+   668→                              key={item.numero}
+   669→                              className={cn("flex items-start", indice < PASOS.length - 1 && "flex-1")}
+   670→                            >
+   671→                              <div className="flex flex-col items-center gap-1.5 text-center">
+   672→                                <span
+   673→                                  aria-hidden="true"
+   674→                                  className={cn(
+   675→                                    "flex h-10 w-10 shrink-0 items-center justify-center rounded-full border text-sm font-bold transition-colors",
+   676→                                    completado && "border-transparent bg-brand-navy text-white",
+   677→                                    actual && "border-transparent bg-brand-teal-dark text-white",
+   678→                                    !completado && !actual && "border-border bg-muted text-muted-foreground",
+   679→                                  )}
+   680→                                >
+   681→                                  {completado ? <Check className="h-5 w-5" /> : item.numero}
+   682→                                </span>
+   683→                                <span
+   684→                                  aria-current={actual ? "step" : undefined}
+   685→                                  className={cn(
+   686→                                    "text-[11px] font-semibold leading-tight sm:text-xs",
+   687→                                    actual ? "text-foreground" : "text-muted-foreground",
+   688→                                  )}
+   689→                                >
+   690→                                  {item.titulo}
+   691→                                </span>
+   692→                              </div>
+   693→                              {indice < PASOS.length - 1 && (
+   694→                                <span
+   695→                                  aria-hidden="true"
+   696→                                  className="mx-2 mt-5 h-0.5 flex-1 rounded-full bg-border sm:mx-3"
+   697→                                />
+   698→                              )}
+   699→                            </li>
+   700→                          );
+   701→                        })}
+   702→                      </ol>
+   703→                      <p aria-live="polite" className="sr-only">
+   704→                        Paso {paso} de {PASOS.length}: {tituloPasoActual}
+   705→                      </p>
+   706→                      <div
+   707→                        role="progressbar"
+   708→                        aria-valuemin={1}
+   709→                        aria-valuemax={PASOS.length}
+   710→                        aria-valuenow={paso}
+   711→                        aria-label="Progreso de la reserva"
+   712→                        className="mb-8 h-1.5 overflow-hidden rounded-full bg-muted"
+   713→                      >
+   714→                        <div
+   715→                          className="h-full rounded-full bg-brand-teal transition-all duration-300"
+   716→                          style={{ width: `${(paso / PASOS.length) * 100}%` }}
+   717→                        />
+   718→                      </div>
+   719→
+   720→                      <form onSubmit={enviarReserva} noValidate>
+   721→                        <AnimatePresence mode="wait" initial={false}>
+   722→                          <motion.div
+   723→                            key={paso}
+   724→                            initial={{ opacity: 0, y: 12 }}
+   725→                            animate={{ opacity: 1, y: 0 }}
+   726→                            exit={{ opacity: 0, y: -12 }}
+   727→                            transition={{ duration: 0.22, ease: "easeOut" }}
+   728→                          >
+   729→                            {/* ══ Paso 1 · Mascota y servicio ══ */}
+   730→                            {paso === 1 && (
+   731→                              <fieldset className="space-y-6">
+   732→                                <legend className="sr-only">Paso 1: datos de tu mascota y servicio</legend>
+   733→
+   734→                                <div className="space-y-2">
+   735→                                  <Label htmlFor="petName">Nombre de tu mascota *</Label>
+   736→                                  <Input
+   737→                                    id="petName"
+   738→                                    value={form.petName}
+   739→                                    onChange={(evento) => actualizar("petName", evento.target.value)}
+   740→                                    placeholder="Ej. Rocko"
+   741→                                    required
+   742→                                    autoComplete="off"
+   743→                                    aria-invalid={Boolean(errores.petName) || undefined}
+   744→                                    aria-describedby={errores.petName ? "error-petName" : undefined}
+   745→                                    className="h-11 rounded-xl"
+   746→                                  />
+   747→                                  {errores.petName && (
+   748→                                    <p id="error-petName" className="text-sm text-destructive">
+   749→                                      {errores.petName}
+   750→                                    </p>
+   751→                                  )}
+   752→                                </div>
+   753→
+   754→                                <div className="space-y-2">
+   755→                                  <span id="etiqueta-especie" className="text-sm font-medium">
+   756→                                    Especie *
+   757→                                  </span>
+   758→                                  <div
+   759→                                    role="radiogroup"
+   760→                                    aria-labelledby="etiqueta-especie"
+   761→                                    aria-describedby={errores.species ? "error-species" : undefined}
+   762→                                    className="grid grid-cols-3 gap-2 sm:gap-3"
+   763→                                  >
+   764→                                    {OPCIONES_ESPECIE.map(({ valor, etiqueta, Icono }) => (
+   765→                                      <label
+   766→                                        key={valor}
+   767→                                        className={cn(
+   768→                                          "flex min-h-[72px] cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border bg-card p-3 text-sm font-semibold transition-all hover:border-brand-teal/60",
+   769→                                          "has-[:checked]:border-brand-teal has-[:checked]:bg-brand-teal-soft",
+   770→                                          "has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring has-[:focus-visible]:ring-offset-2",
+   771→                                        )}
+   772→                                      >
+   773→                                        <input
+   774→                                          type="radio"
+   775→                                          name="especie"
+   776→                                          value={valor}
+   777→                                          checked={form.species === valor}
+   778→                                          onChange={() => actualizar("species", valor)}
+   779→                                          className="sr-only"
+   780→                                        />
+   781→                                        <Icono className="h-5 w-5" aria-hidden="true" />
+   782→                                        <span>{etiqueta}</span>
+   783→                                      </label>
+   784→                                    ))}
+   785→                                  </div>
+   786→                                  {errores.species && (
+   787→                                    <p id="error-species" className="text-sm text-destructive">
+   788→                                      {errores.species}
+   789→                                    </p>
+   790→                                  )}
+   791→                                </div>
+   792→
+   793→                                <div className="grid gap-4 sm:grid-cols-2">
+   794→                                  <div className="space-y-2">
+   795→                                    <Label htmlFor="breed">Raza (opcional)</Label>
+   796→                                    <Input
+   797→                                      id="breed"
+   798→                                      value={form.breed}
+   799→                                      onChange={(evento) => actualizar("breed", evento.target.value)}
+   800→                                      placeholder="Ej. Golden retriever"
+   801→                                      maxLength={60}
+   802→                                      aria-invalid={Boolean(errores.breed) || undefined}
+   803→                                      aria-describedby={errores.breed ? "error-breed" : undefined}
+   804→                                      className="h-11 rounded-xl"
+   805→                                    />
+   806→                                    {errores.breed && (
+   807→                                      <p id="error-breed" className="text-sm text-destructive">
+   808→                                        {errores.breed}
+   809→                                      </p>
+   810→                                    )}
+   811→                                  </div>
+   812→                                  <div className="space-y-2">
+   813→                                    <Label htmlFor="ageYears">Edad</Label>
+   814→                                    <select
+   815→                                      id="ageYears"
+   816→                                      value={form.ageYears === null ? "" : String(form.ageYears)}
+   817→                                      onChange={(evento) =>
+   818→                                        actualizar(
+   819→                                          "ageYears",
+   820→                                          evento.target.value === "" ? null : Number(evento.target.value),
+   821→                                        )
+   822→                                      }
+   823→                                      className="h-11 w-full rounded-xl border border-input bg-card px-3 text-sm text-foreground shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]"
+   824→                                    >
+   825→                                      {OPCIONES_EDAD.map((opcion) => (
+   826→                                        <option key={opcion.valor} value={opcion.valor}>
+   827→                                          {opcion.etiqueta}
+   828→                                        </option>
+   829→                                      ))}
+   830→                                    </select>
+   831→                                  </div>
+   832→                                </div>
+   833→
+   834→                                <div className="space-y-2">
+   835→                                  <span id="etiqueta-servicio" className="text-sm font-medium">
+   836→                                    ¿Qué necesita tu mascota? *
+   837→                                  </span>
+   838→                                  <div
+   839→                                    role="radiogroup"
+   840→                                    aria-labelledby="etiqueta-servicio"
+   841→                                    aria-describedby={errores.service ? "error-service" : undefined}
+   842→                                    className="grid gap-2 md:grid-cols-2"
+   843→                                  >
+   844→                                    {services.map((servicio) => (
+   845→                                      <label
+   846→                                        key={servicio.id}
+   847→                                        className={cn(
+   848→                                          "flex cursor-pointer items-start justify-between gap-3 rounded-xl border bg-card p-4 transition-all hover:border-brand-teal/60",
+   849→                                          "has-[:checked]:border-brand-teal has-[:checked]:bg-brand-teal-soft",
+   850→                                          "has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring has-[:focus-visible]:ring-offset-2",
+   851→                                          servicioDestacado === servicio.id &&
+   852→                                            "border-brand-teal bg-brand-teal-soft ring-2 ring-brand-teal ring-offset-2 ring-offset-card",
+   853→                                        )}
+   854→                                      >
+   855→                                        <input
+   856→                                          type="radio"
+   857→                                          name="servicio"
+   858→                                          value={servicio.id}
+   859→                                          checked={form.service === servicio.id}
+   860→                                          onChange={() => actualizar("service", servicio.id)}
+   861→                                          className="sr-only"
+   862→                                        />
+   863→                                        <span className="min-w-0">
+   864→                                          <span className="block text-sm font-bold leading-snug">
+   865→                                            {servicio.label}
+   866→                                          </span>
+   867→                                          <span className="mt-1 block text-sm leading-snug text-muted-foreground">
+   868→                                            {servicio.desc}
+   869→                                          </span>
+   870→                                        </span>
+   871→                                        <span className="shrink-0 rounded-full bg-brand-sand px-2.5 py-1 text-[11px] font-bold text-brand-navy dark:bg-muted dark:text-foreground">
+   872→                                          {servicio.priceHint}
+   873→                                        </span>
+   874→                                      </label>
+   875→                                    ))}
+   876→                                  </div>
+   877→                                  {errores.service && (
+   878→                                    <p id="error-service" className="text-sm text-destructive">
+   879→                                      {errores.service}
+   880→                                    </p>
+   881→                                  )}
+   882→                                </div>
+   883→                              </fieldset>
+   884→                            )}
+   885→
+   886→                            {/* ══ Paso 2 · Profesional ══ */}
+   887→                            {paso === 2 && (
+   888→                              <fieldset className="space-y-4">
+   889→                                <legend id="etiqueta-vet" className="sr-only">
+   890→                                  Paso 2: profesional de preferencia
+   891→                                </legend>
+   892→                                <p className="text-sm text-muted-foreground">
+   893→                                  Elige con quién te gustaría atender a{" "}
+   894→                                  {form.petName.trim() || "tu mascota"}. Si no tienes preferencia, te asignamos el
+   895→                                  primer espacio disponible.
+   896→                                </p>
+   897→                                <div
+   898→                                  role="radiogroup"
+   899→                                  aria-labelledby="etiqueta-vet"
+   900→                                  className="grid gap-2 sm:grid-cols-2"
+   901→                                >
+   902→                                  {vets.map((vet) => (
+   903→                                    <label
+   904→                                      key={vet.id}
+   905→                                      className={cn(
+   906→                                        "flex cursor-pointer items-center gap-3 rounded-xl border bg-card p-4 transition-all hover:border-brand-teal/60",
+   907→                                        "has-[:checked]:border-brand-teal has-[:checked]:bg-brand-teal-soft",
+   908→                                        "has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring has-[:focus-visible]:ring-offset-2",
+   909→                                      )}
+   910→                                    >
+   911→                                      <input
+   912→                                        type="radio"
+   913→                                        name="veterinario"
+   914→                                        value={vet.id}
+   915→                                        checked={form.preferredVet === vet.id}
+   916→                                        onChange={() => actualizar("preferredVet", vet.id)}
+   917→                                        className="sr-only"
+   918→                                      />
+   919→                                      <span
+   920→                                        aria-hidden="true"
+   921→                                        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand-navy to-brand-teal text-sm font-bold text-white"
+   922→                                      >
+   923→                                        {inicialesProfesional(vet.label)}
+   924→                                      </span>
+   925→                                      <span className="min-w-0">
+   926→                                        <span className="block text-sm font-bold leading-snug">{vet.label}</span>
+   927→                                        <span className="block text-sm leading-snug text-muted-foreground">
+   928→                                          {vet.role}
+   929→                                        </span>
+   930→                                      </span>
+   931→                                    </label>
+   932→                                  ))}
+   933→                                </div>
+   934→                              </fieldset>
+   935→                            )}
+   936→
+   937→                            {/* ══ Paso 3 · Fecha y hora ══ */}
+   938→                            {paso === 3 && (
+   939→                              <fieldset className="space-y-6">
+   940→                                <legend className="sr-only">Paso 3: elige fecha y hora</legend>
+   941→
+   942→                                <div className="space-y-2">
+   943→                                  <span id="etiqueta-dias" className="text-sm font-medium">
+   944→                                    Elige el día *
+   945→                                  </span>
+   946→                                  {dias.length === 0 ? (
+   947→                                    <div className="flex gap-2 overflow-hidden" aria-hidden="true">
+   948→                                      {Array.from({ length: 8 }).map((_, indice) => (
+   949→                                        <Skeleton
+   950→                                          key={indice}
+   951→                                          className="h-[72px] w-[72px] shrink-0 rounded-xl"
+   952→                                        />
+   953→                                      ))}
+   954→                                    </div>
+   955→                                  ) : (
+   956→                                    <div
+   957→                                      role="group"
+   958→                                      aria-labelledby="etiqueta-dias"
+   959→                                      aria-describedby={errores.date ? "error-date" : undefined}
+   960→                                      className="scrollbar-fina -mx-1 flex gap-2 overflow-x-auto px-1 pb-2"
+   961→                                    >
+   962→                                      {dias.map((dia) => {
+   963→                                        const activo = form.date === dia.iso;
+   964→                                        return (
+   965→                                          <button
+   966→                                            key={dia.iso}
+   967→                                            type="button"
+   968→                                            disabled={dia.esDomingo}
+   969→                                            aria-disabled={dia.esDomingo || undefined}
+   970→                                            aria-pressed={activo}
+   971→                                            title={dia.esDomingo ? "Cerrado los domingos" : undefined}
+   972→                                            onClick={() => elegirDia(dia.iso)}
+   973→                                            className={cn(
+   974→                                              "flex h-[72px] w-[72px] shrink-0 flex-col items-center justify-center gap-0.5 rounded-xl border text-center transition-all",
+   975→                                              activo
+   976→                                                ? "border-transparent bg-brand-navy text-white shadow-sm"
+   977→                                                : dia.esDomingo
+   978→                                                  ? "cursor-not-allowed border-border bg-muted/50 text-muted-foreground opacity-40"
+   979→                                                  : "border-border bg-card hover:border-brand-teal hover:shadow-sm",
+   980→                                            )}
+   981→                                          >
+   982→                                            <span className="text-xs font-medium capitalize">{dia.weekday}</span>
+   983→                                            <span className="text-lg font-bold leading-none">{dia.diaMes}</span>
+   984→                                          </button>
+   985→                                        );
+   986→                                      })}
+   987→                                    </div>
+   988→                                  )}
+   989→                                  {errores.date && (
+   990→                                    <p id="error-date" className="text-sm text-destructive">
+   991→                                      {errores.date}
+   992→                                    </p>
+   993→                                  )}
+   994→                                </div>
+   995→
+   996→                                <div className="space-y-2">
+   997→                                  <span id="etiqueta-horas" className="text-sm font-medium">
+   998→                                    Elige la hora *
+   999→                                  </span>
+  1000→                                  {cargandoDispo ? (
+  1001→                                    <div className="space-y-3" aria-hidden="true">
+  1002→                                      <Skeleton className="h-4 w-20 rounded-full" />
+  1003→                                      <div className="grid grid-cols-4 gap-2">
+  1004→                                        {Array.from({ length: 8 }).map((_, indice) => (
+  1005→                                          <Skeleton key={`am-${indice}`} className="h-12 rounded-xl" />
+  1006→                                        ))}
+  1007→                                      </div>
+  1008→                                      <Skeleton className="h-4 w-16 rounded-full" />
+  1009→                                      <div className="grid grid-cols-4 gap-2">
+  1010→                                        {Array.from({ length: 8 }).map((_, indice) => (
+  1011→                                          <Skeleton key={`pm-${indice}`} className="h-12 rounded-xl" />
+  1012→                                        ))}
+  1013→                                      </div>
+  1014→                                    </div>
+  1015→                                  ) : errorDispo ? (
+  1016→                                    <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-destructive/40 bg-destructive/5 p-4">
+  1017→                                      <p className="text-sm text-foreground">
+  1018→                                        No pudimos cargar los horarios disponibles.
+  1019→                                      </p>
+  1020→                                      <Button
+  1021→                                        type="button"
+  1022→                                        variant="outline"
+  1023→                                        size="sm"
+  1024→                                        onClick={() => form.date && consultarDisponibilidad(form.date)}
+  1025→                                      >
+  1026→                                        Reintentar
+  1027→                                      </Button>
+  1028→                                    </div>
+  1029→                                  ) : disponibilidad?.closed ? (
+  1030→                                    <p className="flex items-center gap-2 rounded-xl border border-brand-gold/40 bg-brand-sand p-4 text-sm text-foreground dark:bg-muted">
+  1031→                                      <Info className="h-5 w-5 shrink-0 text-brand-gold" aria-hidden="true" />
+  1032→                                      No abrimos los domingos, elige otro día.
+  1033→                                    </p>
+  1034→                                  ) : disponibilidad ? (
+  1035→                                    <div className="space-y-4">
+  1036→                                      <GrupoHorarios
+  1037→                                        titulo="Mañana"
+  1038→                                        slots={morningSlots}
+  1039→                                        ocupados={disponibilidad.taken}
+  1040→                                        valor={form.timeSlot}
+  1041→                                        onSelect={(slot) => actualizar("timeSlot", slot)}
+  1042→                                      />
+  1043→                                      <GrupoHorarios
+  1044→                                        titulo="Tarde"
+  1045→                                        slots={afternoonSlots}
+  1046→                                        ocupados={disponibilidad.taken}
+  1047→                                        valor={form.timeSlot}
+  1048→                                        onSelect={(slot) => actualizar("timeSlot", slot)}
+  1049→                                      />
+  1050→                                    </div>
+  1051→                                  ) : (
+  1052→                                    <p className="rounded-xl bg-muted p-4 text-sm text-muted-foreground">
+  1053→                                      Primero elige un día para ver los horarios disponibles.
+  1054→                                    </p>
+  1055→                                  )}
+  1056→                                  {errores.timeSlot && (
+  1057→                                    <p id="error-timeSlot" className="text-sm text-destructive">
+  1058→                                      {errores.timeSlot}
+  1059→                                    </p>
+  1060→                                  )}
+  1061→                                </div>
+  1062→                              </fieldset>
+  1063→                            )}
+  1064→
+  1065→                            {/* ══ Paso 4 · Datos del tutor ══ */}
+  1066→                            {paso === 4 && (
+  1067→                              <fieldset className="space-y-5">
+  1068→                                <legend className="sr-only">Paso 4: tus datos de contacto</legend>
+  1069→
+  1070→                                <div className="grid gap-4 sm:grid-cols-2">
+  1071→                                  <div className="space-y-2">
+  1072→                                    <Label htmlFor="tutorName">Tu nombre completo *</Label>
+  1073→                                    <Input
+  1074→                                      id="tutorName"
+  1075→                                      value={form.tutorName}
+  1076→                                      onChange={(evento) => actualizar("tutorName", evento.target.value)}
+  1077→                                      placeholder="Ej. María Rodríguez"
+  1078→                                      autoComplete="name"
+  1079→                                      required
+  1080→                                      aria-invalid={Boolean(errores.tutorName) || undefined}
+  1081→                                      aria-describedby={errores.tutorName ? "error-tutorName" : undefined}
+  1082→                                      className="h-11 rounded-xl"
+  1083→                                    />
+  1084→                                    {errores.tutorName && (
+  1085→                                      <p id="error-tutorName" className="text-sm text-destructive">
+  1086→                                        {errores.tutorName}
+  1087→                                      </p>
+  1088→                                    )}
+  1089→                                  </div>
+  1090→                                  <div className="space-y-2">
+  1091→                                    <Label htmlFor="email">Correo electrónico *</Label>
+  1092→                                    <Input
+  1093→                                      id="email"
+  1094→                                      type="email"
+  1095→                                      value={form.email}
+  1096→                                      onChange={(evento) => actualizar("email", evento.target.value)}
+  1097→                                      placeholder="maria@ejemplo.cr"
+  1098→                                      autoComplete="email"
+  1099→                                      required
+  1100→                                      aria-invalid={Boolean(errores.email) || undefined}
+  1101→                                      aria-describedby={errores.email ? "error-email" : undefined}
+  1102→                                      className="h-11 rounded-xl"
+  1103→                                    />
+  1104→                                    {errores.email && (
+  1105→                                      <p id="error-email" className="text-sm text-destructive">
+  1106→                                        {errores.email}
+  1107→                                      </p>
+  1108→                                    )}
+  1109→                                  </div>
+  1110→                                </div>
+  1111→
+  1112→                                <div className="space-y-2">
+  1113→                                  <Label htmlFor="phone">Teléfono *</Label>
+  1114→                                  <Input
+  1115→                                    id="phone"
+  1116→                                    type="tel"
+  1117→                                    inputMode="tel"
+  1118→                                    value={form.phone}
+  1119→                                    onChange={(evento) => actualizar("phone", evento.target.value)}
+  1120→                                    placeholder="8888-0000"
+  1121→                                    autoComplete="tel"
+  1122→                                    required
+  1123→                                    aria-invalid={Boolean(errores.phone) || undefined}
+  1124→                                    aria-describedby={errores.phone ? "error-phone" : undefined}
+  1125→                                    className="h-11 rounded-xl"
+  1126→                                  />
+  1127→                                  {errores.phone && (
+  1128→                                    <p id="error-phone" className="text-sm text-destructive">
+  1129→                                      {errores.phone}
+  1130→                                    </p>
+  1131→                                  )}
+  1132→                                </div>
+  1133→
+  1134→                                <div className="space-y-2">
+  1135→                                  <Label htmlFor="notes">Notas para el equipo (opcional)</Label>
+  1136→                                  <Textarea
+  1137→                                    id="notes"
+  1138→                                    value={form.notes}
+  1139→                                    onChange={(evento) => actualizar("notes", evento.target.value)}
+  1140→                                    rows={4}
+  1141→                                    maxLength={500}
+  1142→                                    placeholder="Cuéntanos síntomas, dificultades de movilidad o si tu mascota se pone nerviosa en las consultas…"
+  1143→                                    aria-describedby={errores.notes ? "error-notes contador-notes" : "contador-notes"}
+  1144→                                    className="rounded-xl"
+  1145→                                  />
+  1146→                                  <p id="contador-notes" className="text-xs text-muted-foreground">
+  1147→                                    {form.notes.length}/500 caracteres
+  1148→                                  </p>
+  1149→                                  {errores.notes && (
+  1150→                                    <p id="error-notes" className="text-sm text-destructive">
+  1151→                                      {errores.notes}
+  1152→                                    </p>
+  1153→                                  )}
+  1154→                                </div>
+  1155→
+  1156→                                <div className="space-y-1.5">
+  1157→                                  <div className="flex items-start gap-3">
+  1158→                                    <Checkbox
+  1159→                                      id="consent"
+  1160→                                      checked={form.consent}
+  1161→                                      onCheckedChange={(marcado) => actualizar("consent", marcado === true)}
+  1162→                                      aria-invalid={Boolean(errores.consent) || undefined}
+  1163→                                      aria-describedby={errores.consent ? "error-consent" : undefined}
+  1164→                                      className="mt-0.5 size-5"
+  1165→                                    />
+  1166→                                    <Label htmlFor="consent" className="text-sm font-normal leading-snug">
+  1167→                                      Acepto ser contactado por LONGIVET para coordinar esta cita *
+  1168→                                    </Label>
+  1169→                                  </div>
+  1170→                                  {errores.consent && (
+  1171→                                    <p id="error-consent" className="text-sm text-destructive">
+  1172→                                      {errores.consent}
+  1173→                                    </p>
+  1174→                                  )}
+  1175→                                </div>
+  1176→
+  1177→                                {/* Resumen de la cita */}
+  1178→                                <dl className="rounded-2xl bg-brand-sand p-4 text-sm dark:bg-muted">
+  1179→                                  <h4 className="mb-2 text-sm font-bold text-foreground">Resumen de tu cita</h4>
+  1180→                                  <div className="space-y-1.5">
+  1181→                                    <FilaResumen
+  1182→                                      termino="Mascota"
+  1183→                                      valor={
+  1184→                                        `${form.petName.trim()}${form.breed.trim() ? ` · ${form.breed.trim()}` : ""}` ||
+  1185→                                        "—"
+  1186→                                      }
+  1187→                                    />
+  1188→                                    <FilaResumen termino="Servicio" valor={servicioElegido?.label ?? "—"} />
+  1189→                                    <FilaResumen termino="Profesional" valor={profesionalElegido?.label ?? "—"} />
+  1190→                                    <FilaResumen
+  1191→                                      termino="Fecha"
+  1192→                                      valor={form.date ? formatFechaLarga(form.date) : "—"}
+  1193→                                    />
+  1194→                                    <FilaResumen termino="Hora" valor={form.timeSlot ? `${form.timeSlot} h` : "—"} />
+  1195→                                  </div>
+  1196→                                </dl>
+  1197→
+  1198→                                <Button
+  1199→                                  type="submit"
+  1200→                                  disabled={enviando}
+  1201→                                  className="h-12 w-full rounded-xl bg-brand-teal-dark text-base font-bold text-white hover:bg-brand-teal"
+  1202→                                >
+  1203→                                  {enviando ? (
+  1204→                                    <>
+  1205→                                      <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
+  1206→                                      Confirmando…
+  1207→                                    </>
+  1208→                                  ) : (
+  1209→                                    <>
+  1210→                                      <CalendarCheck className="h-5 w-5" aria-hidden="true" />
+  1211→                                      Confirmar reserva
+  1212→                                    </>
+  1213→                                  )}
+  1214→                                </Button>
+  1215→                              </fieldset>
+  1216→                            )}
+  1217→                          </motion.div>
+  1218→                        </AnimatePresence>
+  1219→
+  1220→                        {/* Navegación */}
+  1221→                        <div className="mt-8 flex items-center justify-between gap-3">
+  1222→                          <Button
+  1223→                            type="button"
+  1224→                            variant="outline"
+  1225→                            onClick={retroceder}
+  1226→                            disabled={paso === 1 || enviando}
+  1227→                            aria-label="Volver al paso anterior"
+  1228→                            className="h-11 rounded-xl"
+  1229→                          >
+  1230→                            <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+  1231→                            Atrás
+  1232→                          </Button>
+  1233→                          {paso < PASOS.length ? (
+  1234→                            <Button type="button" onClick={avanzar} className="h-11 rounded-xl">
+  1235→                              Continuar
+  1236→                              <ChevronRight className="h-4 w-4" aria-hidden="true" />
+  1237→                            </Button>
+  1238→                          ) : (
+  1239→                            <p className="text-sm text-muted-foreground">Último paso: confirma tu reserva.</p>
+  1240→                          )}
+  1241→                        </div>
+  1242→                      </form>
+  1243→                    </motion.div>
+  1244→                  )}
+  1245→                </AnimatePresence>
+  1246→              </div>
+  1247→            </div>
+  1248→          </div>
+  1249→        </div>
+  1250→      </section>
+  1251→    </MotionConfig>
+  1252→  );
+  1253→}
+  1254→

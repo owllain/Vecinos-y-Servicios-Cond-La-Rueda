@@ -55,7 +55,7 @@ export function MobileStickyBar() {
         <a
           href="#agendar"
           aria-label="Agendar una cita"
-          className="m-1.5 flex min-h-14 flex-col items-center justify-center gap-1 rounded-2xl bg-secondary px-1 text-white shadow-sm transition-colors hover:bg-brand-teal-dark"
+          className="m-1.5 flex min-h-14 flex-col items-center justify-center gap-1 rounded-2xl bg-brand-teal-dark px-1 text-white shadow-sm transition-colors hover:bg-brand-teal"
         >
           <CalendarCheck aria-hidden="true" className="size-5" />
           <span className="text-[11px] font-bold leading-none">Agendar</span>

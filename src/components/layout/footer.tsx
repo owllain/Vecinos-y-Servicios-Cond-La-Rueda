@@ -14,6 +14,7 @@ import {
 
 import { Logo, LogoMark } from "@/components/brand/logo";
 import { WhatsappIcon } from "@/components/layout/mobile-sticky-bar";
+import { OpenNowBadge } from "@/components/sections/open-now-badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
@@ -229,7 +230,12 @@ export function Footer() {
             </li>
           </ul>
 
-          <h3 className={`${tituloColumna} mt-8`}>Horarios</h3>
+          <div className="mt-8 flex flex-wrap items-center justify-between gap-2">
+            <h3 className={tituloColumna}>Horarios</h3>
+            {/* Fondo blanco translúcido: sobre el navy del pie garantiza AA
+                para el texto del badge en cualquiera de sus 3 estados. */}
+            <OpenNowBadge className="border-white/30 bg-white/10 text-white" />
+          </div>
           <ul className="mt-4 space-y-2 text-[15px]">
             {site.hours.map((horario) => (
               <li key={horario.days} className="flex items-start gap-3">

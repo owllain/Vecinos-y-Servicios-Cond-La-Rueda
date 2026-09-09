@@ -76,7 +76,7 @@ export function BackToTop() {
           }
           aria-label="Volver arriba"
           title="Volver arriba"
-          className="fixed bottom-[5.5rem] right-4 z-40 inline-flex size-11 items-center justify-center rounded-full border border-border bg-card/90 text-brand-navy shadow-lg backdrop-blur transition-colors hover:border-brand-teal hover:text-brand-teal-dark md:bottom-6 md:right-6 dark:text-foreground"
+          className="fixed bottom-[5.5rem] right-4 z-40 inline-flex size-11 items-center justify-center rounded-full border border-border bg-card/90 text-brand-navy shadow-lg backdrop-blur transition-colors hover:border-brand-teal hover:text-brand-teal-dark md:bottom-24 md:right-6 dark:text-foreground"
         >
           <ArrowUp aria-hidden="true" className="size-5" />
         </motion.button>

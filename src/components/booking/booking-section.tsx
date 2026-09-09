@@ -13,10 +13,12 @@ import {
   BadgeCheck,
   CalendarCheck,
   CalendarClock,
+  CalendarPlus,
   Cat,
   Check,
   ChevronLeft,
   ChevronRight,
+  Copy,
   Dog,
   Info,
   Loader2,
@@ -30,10 +32,13 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Toaster as ToasterSonner } from "@/components/ui/sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
+import { AppointmentLookup } from "@/components/booking/appointment-lookup";
 import {
   afternoonSlots,
+  EVENTO_PRESELECCION_SERVICIO,
   formatFechaLarga,
   morningSlots,
   services,
@@ -95,6 +100,55 @@ interface DiaOption {
   esDomingo: boolean;
 }
 
+/* Descarga un archivo .ics (Apple/Google/Outlook) con la cita.
+   Costa Rica usa UTC-6 todo el año (sin horario de verano). */
+function descargarIcs(cita: Confirmacion) {
+  const [anio, mes, dia] = cita.date.split("-").map(Number);
+  const [hora, minuto] = cita.timeSlot.split(":").map(Number);
+  const inicioUtc = new Date(Date.UTC(anio, mes - 1, dia, hora + 6, minuto));
+  const finUtc = new Date(inicioUtc.getTime() + 45 * 60 * 1000);
+  const formatoUtc = (fecha: Date) => fecha.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+
+  const servicio = services.find((s) => s.id === cita.service)?.label ?? cita.service;
+  const ics = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//LONGIVET//Citas Veterinarias//ES",
+    "CALSCALE:GREGORIAN",
+    "METHOD:PUBLISH",
+    "BEGIN:VEVENT",
+    `UID:${cita.code}@longivet.cr`,
+    `DTSTAMP:${formatoUtc(new Date())}`,
+    `DTSTART:${formatoUtc(inicioUtc)}`,
+    `DTEND:${formatoUtc(finUtc)}`,
+    `SUMMARY:Cita veterinaria — ${cita.petName} · LONGIVET`,
+    `DESCRIPTION:Servicio: ${servicio}. Código de confirmación: ${cita.code}. Te esperamos 10 minutos antes.`,
+    `LOCATION:${site.addressFull}, Costa Rica`,
+    "BEGIN:VALARM",
+    "TRIGGER:-PT24H",
+    "ACTION:DISPLAY",
+    "DESCRIPTION:Recordatorio: cita mañana en LONGIVET",
+    "END:VALARM",
+    "BEGIN:VALARM",
+    "TRIGGER:-PT2H",
+    "ACTION:DISPLAY",
+    "DESCRIPTION:Recordatorio: cita en 2 horas en LONGIVET",
+    "END:VALARM",
+    "END:VEVENT",
+    "END:VCALENDAR",
+  ].join("\r\n");
+
+  const blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const enlace = document.createElement("a");
+  enlace.href = url;
+  enlace.download = `cita-longivet-${cita.code}.ics`;
+  document.body.appendChild(enlace);
+  enlace.click();
+  enlace.remove();
+  URL.revokeObjectURL(url);
+}
+
 const PASOS = [
   { numero: 1, titulo: "Mascota" },
   { numero: 2, titulo: "Profesional" },
@@ -137,6 +191,7 @@ const DESPUES_DE_RESERVAR = [
 ] as const;
 
 const DIAS_HORIZONTE = 21;
+const DURACION_DESTELLO_MS = 2200;
 
 /* ── Helpers puros ── */
 
@@ -219,7 +274,7 @@ function GrupoHorarios({
                 ocupado
                   ? "cursor-not-allowed border-border bg-muted/50 text-muted-foreground line-through opacity-40"
                   : activo
-                    ? "border-transparent bg-brand-teal text-white shadow-sm"
+                    ? "border-transparent bg-brand-teal-dark text-white shadow-sm"
                     : "border-border bg-card hover:border-brand-teal hover:shadow-sm",
               )}
             >
@@ -244,6 +299,8 @@ export default function BookingSection() {
   const [errorDispo, setErrorDispo] = useState(false);
   const [enviando, setEnviando] = useState(false);
   const [confirmacion, setConfirmacion] = useState<Confirmacion | null>(null);
+  const [codigoCopiado, setCodigoCopiado] = useState(false);
+  const [servicioDestacado, setServicioDestacado] = useState<string | null>(null);
   const tarjetaRef = useRef<HTMLDivElement>(null);
 
   /* Actualiza un campo y limpia su error asociado. */
@@ -266,6 +323,40 @@ export default function BookingSection() {
   useEffect(() => {
     tarjetaRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }, [paso, confirmacion]);
+
+  /* Preselección de servicio desde las tarjetas de #servicios:
+     el enlace «Agendar» dispara un CustomEvent global; aquí lo recibimos,
+     volvemos al paso 1, precargamos el servicio y avisamos con un toast.
+     Los setters de React son estables, así que el listener se registra una
+     sola vez (el scroll al ancla lo hace el navegador de forma nativa). */
+  useEffect(() => {
+    const preseleccionar = (evento: Event) => {
+      const detail = (evento as CustomEvent<{ serviceId?: unknown }>).detail;
+      const serviceId = typeof detail?.serviceId === "string" ? detail.serviceId : "";
+      const servicio = services.find((s) => s.id === serviceId);
+      if (!servicio) return; // id desconocido: se ignora el evento
+
+      setConfirmacion(null); // si había una confirmación en pantalla, volver al asistente
+      setPaso(1);
+      setErrores({});
+      setForm((prev) => ({ ...prev, service: servicio.id }));
+      setServicioDestacado(servicio.id);
+      toast.success(`Servicio seleccionado: ${servicio.label} — continúa con tu reserva`, {
+        description: "Revisa los datos de tu mascota y elige el día de tu cita.",
+      });
+    };
+
+    window.addEventListener(EVENTO_PRESELECCION_SERVICIO, preseleccionar);
+    return () =>
+      window.removeEventListener(EVENTO_PRESELECCION_SERVICIO, preseleccionar);
+  }, []);
+
+  /* El resaltado del servicio preseleccionado dura ~2 s. */
+  useEffect(() => {
+    if (!servicioDestacado) return;
+    const temporizador = setTimeout(() => setServicioDestacado(null), DURACION_DESTELLO_MS);
+    return () => clearTimeout(temporizador);
+  }, [servicioDestacado]);
 
   const consultarDisponibilidad = useCallback(async (fecha: string) => {
     setCargandoDispo(true);
@@ -428,7 +519,41 @@ export default function BookingSection() {
     setErrorDispo(false);
     setCargandoDispo(false);
     setConfirmacion(null);
+    setCodigoCopiado(false);
   };
+
+  /* Copia el código de confirmación al portapapeles (con fallback heredado
+     para navegadores/ contextos sin Clipboard API). */
+  const copiarCodigo = useCallback(async () => {
+    if (!confirmacion) return;
+    const codigo = confirmacion.code;
+    try {
+      await navigator.clipboard.writeText(codigo);
+      setCodigoCopiado(true);
+      toast.success("Código copiado al portapapeles");
+      setTimeout(() => setCodigoCopiado(false), 2400);
+      return;
+    } catch {
+      /* Clipboard API bloqueada: se intenta el método heredado. */
+    }
+    try {
+      const area = document.createElement("textarea");
+      area.value = codigo;
+      area.setAttribute("readonly", "");
+      area.style.position = "fixed";
+      area.style.opacity = "0";
+      document.body.appendChild(area);
+      area.select();
+      const ok = document.execCommand("copy");
+      area.remove();
+      if (!ok) throw new Error("execCommand falló");
+      setCodigoCopiado(true);
+      toast.success("Código copiado al portapapeles");
+      setTimeout(() => setCodigoCopiado(false), 2400);
+    } catch {
+      toast.error("No pudimos copiar el código. Anótalo manualmente, por favor.");
+    }
+  }, [confirmacion]);
 
   const servicioElegido = services.find((servicio) => servicio.id === form.service);
   const profesionalElegido = vets.find((vet) => vet.id === form.preferredVet);
@@ -446,6 +571,9 @@ export default function BookingSection() {
 
   return (
     <MotionConfig reducedMotion="user">
+      {/* Sonner: montado aquí porque el layout solo monta el Toaster de radix;
+          así los toasts de sonner (preselección, 409, éxito) sí se ven. */}
+      <ToasterSonner position="top-center" closeButton />
       <section id="agendar" aria-labelledby="titulo-agendar" className="bg-background py-20 lg:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           {/* Encabezado de la sección */}
@@ -469,7 +597,7 @@ export default function BookingSection() {
             {/* ── Panel informativo (sticky) ── */}
             <div className="lg:col-span-2">
               <div className="space-y-4 lg:sticky lg:top-24">
-                <div className="rounded-3xl bg-primary p-8 text-primary-foreground">
+                <div className="rounded-3xl bg-primary p-8 text-primary-foreground dark:bg-brand-navy">
                   <h3 className="text-xl font-bold tracking-tight">Qué pasa después de reservar</h3>
                   <ul className="mt-6 space-y-5">
                     {DESPUES_DE_RESERVAR.map((item) => (
@@ -571,9 +699,35 @@ export default function BookingSection() {
                         Guarda tu código de confirmación:
                       </p>
 
-                      <p className="mt-5 rounded-xl bg-brand-navy px-6 py-3 font-mono text-2xl font-bold tracking-widest text-white">
-                        {confirmacion.code}
-                      </p>
+                      {/* Ticket del código: perforaciones laterales + copiar */}
+                      <div className="relative mt-5 flex items-center justify-between gap-3 rounded-2xl border-2 border-dashed border-brand-gold/70 bg-brand-navy py-3 pl-7 pr-3 shadow-sm">
+                        <span
+                          aria-hidden="true"
+                          className="absolute -left-3 top-1/2 h-6 w-6 -translate-y-1/2 rounded-full border border-brand-gold/40 bg-card"
+                        />
+                        <span
+                          aria-hidden="true"
+                          className="absolute -right-3 top-1/2 h-6 w-6 -translate-y-1/2 rounded-full border border-brand-gold/40 bg-card"
+                        />
+                        <p
+                          className="font-mono text-2xl font-bold tracking-[0.22em] text-white sm:text-3xl"
+                          aria-label={`Código de confirmación ${confirmacion.code.split("").join(" ")}`}
+                        >
+                          {confirmacion.code}
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => void copiarCodigo()}
+                          aria-label={`Copiar el código de confirmación ${confirmacion.code}`}
+                          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/10 text-white transition-colors hover:bg-white/25 focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-brand-gold"
+                        >
+                          {codigoCopiado ? (
+                            <Check className="h-5 w-5 text-brand-emerald" aria-hidden="true" />
+                          ) : (
+                            <Copy className="h-5 w-5" aria-hidden="true" />
+                          )}
+                        </button>
+                      </div>
                       <p className="mt-2 text-xs font-bold uppercase tracking-wide text-muted-foreground">
                         Preséntalo al llegar a la clínica
                       </p>
@@ -594,17 +748,30 @@ export default function BookingSection() {
                       <div className="mt-6 flex w-full max-w-sm flex-col gap-2 sm:flex-row">
                         <Button
                           asChild
-                          className="h-11 flex-1 rounded-xl bg-brand-teal font-bold text-white hover:bg-brand-teal-dark"
+                          className="h-11 flex-1 rounded-xl bg-brand-teal-dark font-bold text-white hover:bg-brand-teal"
                         >
                           <a href={waConfirmHref} target="_blank" rel="noopener noreferrer">
                             <MessageCircle className="h-4 w-4" aria-hidden="true" />
                             Confirmar por WhatsApp
                           </a>
                         </Button>
-                        <Button variant="outline" onClick={reiniciar} className="h-11 flex-1 rounded-xl">
-                          Agendar otra cita
+                        <Button
+                          variant="outline"
+                          onClick={() => descargarIcs(confirmacion)}
+                          className="h-11 flex-1 rounded-xl border-brand-navy/30 font-bold text-brand-navy hover:bg-brand-navy/5 hover:text-brand-navy dark:border-white/25 dark:text-brand-teal-soft dark:hover:bg-white/10 dark:hover:text-brand-teal-soft"
+                        >
+                          <CalendarPlus className="h-4 w-4" aria-hidden="true" />
+                          Añadir al calendario
+                          <span className="sr-only">: descarga un archivo para tu agenda con recordatorios</span>
                         </Button>
                       </div>
+                      <Button
+                        variant="ghost"
+                        onClick={reiniciar}
+                        className="mt-2 h-10 rounded-xl text-muted-foreground hover:text-foreground"
+                      >
+                        Agendar otra cita
+                      </Button>
                     </motion.div>
                   ) : (
                     /* ══ Asistente de 4 pasos ══ */
@@ -633,7 +800,7 @@ export default function BookingSection() {
                                   className={cn(
                                     "flex h-10 w-10 shrink-0 items-center justify-center rounded-full border text-sm font-bold transition-colors",
                                     completado && "border-transparent bg-brand-navy text-white",
-                                    actual && "border-transparent bg-brand-teal text-white",
+                                    actual && "border-transparent bg-brand-teal-dark text-white",
                                     !completado && !actual && "border-border bg-muted text-muted-foreground",
                                   )}
                                 >
@@ -807,6 +974,8 @@ export default function BookingSection() {
                                           "flex cursor-pointer items-start justify-between gap-3 rounded-xl border bg-card p-4 transition-all hover:border-brand-teal/60",
                                           "has-[:checked]:border-brand-teal has-[:checked]:bg-brand-teal-soft",
                                           "has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring has-[:focus-visible]:ring-offset-2",
+                                          servicioDestacado === servicio.id &&
+                                            "border-brand-teal bg-brand-teal-soft ring-2 ring-brand-teal ring-offset-2 ring-offset-card",
                                         )}
                                       >
                                         <input
@@ -1155,7 +1324,7 @@ export default function BookingSection() {
                                 <Button
                                   type="submit"
                                   disabled={enviando}
-                                  className="h-12 w-full rounded-xl bg-brand-teal text-base font-bold text-white hover:bg-brand-teal-dark"
+                                  className="h-12 w-full rounded-xl bg-brand-teal-dark text-base font-bold text-white hover:bg-brand-teal"
                                 >
                                   {enviando ? (
                                     <>
@@ -1201,6 +1370,9 @@ export default function BookingSection() {
                   )}
                 </AnimatePresence>
               </div>
+
+              {/* ── Consulta / cancelación de una cita existente por código ── */}
+              <AppointmentLookup />
             </div>
           </div>
         </div>

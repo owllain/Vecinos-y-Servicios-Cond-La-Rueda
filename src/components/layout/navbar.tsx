@@ -109,7 +109,7 @@ export function Navbar() {
           <ThemeToggle />
           <a
             href="#agendar"
-            className="inline-flex h-11 items-center gap-2 rounded-full bg-secondary px-5 text-sm font-bold text-secondary-foreground shadow-sm transition-colors hover:bg-brand-teal-dark"
+            className="inline-flex h-11 items-center gap-2 rounded-full bg-brand-teal-dark px-5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-brand-teal"
           >
             <CalendarCheck aria-hidden="true" className="size-5" />
             Agendar cita
@@ -187,7 +187,7 @@ export function Navbar() {
               <SheetClose asChild>
                 <a
                   href="#agendar"
-                  className="flex h-12 items-center justify-center gap-2 rounded-full bg-secondary text-base font-bold text-secondary-foreground transition-colors hover:bg-brand-teal-dark"
+                  className="flex h-12 items-center justify-center gap-2 rounded-full bg-brand-teal-dark text-base font-bold text-white transition-colors hover:bg-brand-teal"
                 >
                   <CalendarCheck aria-hidden="true" className="size-5" />
                   Agendar cita

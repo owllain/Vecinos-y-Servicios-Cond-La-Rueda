@@ -1,3 +1,5 @@
+"use client";
+
 import {
   ArrowRight,
   Bone,
@@ -11,6 +13,23 @@ import {
   Syringe,
 } from "lucide-react";
 import { Reveal } from "@/components/sections/reveal";
+import {
+  EVENTO_PRESELECCION_SERVICIO,
+  servicioReservableDeCatalogo,
+} from "@/lib/booking";
+
+/**
+ * Preselecciona el servicio en el asistente de reserva (#agendar).
+ * El ancla «#agendar» mantiene la semántica de enlace (navegación y teclado);
+ * el scroll suave lo aporta `scroll-behavior: smooth` de globals.css.
+ */
+function preseleccionarServicio(serviceId: string) {
+  window.dispatchEvent(
+    new CustomEvent(EVENTO_PRESELECCION_SERVICIO, {
+      detail: { serviceId },
+    }),
+  );
+}
 
 const servicios = [
   {
@@ -78,43 +97,51 @@ export function Services() {
         </Reveal>
 
         <ul className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {servicios.map((s, i) => (
-            <Reveal as="li" key={s.titulo} delay={(i % 4) * 0.07}>
-              <article
-                className={
-                  s.destacado
-                    ? "group relative flex h-full flex-col rounded-3xl border-2 border-brand-teal bg-card p-6 shadow-lg shadow-brand-teal/10 transition hover:-translate-y-1 hover:shadow-xl"
-                    : "group relative flex h-full flex-col rounded-3xl border bg-card p-6 transition hover:-translate-y-1 hover:border-brand-teal/50 hover:shadow-lg"
-                }
-              >
-                {s.destacado && (
-                  <span className="absolute -top-3 left-6 rounded-full bg-brand-teal px-3 py-1 text-[11px] font-bold tracking-wide text-white uppercase">
-                    Nuestra especialidad
-                  </span>
-                )}
-                <span className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-teal-soft transition group-hover:scale-105">
-                  <s.icon className="h-6 w-6 text-brand-teal-dark" aria-hidden />
-                </span>
-                <h3 className="text-lg font-bold text-brand-navy dark:text-foreground">
-                  {s.titulo}
-                </h3>
-                <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">
-                  {s.desc}
-                </p>
-                <a
-                  href="#agendar"
-                  className="mt-4 inline-flex items-center gap-1.5 text-sm font-bold text-brand-teal-dark focus-visible:outline-2 dark:text-brand-teal"
-                  aria-label={`Agendar ${s.titulo.toLowerCase()}`}
+          {servicios.map((s, i) => {
+            const servicioId = servicioReservableDeCatalogo(s.titulo);
+            return (
+              <Reveal as="li" key={s.titulo} delay={(i % 4) * 0.07}>
+                <article
+                  className={
+                    s.destacado
+                      ? "group relative flex h-full flex-col rounded-3xl border-2 border-brand-teal bg-card p-6 shadow-lg shadow-brand-teal/10 transition hover:-translate-y-1 hover:shadow-xl"
+                      : "group relative flex h-full flex-col rounded-3xl border bg-card p-6 transition hover:-translate-y-1 hover:border-brand-teal/50 hover:shadow-lg"
+                  }
                 >
-                  Agendar
-                  <ArrowRight
-                    className="h-4 w-4 transition-transform group-hover:translate-x-1"
-                    aria-hidden
-                  />
-                </a>
-              </article>
-            </Reveal>
-          ))}
+                  {s.destacado && (
+                    <span className="absolute -top-3 left-6 rounded-full bg-brand-teal-dark px-3 py-1 text-[11px] font-bold tracking-wide text-white uppercase">
+                      Nuestra especialidad
+                    </span>
+                  )}
+                  <span className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-teal-soft transition group-hover:scale-105">
+                    <s.icon className="h-6 w-6 text-brand-teal-dark" aria-hidden />
+                  </span>
+                  <h3 className="text-lg font-bold text-brand-navy dark:text-foreground">
+                    {s.titulo}
+                  </h3>
+                  <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">
+                    {s.desc}
+                  </p>
+                  <a
+                    href="#agendar"
+                    onClick={
+                      servicioId
+                        ? () => preseleccionarServicio(servicioId)
+                        : undefined
+                    }
+                    className="mt-4 inline-flex min-h-[44px] items-center gap-1.5 text-sm font-bold text-brand-teal-dark focus-visible:outline-2 dark:text-brand-teal"
+                    aria-label={`Agendar ${s.titulo.toLowerCase()} y continuar con la reserva`}
+                  >
+                    Agendar
+                    <ArrowRight
+                      className="h-4 w-4 transition-transform group-hover:translate-x-1"
+                      aria-hidden
+                    />
+                  </a>
+                </article>
+              </Reveal>
+            );
+          })}
         </ul>
       </div>
     </section>

@@ -61,7 +61,7 @@ export function StatsStrip() {
   return (
     <section
       aria-label="Indicadores de confianza de LONGIVET"
-      className="relative overflow-hidden bg-primary"
+      className="relative overflow-hidden bg-primary dark:bg-brand-navy"
     >
       {/* Texto accesible equivalente para lectores de pantalla */}
       <ul className="sr-only">

@@ -146,7 +146,7 @@ export function SeniorProgram() {
               <div
                 className={
                     p.destacado
-                      ? "relative flex h-full flex-col rounded-3xl bg-primary p-7 text-white shadow-2xl ring-2 ring-brand-teal"
+                      ? "relative flex h-full flex-col rounded-3xl bg-primary p-7 text-white shadow-2xl ring-2 ring-brand-teal dark:bg-brand-navy"
                       : "relative flex h-full flex-col rounded-3xl bg-card p-7 ring-1 ring-border transition hover:shadow-lg"
                   }
                 >
@@ -205,7 +205,7 @@ export function SeniorProgram() {
                     className={
                       p.destacado
                         ? "mt-7 inline-flex h-12 items-center justify-center gap-2 rounded-full bg-brand-gold text-sm font-extrabold text-brand-navy transition hover:brightness-105 focus-visible:outline-2"
-                        : "mt-7 inline-flex h-12 items-center justify-center gap-2 rounded-full border-2 border-brand-teal text-sm font-extrabold text-brand-teal-dark transition hover:bg-brand-teal hover:text-white focus-visible:outline-2 dark:text-brand-teal"
+                        : "mt-7 inline-flex h-12 items-center justify-center gap-2 rounded-full border-2 border-brand-teal text-sm font-extrabold text-brand-teal-dark transition hover:bg-brand-teal-dark hover:text-white focus-visible:outline-2 dark:text-brand-teal dark:hover:text-white"
                     }
                     aria-label={`Empezar con el plan ${p.nombre}`}
                   >

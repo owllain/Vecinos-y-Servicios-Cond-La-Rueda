@@ -9,6 +9,10 @@
    - Barra de progreso por slide (estilo zoomies mejorado):
      se congela al pausar y retoma el tiempo restante
    - Swipe táctil, teclado (←/→/Inicio/Fin), aria-live, skeleton
+   - Lightbox a pantalla completa (portal a document.body):
+     se abre con click/tap sobre la imagen o el botón «Ampliar imagen»;
+     Esc cierra, ←/→ navegan, foco atrapado, scroll del body bloqueado
+     y el autoplay se pausa mientras esté abierto
    ───────────────────────────────────────────────────────────── */
 
 import Image from "next/image";
@@ -19,9 +23,18 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
+import { createPortal } from "react-dom";
 import type { PanInfo, Variants } from "framer-motion";
 import { AnimatePresence, motion, useAnimationControls } from "framer-motion";
-import { ChevronLeft, ChevronRight, PawPrint, Pause, Play } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Maximize2,
+  PawPrint,
+  Pause,
+  Play,
+  X,
+} from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { gallerySlides } from "@/data/gallery";
@@ -70,6 +83,16 @@ export default function ShowcaseGallery() {
   const [focusPaused, setFocusPaused] = useState(false);
   const [pageHidden, setPageHidden] = useState(false);
 
+  // Lightbox a pantalla completa (se renderiza vía portal a document.body;
+  // en SSR la condición typeof document devuelve null → sin desajustes).
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const expandButtonRef = useRef<HTMLButtonElement | null>(null);
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
+  const dialogRef = useRef<HTMLDivElement | null>(null);
+  // Distingue un swipe real del click sintetizado por algunos navegadores
+  // inmediatamente después de arrastrar.
+  const draggingRef = useRef(false);
+
   // Carga de imágenes por slide (skeleton) y refs para medidas.
   const [loadedSlides, setLoadedSlides] = useState<ReadonlySet<number>>(
     () => new Set<number>()
@@ -82,7 +105,11 @@ export default function ShowcaseGallery() {
   const autoplayWanted =
     autoplayMode === "on" || (autoplayMode === "default" && !reducedMotion);
   const autoplayOn =
-    autoplayWanted && !pointerPaused && !focusPaused && !pageHidden;
+    autoplayWanted &&
+    !pointerPaused &&
+    !focusPaused &&
+    !pageHidden &&
+    !lightboxOpen;
 
   /* ── Visibilidad de pestaña ── */
   useEffect(() => {
@@ -184,7 +211,96 @@ export default function ShowcaseGallery() {
   const handleDragEnd = (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     if (info.offset.x < -SWIPE_THRESHOLD) goNext();
     else if (info.offset.x > SWIPE_THRESHOLD) goPrev();
+    // Libera la bandera después del click sintetizado posterior al drag.
+    window.setTimeout(() => {
+      draggingRef.current = false;
+    }, 80);
   };
+
+  const handleDragStart = () => {
+    draggingRef.current = true;
+  };
+
+  /* ── Lightbox ── */
+  const openLightbox = useCallback(() => setLightboxOpen(true), []);
+
+  const closeLightbox = useCallback(() => {
+    setLightboxOpen(false);
+    // Devolver el foco al botón que abrió el lightbox.
+    expandButtonRef.current?.focus();
+  }, []);
+
+  const handleSlideActivate = () => {
+    if (draggingRef.current) return;
+    openLightbox();
+  };
+
+  // Swipe en el lightbox: vertical cierra, horizontal navega.
+  const handleLightboxDragEnd = (
+    _event: MouseEvent | TouchEvent | PointerEvent,
+    info: PanInfo
+  ) => {
+    if (Math.abs(info.offset.y) > 96) {
+      closeLightbox();
+      return;
+    }
+    if (info.offset.x < -SWIPE_THRESHOLD) goNext();
+    else if (info.offset.x > SWIPE_THRESHOLD) goPrev();
+  };
+
+  // Focus trap simple: Tab cicla entre los botones del lightbox.
+  const handleDialogKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key !== "Tab" || !dialogRef.current) return;
+    const focusables = dialogRef.current.querySelectorAll<HTMLElement>(
+      "button:not([disabled])"
+    );
+    if (focusables.length === 0) return;
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+    const current = document.activeElement;
+    const outside = !dialogRef.current.contains(current);
+    if (event.shiftKey && (current === first || outside)) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && (current === last || outside)) {
+      event.preventDefault();
+      first.focus();
+    }
+  };
+
+  /* Teclado global del lightbox: los listeners viven SOLO mientras está abierto. */
+  useEffect(() => {
+    if (!lightboxOpen) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closeLightbox();
+      } else if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        goPrev();
+      } else if (event.key === "ArrowRight") {
+        event.preventDefault();
+        goNext();
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [lightboxOpen, closeLightbox, goPrev, goNext]);
+
+  /* Al abrir, el foco va al botón cerrar. */
+  useEffect(() => {
+    if (lightboxOpen) closeButtonRef.current?.focus();
+  }, [lightboxOpen]);
+
+  /* Bloquear el scroll del body mientras el lightbox está abierto. */
+  useEffect(() => {
+    if (!lightboxOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [lightboxOpen]);
 
   const slide = gallerySlides[index];
   const slideLoaded = loadedSlides.has(index);
@@ -196,19 +312,19 @@ export default function ShowcaseGallery() {
     <section
       id="galeria"
       aria-labelledby="titulo-galeria"
-      className="bg-brand-sand py-20 sm:py-24 md:py-28"
+      className="bg-brand-sand py-20 sm:py-24 md:py-28 dark:bg-card"
     >
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* ── Encabezado + control de autoplay ── */}
         <div className="mb-8 flex flex-wrap items-end justify-between gap-6 sm:mb-10">
           <div className="max-w-2xl">
-            <span className="inline-flex items-center gap-2 rounded-full bg-brand-teal-soft px-4 py-1.5 text-xs font-bold uppercase tracking-[0.18em] text-accent-foreground">
+            <span className="inline-flex items-center gap-2 rounded-full bg-brand-teal-soft px-4 py-1.5 text-xs font-bold uppercase tracking-[0.18em] text-accent-foreground dark:bg-accent">
               <PawPrint className="h-3.5 w-3.5" aria-hidden="true" />
               Conócenos por dentro
             </span>
             <h2
               id="titulo-galeria"
-              className="mt-4 text-3xl font-extrabold tracking-tight text-brand-navy sm:text-4xl md:text-5xl"
+              className="mt-4 text-3xl font-extrabold tracking-tight text-brand-navy sm:text-4xl md:text-5xl dark:text-foreground"
             >
               Cada rincón diseñado para la edad dorada
             </h2>
@@ -245,7 +361,7 @@ export default function ShowcaseGallery() {
           onMouseLeave={() => setPointerPaused(false)}
           onFocus={() => setFocusPaused(true)}
           onBlur={() => setFocusPaused(false)}
-          className="relative aspect-[4/3] w-full cursor-grab select-none overflow-hidden rounded-[2rem] bg-brand-navy-deep shadow-2xl ring-1 ring-border active:cursor-grabbing sm:aspect-video"
+          className="group/viewer relative aspect-[4/3] w-full cursor-grab select-none overflow-hidden rounded-[2rem] bg-brand-navy-deep shadow-2xl ring-1 ring-border active:cursor-grabbing sm:aspect-video"
         >
           {/* Diapositiva activa + salida (crossfade direccional) */}
           <AnimatePresence initial={false} custom={direction} mode="sync">
@@ -263,8 +379,10 @@ export default function ShowcaseGallery() {
               drag="x"
               dragConstraints={{ left: 0, right: 0 }}
               dragElastic={0.18}
+              onDragStart={handleDragStart}
               onDragEnd={handleDragEnd}
-              className="absolute inset-0"
+              onClick={handleSlideActivate}
+              className="absolute inset-0 cursor-zoom-in"
               role="group"
               aria-roledescription="diapositiva"
               aria-label={`Imagen ${index + 1} de ${total}: ${slide.title}`}
@@ -381,6 +499,19 @@ export default function ShowcaseGallery() {
           >
             <ChevronRight className="h-6 w-6" aria-hidden="true" />
           </button>
+
+          {/* Ampliar imagen: aparece al hover del visor y siempre que recibe
+              foco por teclado (click/tap sobre la imagen también abre). */}
+          <button
+            type="button"
+            ref={expandButtonRef}
+            onClick={openLightbox}
+            aria-haspopup="dialog"
+            aria-label={`Ampliar imagen: ${slide.title}`}
+            className="absolute right-4 top-4 z-30 inline-flex size-11 items-center justify-center rounded-full border border-white/30 bg-brand-navy-deep/60 text-white opacity-0 backdrop-blur transition-[opacity,background-color] hover:bg-brand-navy-deep/80 focus-visible:opacity-100 group-hover/viewer:opacity-100 sm:size-12"
+          >
+            <Maximize2 className="h-5 w-5" aria-hidden="true" />
+          </button>
         </div>
 
         {/* ── Miniaturas (scrollable, snap, siempre accesibles) ── */}
@@ -400,7 +531,7 @@ export default function ShowcaseGallery() {
                   "relative h-[72px] w-28 shrink-0 snap-center overflow-hidden rounded-xl transition focus-visible:outline-none",
                   i === index
                     ? "opacity-100 ring-2 ring-brand-teal ring-offset-2 ring-offset-background"
-                    : "opacity-60 hover:opacity-90"
+                    : "opacity-60 hover:opacity-90 dark:opacity-70 dark:hover:opacity-100"
                 )}
               >
                 <Image
@@ -417,6 +548,137 @@ export default function ShowcaseGallery() {
           </div>
         </div>
       </div>
+
+      {/* ── Lightbox a pantalla completa (portal a document.body) ──
+          En SSR la condición typeof document devuelve null y el portal solo
+          se crea en cliente; al estar cerrado no renderiza nada → sin
+          desajustes de hidratación. */}
+      {typeof document === "undefined"
+        ? null
+        : createPortal(
+            <AnimatePresence>
+              {lightboxOpen && (
+                <motion.div
+                  key="lightbox-galeria"
+                  ref={dialogRef}
+                  role="dialog"
+                  aria-modal="true"
+                  aria-label={`Imagen ampliada: ${slide.title}`}
+                  onKeyDown={handleDialogKeyDown}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{
+                    duration: reducedMotion ? 0 : 0.25,
+                    ease: "easeOut",
+                  }}
+                  className="fixed inset-0 z-[90] bg-brand-navy-deep/95 backdrop-blur-md"
+                >
+                  {/* Clic fuera del contenido también cierra */}
+                  <div
+                    className="absolute inset-0"
+                    onClick={closeLightbox}
+                    aria-hidden="true"
+                  />
+
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.96 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.96 }}
+                    transition={{
+                      duration: reducedMotion ? 0 : 0.3,
+                      ease: [0.32, 0.72, 0, 1],
+                    }}
+                    className="pointer-events-none absolute inset-3 flex flex-col sm:inset-5"
+                  >
+                    {/* Contador «n de 6» + cerrar */}
+                    <div className="pointer-events-auto flex items-center justify-between gap-4">
+                      <p className="rounded-full bg-white/10 px-4 py-2 text-sm font-semibold tabular-nums text-white ring-1 ring-white/20">
+                        <span className="sr-only">Imagen </span>
+                        {index + 1} de {total}
+                      </p>
+                      <button
+                        type="button"
+                        ref={closeButtonRef}
+                        onClick={closeLightbox}
+                        aria-label="Cerrar imagen ampliada"
+                        className="inline-flex size-12 shrink-0 items-center justify-center rounded-full border border-white/30 bg-white/15 text-white backdrop-blur transition hover:bg-white/30"
+                      >
+                        <X className="h-6 w-6" aria-hidden="true" />
+                      </button>
+                    </div>
+
+                    {/* Imagen ampliada: swipe horizontal navega, vertical cierra */}
+                    <div className="relative mt-4 min-h-0 flex-1 sm:mt-6">
+                      <AnimatePresence initial={false} custom={direction} mode="sync">
+                        <motion.div
+                          key={index}
+                          custom={direction}
+                          variants={slideVariants}
+                          initial="enter"
+                          animate="center"
+                          exit="exit"
+                          transition={{
+                            duration: reducedMotion ? 0 : 0.45,
+                            ease: [0.32, 0.72, 0, 1],
+                          }}
+                          drag={!reducedMotion}
+                          dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
+                          dragElastic={0.25}
+                          onDragEnd={handleLightboxDragEnd}
+                          className="pointer-events-auto absolute inset-0 cursor-grab active:cursor-grabbing"
+                        >
+                          <Image
+                            src={slide.src}
+                            alt={slide.alt}
+                            fill
+                            sizes="100vw"
+                            draggable={false}
+                            className="object-contain"
+                          />
+                        </motion.div>
+                      </AnimatePresence>
+                    </div>
+
+                    {/* Navegación (48 px, también en móvil) */}
+                    <button
+                      type="button"
+                      onClick={goPrev}
+                      aria-label="Imagen anterior"
+                      className="pointer-events-auto absolute left-2 top-1/2 inline-flex size-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/30 bg-white/15 text-white backdrop-blur transition hover:bg-white/30 sm:left-4"
+                    >
+                      <ChevronLeft className="h-6 w-6" aria-hidden="true" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={goNext}
+                      aria-label="Imagen siguiente"
+                      className="pointer-events-auto absolute right-2 top-1/2 inline-flex size-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/30 bg-white/15 text-white backdrop-blur transition hover:bg-white/30 sm:right-4"
+                    >
+                      <ChevronRight className="h-6 w-6" aria-hidden="true" />
+                    </button>
+
+                    {/* Caption en vivo (tag dorado + título + descripción) */}
+                    <div
+                      aria-live="polite"
+                      className="pointer-events-auto mx-auto mt-4 w-full max-w-3xl text-center sm:mt-5"
+                    >
+                      <span className="inline-flex rounded-full bg-brand-gold/90 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-brand-navy-deep">
+                        {slide.tag}
+                      </span>
+                      <h3 className="mt-2 text-xl font-extrabold text-white sm:text-2xl">
+                        {slide.title}
+                      </h3>
+                      <p className="mt-1 text-sm leading-relaxed text-white/85">
+                        {slide.description}
+                      </p>
+                    </div>
+                  </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>,
+            document.body
+          )}
     </section>
   );
 }

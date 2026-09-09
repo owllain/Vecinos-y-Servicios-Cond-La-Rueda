@@ -1,6 +1,7 @@
 import { Clock, Mail, Map, MapPin, MessageCircle, Navigation, Phone, Siren } from "lucide-react";
 import { site } from "@/lib/site";
 import { Reveal } from "@/components/sections/reveal";
+import { OpenNowBadge } from "@/components/sections/open-now-badge";
 
 export function Contact() {
   return (
@@ -50,9 +51,10 @@ export function Contact() {
               </div>
 
               <div className="rounded-3xl border bg-card p-7">
-                <h3 className="flex items-center gap-2 text-lg font-extrabold text-brand-navy dark:text-foreground">
+                <h3 className="flex flex-wrap items-center gap-2 text-lg font-extrabold text-brand-navy dark:text-foreground">
                   <Clock className="h-5 w-5 text-brand-teal" aria-hidden />
                   Horarios de consulta
+                  <OpenNowBadge className="ml-auto" />
                 </h3>
                 <dl className="mt-4 space-y-3 text-sm">
                   {site.hours.map((h) => (

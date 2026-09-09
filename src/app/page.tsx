@@ -3,6 +3,7 @@ import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { MobileStickyBar } from "@/components/layout/mobile-sticky-bar";
 import { BackToTop, ScrollProgress } from "@/components/layout/ux-details";
+import { FloatingWhatsapp } from "@/components/layout/floating-whatsapp";
 import { Hero } from "@/components/sections/hero";
 import { StatsStrip } from "@/components/sections/stats-strip";
 import { Services } from "@/components/sections/services";
@@ -53,6 +54,8 @@ export default function Home() {
       <div aria-hidden className="h-[76px] md:hidden" />
       <MobileStickyBar />
       <BackToTop />
+      {/* Botón flotante de WhatsApp (solo escritorio) */}
+      <FloatingWhatsapp />
     </div>
   );
 }

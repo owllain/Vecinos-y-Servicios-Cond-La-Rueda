@@ -56,7 +56,7 @@ export function Hero() {
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <a
                 href="#agendar"
-                className="inline-flex h-14 items-center justify-center gap-2 rounded-full bg-secondary px-7 text-base font-bold text-secondary-foreground shadow-lg shadow-brand-teal/25 transition hover:bg-brand-teal-dark focus-visible:outline-2"
+                className="inline-flex h-14 items-center justify-center gap-2 rounded-full bg-brand-teal-dark px-7 text-base font-bold text-white shadow-lg shadow-brand-teal/25 transition hover:bg-brand-teal focus-visible:outline-2"
               >
                 <CalendarCheck className="h-5 w-5" aria-hidden />
                 Agendar cita

@@ -175,7 +175,7 @@ export default function FaqSection() {
                 className={cn(
                   "inline-flex h-11 items-center gap-2 rounded-full border px-4 text-sm font-semibold transition-colors",
                   activa
-                    ? "border-brand-navy bg-brand-navy text-white dark:border-primary dark:bg-primary dark:text-primary-foreground"
+                    ? "border-brand-navy bg-brand-navy text-white dark:border-brand-teal-dark dark:bg-brand-teal-dark dark:text-white"
                     : "border-border bg-card text-foreground hover:border-brand-teal hover:text-brand-teal dark:hover:border-accent-foreground dark:hover:text-accent-foreground"
                 )}
               >

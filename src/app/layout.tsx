@@ -45,8 +45,8 @@ export const metadata: Metadata = {
     images: [
       {
         url: "/images/hero-senior-dog.png",
-        width: 1440,
-        height: 720,
+        width: 1344,
+        height: 768,
         alt: "Veterinaria de LONGIVET examinando a un perro golden retriever senior en la clínica",
       },
     ],

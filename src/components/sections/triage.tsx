@@ -44,6 +44,22 @@ type Veredicto =
   | { tipo: "critico"; titulo: string; texto: string }
   | { tipo: "moderado"; titulo: string; texto: string };
 
+/**
+ * Construye el mensaje plano que se envía prellenado por WhatsApp:
+ * signos seleccionados + orientación del triaje. No se pide el nombre de
+ * la mascota (privacidad por defecto: se dice «mi mascota»).
+ */
+function construirResumenWhatsApp(seleccion: string[], textoVeredicto: string): string {
+  const signos = sintomas
+    .filter((s) => seleccion.includes(s.id))
+    .map((s) => s.label.charAt(0).toLowerCase() + s.label.slice(1));
+  return (
+    `Hola ${site.name}, hice el triaje en su web para mi mascota. ` +
+    `Signos marcados: ${signos.join(", ")}. ` +
+    `Orientación del triaje: ${textoVeredicto} ¿Me pueden orientar?`
+  );
+}
+
 export function Triage() {
   const [seleccion, setSeleccion] = useState<string[]>([]);
 
@@ -67,6 +83,14 @@ export function Triage() {
     }
     return null;
   }, [seleccion]);
+
+  /* Enlace de WhatsApp con el resumen del triaje (solo con veredicto).
+     Se calcula en render a partir de estado del cliente: hydration-safe. */
+  const whatsappResumenHref = useMemo(() => {
+    if (!veredicto) return "";
+    const texto = construirResumenWhatsApp(seleccion, veredicto.texto);
+    return `https://wa.me/${site.whatsappNumber}?text=${encodeURIComponent(texto)}`;
+  }, [seleccion, veredicto]);
 
   const toggle = (id: string) =>
     setSeleccion((prev) =>
@@ -143,6 +167,8 @@ export function Triage() {
                   </p>
                   <p className="mt-2 text-sm leading-relaxed text-foreground">{veredicto.texto}</p>
                   <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+                    {/* En crítico la LLAMADA es la vía primaria; WhatsApp es
+                        complemento, nunca la única vía. */}
                     <a
                       href={site.emergencyPhoneHref}
                       className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-full bg-brand-coral px-5 text-sm font-bold text-white transition hover:bg-brand-coral-dark focus-visible:outline-2"
@@ -152,15 +178,19 @@ export function Triage() {
                       Llamar urgencias ya
                     </a>
                     <a
-                      href={site.whatsappHref}
+                      href={whatsappResumenHref}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-full border-2 border-brand-coral px-5 text-sm font-bold text-brand-coral transition hover:bg-brand-coral hover:text-white focus-visible:outline-2"
+                      aria-label={`Enviar el resumen del triaje por WhatsApp al ${site.emergencyPhone} (se abre en una pestaña nueva)`}
                     >
                       <MessageCircle className="h-4 w-4" aria-hidden />
-                      Guía por WhatsApp
+                      Enviar resumen por WhatsApp
                     </a>
                   </div>
+                  <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                    Si estás en camino, escríbenos: el equipo de guardia recibirá tu resumen y te orientará. Ante un riesgo vital, la llamada sigue siendo la vía más rápida.
+                  </p>
                 </div>
               ) : (
                 <div className="rounded-2xl border-2 border-brand-gold bg-brand-gold/10 p-5">
@@ -169,13 +199,25 @@ export function Triage() {
                     {veredicto.titulo}
                   </p>
                   <p className="mt-2 text-sm leading-relaxed text-foreground">{veredicto.texto}</p>
-                  <a
-                    href="#agendar"
-                    className="mt-4 inline-flex h-12 items-center justify-center gap-2 rounded-full bg-secondary px-6 text-sm font-bold text-secondary-foreground transition hover:bg-brand-teal-dark focus-visible:outline-2"
-                  >
-                    <CalendarCheck className="h-4 w-4" aria-hidden />
-                    Agendar consulta
-                  </a>
+                  <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+                    <a
+                      href="#agendar"
+                      className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-full bg-secondary px-6 text-sm font-bold text-secondary-foreground transition hover:bg-brand-teal-dark focus-visible:outline-2"
+                    >
+                      <CalendarCheck className="h-4 w-4" aria-hidden />
+                      Agendar consulta
+                    </a>
+                    <a
+                      href={whatsappResumenHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-full border-2 border-brand-teal px-5 text-sm font-bold text-brand-teal-dark transition hover:bg-brand-teal-dark hover:text-white focus-visible:outline-2"
+                      aria-label="Enviar el resumen del triaje por WhatsApp a LONGIVET (se abre en una pestaña nueva)"
+                    >
+                      <MessageCircle className="h-4 w-4" aria-hidden />
+                      Enviar resumen por WhatsApp
+                    </a>
+                  </div>
                 </div>
               )}
             </div>
