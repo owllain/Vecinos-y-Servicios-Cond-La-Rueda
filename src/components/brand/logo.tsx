@@ -41,7 +41,9 @@ export function Logo({
         <span
           className={cn(
             "text-xl font-extrabold tracking-tight",
-            tone === "dark" ? "text-brand-navy" : "text-white"
+            tone === "dark"
+              ? "text-brand-navy dark:text-foreground"
+              : "text-white"
           )}
         >
           LONGI<span className="text-brand-teal">VET</span>
@@ -49,7 +51,9 @@ export function Logo({
         <span
           className={cn(
             "mt-0.5 text-[10px] font-semibold uppercase tracking-[0.18em]",
-            tone === "dark" ? "text-muted-foreground" : "text-white/70"
+            tone === "dark"
+              ? "text-muted-foreground"
+              : "text-white/70"
           )}
         >
           Geriatría veterinaria

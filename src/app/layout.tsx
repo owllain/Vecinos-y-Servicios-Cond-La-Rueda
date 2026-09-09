@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
+import { ThemeProvider } from "@/components/layout/theme-provider";
 import { site } from "@/lib/site";
 
 const jakarta = Plus_Jakarta_Sans({
@@ -126,7 +127,7 @@ export default function RootLayout({
         >
           Saltar al contenido principal
         </a>
-        {children}
+        <ThemeProvider>{children}</ThemeProvider>
         <Toaster />
         <script
           type="application/ld+json"

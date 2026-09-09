@@ -96,8 +96,8 @@ export function Hero() {
 
         {/* Columna visual */}
         <Reveal delay={0.15} className="relative">
-          <div aria-hidden className="absolute -top-6 -right-4 h-40 w-40 rotate-12 rounded-[2rem] bg-brand-teal-soft md:h-56 md:w-56" />
-          <div aria-hidden className="absolute -bottom-8 -left-6 h-44 w-44 -rotate-6 rounded-[2rem] bg-brand-sand-deep md:h-64 md:w-64" />
+          <div aria-hidden className="absolute -top-10 -right-10 h-40 w-40 rotate-12 rounded-[2rem] bg-brand-teal-soft/80 md:h-56 md:w-56" />
+          <div aria-hidden className="absolute -bottom-12 -left-12 h-44 w-44 -rotate-6 rounded-[2rem] bg-brand-sand-deep/80 md:h-64 md:w-64" />
 
           <div className="relative overflow-hidden rounded-[2.5rem] shadow-2xl ring-1 ring-border">
             <Image

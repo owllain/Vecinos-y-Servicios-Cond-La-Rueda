@@ -29,7 +29,7 @@ export function Testimonials() {
   return (
     <section
       aria-labelledby="titulo-testimonios"
-      className="relative overflow-hidden bg-primary py-20 md:py-24"
+      className="relative overflow-hidden bg-primary py-20 md:py-24 dark:bg-brand-navy"
     >
       <div aria-hidden className="patron-puntos absolute inset-0 text-white/10" />
       <div aria-hidden className="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-brand-teal/20 blur-3xl" />

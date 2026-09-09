@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { CalendarCheck, ChevronRight, Menu, Phone } from "lucide-react";
 
 import { Logo } from "@/components/brand/logo";
+import { ThemeToggle } from "@/components/layout/theme-toggle";
 import {
   Sheet,
   SheetClose,
@@ -103,14 +104,17 @@ export function Navbar() {
           </ul>
         </nav>
 
-        {/* CTA desktop */}
-        <a
-          href="#agendar"
-          className="hidden h-11 items-center gap-2 rounded-full bg-secondary px-5 text-sm font-bold text-secondary-foreground shadow-sm transition-colors hover:bg-brand-teal-dark lg:inline-flex"
-        >
-          <CalendarCheck aria-hidden="true" className="size-5" />
-          Agendar cita
-        </a>
+        {/* CTA desktop + toggle de tema */}
+        <div className="hidden items-center gap-2 lg:flex">
+          <ThemeToggle />
+          <a
+            href="#agendar"
+            className="inline-flex h-11 items-center gap-2 rounded-full bg-secondary px-5 text-sm font-bold text-secondary-foreground shadow-sm transition-colors hover:bg-brand-teal-dark"
+          >
+            <CalendarCheck aria-hidden="true" className="size-5" />
+            Agendar cita
+          </a>
+        </div>
 
         {/* Menú móvil (Sheet lado derecho) */}
         <Sheet open={open} onOpenChange={setOpen}>
@@ -174,6 +178,12 @@ export function Navbar() {
             </nav>
 
             <div className="space-y-3 border-t border-border p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
+              <div className="flex items-center justify-between rounded-2xl border border-border px-4 py-2">
+                <span className="text-sm font-semibold text-foreground">
+                  Apariencia del sitio
+                </span>
+                <ThemeToggle />
+              </div>
               <SheetClose asChild>
                 <a
                   href="#agendar"

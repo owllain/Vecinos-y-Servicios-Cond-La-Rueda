@@ -118,3 +118,22 @@ Stage Summary:
 - SITIO 100% FUNCIONAL Y VERIFICADO EN NAVEGADOR (desktop + móvil). Lista para reemplazo de imágenes por el cliente (mismos nombres en /public/images/).
 - Sin errores de lint ni runtime. El servidor dev quedó corriendo en el puerto 3000.
 - Sugerencias siguientes (para cron webDevReview): modo oscuro con toggle (tokens ya listos), testimonios en marquee, blog senior, internacionalización EN, fotos reales del cliente.
+
+---
+Task ID: cron-2026-09-10-0335
+Agent: Z.ai Code (webDevReview ronda 2)
+Task: QA general + modo oscuro + detalles UX + sección Recursos.
+
+Work Log:
+- QA inicial: HTTP 200, 0 errores de página/consola, dev.log limpio (solo EADDRINUSE histórico), APIs respondiendo.
+- MODO OSCURO: creado theme-provider.tsx (next-themes, attribute=class, default light, disableTransitionOnChange) y theme-toggle.tsx (iconos Sun/Moon intercambiados por CSS → sin estado de montaje, sin desajuste de hidratación, cumple regla react-hooks/set-state-in-effect). Integrado en Navbar desktop (junto al CTA) y en el Sheet móvil (fila «Apariencia del sitio»). Logo adaptado con dark:text-foreground. Tokens dark ya existían.
+- Ajuste dark: Testimonials ahora bg-primary dark:bg-brand-navy (el teal saturado de dark era demasiado intenso para una banda de texto largo; navy mantiene solemnidad).
+- UX DETAILS (src/components/layout/ux-details.tsx): ScrollProgress (barra 4px gradiente teal→gold, rAF+passive, aria-hidden) y BackToTop (aparece a los 600px, bottom adaptado por breakpoint para no chocar con barra móvil). Montados en page.tsx.
+- CONTADORES ANIMADOS: stats-strip convertido a client con framer-motion animate + useInView(once). Formato normalizado a punto de miles tico («8.500» — CLDR es-CR usa espacio fino y se corrige). Texto accesible equivalente en sr-only para lectores de pantalla.
+- SECCIÓN RECURSOS (#recursos, entre Testimonios y FAQ): 3 guías clínicas expandibles (señales de dolor felino, adaptación de casa para artrosis, escala de calidad de vida HHHHHM) con tag, tiempo de lectura, lista práctica y CTA WhatsApp. Accordion accesible (verificado data-state=open y contenido). Añade E-E-A-T y valor SEO.
+- Pulido hero: decorativos reposicionados fuera del borde de la imagen con /80 (evitaba el «rectángulo blanco» asomando).
+- Verificación agent-browser: dark hero/booking/FAQ correctos (colores computados validados: muted #9db0c0, foreground #e6edf3), contadores «+12 | 8.500+ | 94 % | 5» tras animación, menú móvil con toggle, sin overflow, lint 0 errores.
+Stage Summary:
+- NUEVO: modo oscuro completo con persistencia, ScrollProgress, BackToTop, contadores animados, sección #recursos con 3 guías reales.
+- El sitio mantiene QA verde en light y dark, desktop y móvil.
+- Riesgos/pendientes sugeridos para próxima ronda: revisar galería en dark (overlay ya ok visualmente pero no se capturó de cerca), considera añadir «Recursos» al nav si crece, fotos reales del cliente siguen pendientes (README en /public/images), OGA image width/height en layout dicen 1440x720 y el archivo real es 1344x768 (corregir al subir las fotos definitivas).
