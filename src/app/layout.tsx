@@ -1,38 +1,115 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
+import { site } from "@/lib/site";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const jakarta = Plus_Jakarta_Sans({
+  variable: "--font-jakarta",
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Z.ai Code Scaffold - AI-Powered Development",
-  description: "Modern Next.js scaffold optimized for AI-powered development with Z.ai. Built with TypeScript, Tailwind CSS, and shadcn/ui.",
-  keywords: ["Z.ai", "Next.js", "TypeScript", "Tailwind CSS", "shadcn/ui", "AI development", "React"],
-  authors: [{ name: "Z.ai Team" }],
-  icons: {
-    icon: "https://z-cdn.chatglm.cn/z-ai/static/logo.svg",
+  metadataBase: new URL(site.url),
+  title: {
+    default: `${site.name} | Medicina Veterinaria Geriátrica en Costa Rica`,
+    template: `%s | ${site.name}`,
   },
+  description: site.description,
+  applicationName: site.name,
+  keywords: [
+    "veterinaria geriátrica",
+    "veterinario para mascotas senior",
+    "geriatría canina",
+    "geriatría felina",
+    "manejo del dolor mascotas",
+    "rehabilitación veterinaria",
+    "veterinaria Escazú",
+    "clínica veterinaria Costa Rica",
+    "cuidado mascotas mayores",
+    "medicina preventiva senior",
+  ],
+  authors: [{ name: site.legalName, url: site.url }],
+  creator: site.legalName,
+  publisher: site.legalName,
+  alternates: { canonical: "/" },
   openGraph: {
-    title: "Z.ai Code Scaffold",
-    description: "AI-powered development with modern React stack",
-    url: "https://chat.z.ai",
-    siteName: "Z.ai",
     type: "website",
+    locale: "es_CR",
+    url: site.url,
+    siteName: site.name,
+    title: `${site.name} · Longevidad y bienestar para tu mascota senior`,
+    description: site.description,
+    images: [
+      {
+        url: "/images/hero-senior-dog.png",
+        width: 1440,
+        height: 720,
+        alt: "Veterinaria de LONGIVET examinando a un perro golden retriever senior en la clínica",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Z.ai Code Scaffold",
-    description: "AI-powered development with modern React stack",
+    title: `${site.name} | Medicina Veterinaria Geriátrica`,
+    description: site.description,
+    images: ["/images/hero-senior-dog.png"],
   },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, "max-image-preview": "large" },
+  },
+  category: "healthcare",
+};
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#faf7f2" },
+    { media: "(prefers-color-scheme: dark)", color: "#0b1622" },
+  ],
+  width: "device-width",
+  initialScale: 1,
+};
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "VeterinaryCare",
+  "@id": `${site.url}/#clinica`,
+  name: `${site.name} · ${site.legalName}`,
+  description: site.description,
+  url: site.url,
+  telephone: site.phone,
+  email: site.email,
+  image: `${site.url}/images/hero-senior-dog.png`,
+  priceRange: "₡₡",
+  isAcceptingNewPatients: true,
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: site.address.street,
+    addressLocality: site.address.locality,
+    addressRegion: site.address.region,
+    postalCode: site.address.postalCode,
+    addressCountry: site.address.country,
+  },
+  geo: { "@type": "GeoCoordinates", latitude: 9.9321, longitude: -84.1303 },
+  openingHoursSpecification: [
+    {
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+      opens: "08:00",
+      closes: "18:00",
+    },
+  ],
+  availableService: [
+    { "@type": "MedicalTherapy", name: "Medicina geriátrica y chequeos senior 7+" },
+    { "@type": "MedicalProcedure", name: "Manejo integral del dolor y rehabilitación" },
+    { "@type": "DiagnosticProcedure", name: "Laboratorio clínico y radiología digital" },
+    { "@type": "MedicalProcedure", name: "Odontología veterinaria" },
+  ],
+  medicalSpecialty: ["VeterinaryInternalMedicine", "VeterinaryPainManagement"],
+  aggregateRating: { "@type": "AggregateRating", ratingValue: "4.9", reviewCount: "412" },
 };
 
 export default function RootLayout({
@@ -41,12 +118,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
-      >
+    <html lang="es" suppressHydrationWarning>
+      <body className={`${jakarta.variable} font-sans antialiased bg-background text-foreground`}>
+        <a
+          href="#contenido"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:rounded-full focus:bg-primary focus:px-5 focus:py-2.5 focus:text-sm focus:font-semibold focus:text-primary-foreground focus:shadow-lg"
+        >
+          Saltar al contenido principal
+        </a>
         {children}
         <Toaster />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
       </body>
     </html>
   );

@@ -1,31 +1,52 @@
-'use client'
+import { CrisisBar } from "@/components/layout/crisis-bar";
+import { Navbar } from "@/components/layout/navbar";
+import { Footer } from "@/components/layout/footer";
+import { MobileStickyBar } from "@/components/layout/mobile-sticky-bar";
+import { Hero } from "@/components/sections/hero";
+import { StatsStrip } from "@/components/sections/stats-strip";
+import { Services } from "@/components/sections/services";
+import { SeniorProgram } from "@/components/sections/senior-program";
+import { Triage } from "@/components/sections/triage";
+import { Team } from "@/components/sections/team";
+import { Testimonials } from "@/components/sections/testimonials";
+import { Contact } from "@/components/sections/contact";
+import ShowcaseGallery from "@/components/gallery/showcase-gallery";
+import FaqSection from "@/components/faq/faq-section";
+import BookingSection from "@/components/booking/booking-section";
 
 export default function Home() {
   return (
-    <div style={{
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      minHeight: '100vh',
-      gap: '2rem',
-      padding: '1rem'
-    }}>
-      <div style={{
-        position: 'relative',
-        width: '6rem',
-        height: '6rem'
-      }}>
-        <img
-          src="/logo.svg"
-          alt="Z.ai Logo"
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'contain'
-          }}
-        />
-      </div>
+    <div className="flex min-h-screen flex-col">
+      <CrisisBar />
+      <Navbar />
+      <main id="contenido" className="flex-1">
+        {/* Hero dual-path: ruta planificada + ruta de urgencia (Ley de Hick) */}
+        <Hero />
+        {/* Validación cuantitativa de confianza */}
+        <StatsStrip />
+        {/* Catálogo de servicios con énfasis geriátrico */}
+        <Services />
+        {/* Galería interactiva de instalaciones y casos */}
+        <ShowcaseGallery />
+        {/* Programa de membresías senior */}
+        <SeniorProgram />
+        {/* Triaje digital de sintomatología */}
+        <Triage />
+        {/* Equipo médico y credenciales (E-E-A-T) */}
+        <Team />
+        {/* Prueba social */}
+        <Testimonials />
+        {/* Preguntas frecuentes con búsqueda y esquema FAQPage */}
+        <FaqSection />
+        {/* Asistente de reservas multipaso (Ley de Miller) */}
+        <BookingSection />
+        {/* Ubicación, horarios y canal de urgencias */}
+        <Contact />
+      </main>
+      <Footer />
+      {/* Espacio para la barra fija móvil (Ley de Fitts) sin tapar el footer */}
+      <div aria-hidden className="h-[76px] md:hidden" />
+      <MobileStickyBar />
     </div>
-  )
+  );
 }

@@ -190,7 +190,7 @@
     background: transparent;
   }
   /* Patrón de puntos decorativo sutil */
-  . patron-puntos {
+  .patron-puntos {
     background-image: radial-gradient(currentColor 1px, transparent 1px);
     background-size: 22px 22px;
   }
@@ -200,5 +200,15 @@
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
+  }
+  /* Flotación suave para tarjetas destacadas */
+  @keyframes floaty {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-8px);
+    }
   }
 }
