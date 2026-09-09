@@ -1,0 +1,204 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-brand-navy: var(--brand-navy);
+  --color-brand-navy-deep: var(--brand-navy-deep);
+  --color-brand-teal: var(--brand-teal);
+  --color-brand-teal-dark: var(--brand-teal-dark);
+  --color-brand-teal-soft: var(--brand-teal-soft);
+  --color-brand-emerald: var(--brand-emerald);
+  --color-brand-sand: var(--brand-sand);
+  --color-brand-sand-deep: var(--brand-sand-deep);
+  --color-brand-coral: var(--brand-coral);
+  --color-brand-coral-dark: var(--brand-coral-dark);
+  --color-brand-gold: var(--brand-gold);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+  --radius: 1rem;
+  /* ── Paleta oficial LONGIVET (según especificación estratégica) ── */
+  --brand-navy: #0d3b66;        /* Azul médico profundo: autoridad clínica */
+  --brand-navy-deep: #092a4a;
+  --brand-teal: #2a9d8f;        /* Verde salvia: salud y bienestar */
+  --brand-teal-dark: #1f7a70;
+  --brand-teal-soft: #e4f2ef;
+  --brand-emerald: #10b981;
+  --brand-sand: #faf7f2;        /* Neutro cálido: hospitalidad */
+  --brand-sand-deep: #f1ece2;
+  --brand-coral: #e63946;       /* Reservado para urgencias */
+  --brand-coral-dark: #c42b37;
+  --brand-gold: #e9c46a;        /* Acento senior/áureo */
+
+  --background: #fbf9f5;
+  --foreground: #2e3d4d;
+  --card: #ffffff;
+  --card-foreground: #2e3d4d;
+  --popover: #ffffff;
+  --popover-foreground: #2e3d4d;
+  --primary: #0d3b66;
+  --primary-foreground: #f7fafc;
+  --secondary: #2a9d8f;
+  --secondary-foreground: #ffffff;
+  --muted: #f1ece2;
+  --muted-foreground: #5c6b7a;
+  --accent: #e4f2ef;
+  --accent-foreground: #175e54;
+  --destructive: #e63946;
+  --destructive-foreground: #ffffff;
+  --border: #e7e1d4;
+  --input: #ddd6c8;
+  --ring: #2a9d8f;
+  --chart-1: #2a9d8f;
+  --chart-2: #0d3b66;
+  --chart-3: #e9c46a;
+  --chart-4: #10b981;
+  --chart-5: #e63946;
+  --sidebar: #faf7f2;
+  --sidebar-foreground: #2e3d4d;
+  --sidebar-primary: #0d3b66;
+  --sidebar-primary-foreground: #f7fafc;
+  --sidebar-accent: #e4f2ef;
+  --sidebar-accent-foreground: #175e54;
+  --sidebar-border: #e7e1d4;
+  --sidebar-ring: #2a9d8f;
+}
+
+.dark {
+  --background: #0b1622;
+  --foreground: #e6edf3;
+  --card: #11202f;
+  --card-foreground: #e6edf3;
+  --popover: #11202f;
+  --popover-foreground: #e6edf3;
+  --primary: #2a9d8f;
+  --primary-foreground: #ffffff;
+  --secondary: #1c3547;
+  --secondary-foreground: #d9e7e4;
+  --muted: #152839;
+  --muted-foreground: #9db0c0;
+  --accent: #14333a;
+  --accent-foreground: #8ed0c6;
+  --destructive: #f26672;
+  --destructive-foreground: #2a0509;
+  --border: #22364a;
+  --input: #2a4056;
+  --ring: #3fa796;
+  --chart-1: #3fa796;
+  --chart-2: #7fb3d5;
+  --chart-3: #e9c46a;
+  --chart-4: #34d399;
+  --chart-5: #f26672;
+  --sidebar: #11202f;
+  --sidebar-foreground: #e6edf3;
+  --sidebar-primary: #2a9d8f;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #14333a;
+  --sidebar-accent-foreground: #8ed0c6;
+  --sidebar-border: #22364a;
+  --sidebar-ring: #3fa796;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "ss01" on;
+  }
+  section[id] {
+    scroll-margin-top: 5.5rem;
+  }
+  /* Foco visible accesible en toda la interfaz */
+  :focus-visible {
+    outline: 3px solid var(--ring);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer utilities {
+  /* Scrollbar refinada para listas largas */
+  .scrollbar-fina {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  .scrollbar-fina::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .scrollbar-fina::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 999px;
+  }
+  .scrollbar-fina::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  /* Patrón de puntos decorativo sutil */
+  . patron-puntos {
+    background-image: radial-gradient(currentColor 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+  /* Texto con gradiente de marca */
+  .texto-marca {
+    background: linear-gradient(100deg, var(--brand-teal) 10%, var(--brand-navy) 90%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+}
