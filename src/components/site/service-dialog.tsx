@@ -1,0 +1,334 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import useEmblaCarousel from "embla-carousel-react";
+import {
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  Copy,
+  MapPin,
+  MessageCircle,
+  Phone,
+  X,
+} from "lucide-react";
+
+import { categoryUi, type ServiceListing } from "@/lib/data/services";
+import { SITE, telHref, waHref } from "@/lib/site-config";
+import { useSearchStore } from "@/lib/search-store";
+import { SafeImage } from "@/components/safe-image";
+import { HighlightText } from "@/components/site/highlight-text";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
+
+/** Mensaje precargado de WhatsApp para el anuncio */
+function whatsappMessage(title: string): string {
+  return `Hola, vi tu anuncio "${title}" en la guía Vecinos y Servicios del Condominio La Rueda y me interesa.`;
+}
+
+/* ────────────────────────────────────────────────────────────────────
+ * Galería interna: carrusel embla (loop, sin autoplay) si hay varias
+ * imágenes; imagen única si solo hay una. Siempre con SafeImage.
+ * ──────────────────────────────────────────────────────────────────── */
+
+function ServiceGallery({ images, title }: { images: string[]; title: string }) {
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
+  const [selected, setSelected] = useState(0);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    const onSelect = () => setSelected(emblaApi.selectedScrollSnap());
+    emblaApi.on("select", onSelect);
+    onSelect();
+    return () => {
+      emblaApi.off("select", onSelect);
+    };
+  }, [emblaApi]);
+
+  if (images.length <= 1) {
+    return (
+      <div className="relative aspect-[16/9] bg-brand-pine-soft">
+        <SafeImage
+          src={images[0] ?? "/images/placeholder.svg"}
+          alt={title}
+          fill
+          priority
+          sizes="(min-width: 768px) 672px, 100vw"
+          className="object-cover"
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative">
+      <div ref={emblaRef} className="overflow-hidden">
+        <div className="flex">
+          {images.map((image, index) => (
+            <div
+              key={`${image}-${index}`}
+              className="relative aspect-[16/9] min-w-0 flex-[0_0_100%] bg-brand-pine-soft"
+            >
+              <SafeImage
+                src={image}
+                alt={`${title} · imagen ${index + 1} de ${images.length}`}
+                fill
+                priority={index === 0}
+                sizes="(min-width: 768px) 672px, 100vw"
+                className="object-cover"
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Flechas */}
+      <button
+        type="button"
+        onClick={() => emblaApi?.scrollPrev()}
+        aria-label="Imagen anterior"
+        className="absolute left-3 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-brand-pine shadow-md transition-colors hover:bg-white"
+      >
+        <ChevronLeft className="h-5 w-5" aria-hidden="true" />
+      </button>
+      <button
+        type="button"
+        onClick={() => emblaApi?.scrollNext()}
+        aria-label="Imagen siguiente"
+        className="absolute right-3 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-brand-pine shadow-md transition-colors hover:bg-white"
+      >
+        <ChevronRight className="h-5 w-5" aria-hidden="true" />
+      </button>
+
+      {/* Puntos clickeables */}
+      <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 items-center gap-1 rounded-full bg-black/25 px-1.5 py-1.5 backdrop-blur-sm">
+        {images.map((_, index) => (
+          <button
+            key={index}
+            type="button"
+            onClick={() => emblaApi?.scrollTo(index)}
+            aria-label={`Ir a imagen ${index + 1}`}
+            aria-current={index === selected ? "true" : undefined}
+            className="flex h-4 w-4 items-center justify-center"
+          >
+            <span
+              className={cn(
+                "block h-2 rounded-full bg-white transition-all",
+                index === selected ? "w-4 opacity-100" : "w-2 opacity-60",
+              )}
+            />
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────────────
+ * Ficha completa del anuncio (contrato compartido del sitio).
+ * La usan las tarjetas del buscador/directorio, el carrusel de
+ * destacados y el mapa del sitio. Tolera service === null.
+ * ──────────────────────────────────────────────────────────────────── */
+
+export interface ServiceDialogProps {
+  service: ServiceListing | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+export function ServiceDialog({ service, open, onOpenChange }: ServiceDialogProps) {
+  const { toast } = useToast();
+  const query = useSearchStore((state) => state.query);
+  const [copied, setCopied] = useState(false);
+  const copyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Limpia el temporizador del botón copiar al desmontar
+  useEffect(() => {
+    return () => {
+      if (copyTimer.current) clearTimeout(copyTimer.current);
+    };
+  }, []);
+
+  // Reinicia el estado de "copiado" al (re)abrir la ficha,
+  // comparando con el render anterior (sin efectos).
+  const [wasOpen, setWasOpen] = useState(open);
+  if (open !== wasOpen) {
+    setWasOpen(open);
+    if (open) setCopied(false);
+  }
+
+  // Sin anuncio no se renderiza contenido (el padre controla `open`);
+  // así el Dialog nunca crashea por campos de un objeto inexistente.
+  if (!service) {
+    return <Dialog open={open} onOpenChange={onOpenChange} />;
+  }
+
+  const ui = categoryUi(service.category);
+  const CategoryIcon = ui.icon;
+  const images =
+    service.images.length > 0 ? service.images : ["/images/placeholder.svg"];
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(service.phone);
+      setCopied(true);
+      toast({ title: "Número copiado", description: service.phone });
+      if (copyTimer.current) clearTimeout(copyTimer.current);
+      copyTimer.current = setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast({
+        title: "No se pudo copiar",
+        description: `Anota el número: ${service.phone}`,
+      });
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent
+        showCloseButton={false}
+        className="max-w-lg gap-0 overflow-hidden rounded-3xl p-0 md:max-w-2xl"
+      >
+        <div className="flex max-h-[90vh] flex-col">
+          {/* Galería */}
+          <div className="relative shrink-0">
+            <ServiceGallery images={images} title={service.title} />
+            <DialogClose
+              className="absolute right-3 top-3 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white/90 text-brand-pine shadow-md transition-colors hover:bg-white"
+              aria-label="Cerrar ficha del anuncio"
+            >
+              <X className="h-5 w-5" aria-hidden="true" />
+            </DialogClose>
+          </div>
+
+          {/* Cuerpo */}
+          <div className="scrollbar-fina min-h-0 overflow-y-auto">
+            <div className="flex flex-col gap-4 p-6 md:gap-5 md:p-8">
+              <div className="flex flex-col gap-2">
+                <Badge
+                  className={cn(
+                    "w-fit gap-1.5 rounded-full border-transparent px-3 py-1",
+                    ui.classes.badge,
+                  )}
+                >
+                  <CategoryIcon className="h-3.5 w-3.5" aria-hidden="true" />
+                  {ui.label}
+                </Badge>
+
+                <DialogTitle className="font-display text-2xl leading-tight text-brand-pine md:text-3xl">
+                  <HighlightText text={service.title} query={query} />
+                </DialogTitle>
+
+                <DialogDescription className="text-base text-muted-foreground">
+                  {service.tagline ?? `${ui.label} · ${SITE.community}`}
+                </DialogDescription>
+              </div>
+
+              {/* Horario y ubicación (opcionales) */}
+              {(service.schedule || service.location) && (
+                <div className="flex flex-col gap-2 rounded-2xl bg-brand-cream-deep/50 p-4">
+                  {service.schedule && (
+                    <p className="flex items-start gap-2.5 text-sm text-foreground/85">
+                      <Clock
+                        className="mt-0.5 h-4 w-4 shrink-0 text-brand-teal-dark"
+                        aria-hidden="true"
+                      />
+                      <span>{service.schedule}</span>
+                    </p>
+                  )}
+                  {service.location && (
+                    <p className="flex items-start gap-2.5 text-sm text-foreground/85">
+                      <MapPin
+                        className="mt-0.5 h-4 w-4 shrink-0 text-brand-terracotta-dark"
+                        aria-hidden="true"
+                      />
+                      <span>{service.location}</span>
+                    </p>
+                  )}
+                </div>
+              )}
+
+              <p className="text-sm leading-relaxed text-foreground/90 md:text-base">
+                {service.description}
+              </p>
+
+              {/* Palabras clave (máx. 8; la primera resalta la búsqueda activa) */}
+              {service.keywords.length > 0 && (
+                <div className="flex flex-wrap gap-1.5">
+                  {service.keywords.slice(0, 8).map((keyword, index) => (
+                    <Badge
+                      key={`${keyword}-${index}`}
+                      variant="outline"
+                      className="rounded-full px-3 py-1 font-normal text-foreground/75"
+                    >
+                      {index === 0 ? (
+                        <HighlightText text={keyword} query={query} />
+                      ) : (
+                        keyword
+                      )}
+                    </Badge>
+                  ))}
+                </div>
+              )}
+
+              {/* Contacto */}
+              <div
+                className={cn(
+                  "grid gap-3 pt-1",
+                  service.whatsapp ? "sm:grid-cols-3" : "sm:grid-cols-2",
+                )}
+              >
+                <a
+                  href={telHref(service.phone)}
+                  className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
+                >
+                  <Phone className="h-4 w-4" aria-hidden="true" />
+                  Llamar {service.phone}
+                </a>
+
+                {service.whatsapp && (
+                  <a
+                    href={waHref(service.phone, whatsappMessage(service.title))}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-brand-teal px-4 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-teal-dark"
+                  >
+                    <MessageCircle className="h-4 w-4" aria-hidden="true" />
+                    WhatsApp
+                  </a>
+                )}
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleCopy}
+                  className="h-12 rounded-xl px-4 font-semibold"
+                >
+                  {copied ? (
+                    <Check
+                      className="h-4 w-4 text-brand-teal-dark"
+                      aria-hidden="true"
+                    />
+                  ) : (
+                    <Copy className="h-4 w-4" aria-hidden="true" />
+                  )}
+                  {copied ? "¡Copiado!" : "Copiar número"}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}

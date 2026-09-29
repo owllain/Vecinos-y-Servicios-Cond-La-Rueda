@@ -1,30 +1,29 @@
-# Imágenes del sitio LONGIVET
+# Imágenes de la guía — Cómo reemplazarlas
 
-Estas imágenes son **placeholders generados con IA** para que el sitio se vea
-completo durante el desarrollo.
+Las fotos actuales son **placeholders generados con IA**. Súbelas tú manualmente:
 
-## Cómo reemplazarlas con tus fotos reales
+1. Guarda tu foto en esta carpeta (`/public/images/`) usando **el mismo nombre**
+   del archivo que quieras reemplazar (ej.: `svc-panaderia.png`).
+2. Los nombres son estables: el código no necesita cambios.
+3. Para agregar un anuncio nuevo, edita `src/lib/data/services.ts` y apunta
+   `images: ["/images/tu-foto.png"]`.
 
-Sube tus fotos a esta carpeta (`/public/images/`) manteniendo **exactamente
-los mismos nombres de archivo**. El sitio las detectará automáticamente, sin
-tocar código.
+| Archivo                | Anuncio asociado                    |
+| ---------------------- | ----------------------------------- |
+| `hero-guia.png`        | Imagen principal del hero           |
+| `svc-panaderia.png`    | Panadería Doña Marta                |
+| `svc-reposteria.png`   | Repostería by Yozenia               |
+| `svc-verduras.png`     | La Finquita · Frutas y Verduras     |
+| `svc-carpinteria.png`  | Taller Don Chente                   |
+| `svc-plomeria.png`     | Plomería y Electricidad Mario       |
+| `svc-unas.png`         | Uñas & Spa Karla                    |
+| `svc-salon.png`        | Salón de Belleza Elena              |
+| `svc-masajes.png`      | Masajes & Terapias Aura             |
+| `svc-yoga.png`         | Yoga Comunitario La Rueda           |
+| `svc-clases.png`       | Clases con Sofía / Guitarra Andrés  |
+| `svc-mascotas.png`     | Pet Spa Guau & Miau                 |
+| `svc-taxi.png`         | Taxi de Confianza · Don Rigo        |
+| `svc-delivery.png`     | Delivery Veloz La Rueda             |
+| `placeholder.svg`      | Respaldo automático (no borrar)     |
 
-| Archivo | Sección | Recomendado |
-|---|---|---|
-| `hero-senior-dog.png` | Hero (portada) + Open Graph | 1344×768 o superior, horizontal |
-| `gallery-1.png` | Galería · Área felina | 1344×768, horizontal |
-| `gallery-2.png` | Galería · Rehabilitación | 1344×768, horizontal |
-| `gallery-3.png` | Galería · Instalaciones | 1344×768, horizontal |
-| `gallery-4.png` | Galería · Consulta/diagnóstico | 1344×768, horizontal |
-| `gallery-5.png` | Galería · Laboratorio | 1344×768, horizontal |
-| `senior-comfort.png` | Programa Senior (imagen lateral) | 1152×864, horizontal |
-
-## Consejos para las fotos definitivas
-
-- Fotografía real de la clínica, el equipo y pacientes (nada de stock obvio).
-- Buena luz natural, tonos cálidos, animales serenos (coherente con Fear Free).
-- Si cambias la extensión (jpg en vez de png), actualiza también las rutas en:
-  `src/data/gallery.ts`, `src/components/sections/hero.tsx`,
-  `src/components/sections/senior-program.tsx` y `src/app/layout.tsx` (Open Graph).
-- Los textos alternativos (alt) están en español y pensados para accesibilidad:
-  actualízalos si el contenido de la foto cambia.
+Consejo: fotos horizontales 4:3 o 16:10, buena luz natural, sin marcas de agua.

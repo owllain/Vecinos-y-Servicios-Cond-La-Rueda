@@ -7,6 +7,7 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-fraunces), Georgia, "Times New Roman", serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -37,17 +38,38 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  --color-brand-navy: var(--brand-navy);
-  --color-brand-navy-deep: var(--brand-navy-deep);
+  /* ── Paleta de marca: Vecinos y Servicios · Condominio La Rueda ── */
+  --color-brand-pine: var(--brand-pine);
+  --color-brand-pine-deep: var(--brand-pine-deep);
+  --color-brand-pine-soft: var(--brand-pine-soft);
   --color-brand-teal: var(--brand-teal);
   --color-brand-teal-dark: var(--brand-teal-dark);
   --color-brand-teal-soft: var(--brand-teal-soft);
-  --color-brand-emerald: var(--brand-emerald);
-  --color-brand-sand: var(--brand-sand);
-  --color-brand-sand-deep: var(--brand-sand-deep);
-  --color-brand-coral: var(--brand-coral);
-  --color-brand-coral-dark: var(--brand-coral-dark);
+  --color-brand-terracotta: var(--brand-terracotta);
+  --color-brand-terracotta-dark: var(--brand-terracotta-dark);
+  --color-brand-terracotta-soft: var(--brand-terracotta-soft);
   --color-brand-gold: var(--brand-gold);
+  --color-brand-gold-soft: var(--brand-gold-soft);
+  --color-brand-cream: var(--brand-cream);
+  --color-brand-cream-deep: var(--brand-cream-deep);
+  --color-brand-ink: var(--brand-ink);
+  /* Colores por categoría predefinida */
+  --color-cat-alimentos: var(--cat-alimentos);
+  --color-cat-alimentos-soft: var(--cat-alimentos-soft);
+  --color-cat-hogar: var(--cat-hogar);
+  --color-cat-hogar-soft: var(--cat-hogar-soft);
+  --color-cat-salud: var(--cat-salud);
+  --color-cat-salud-soft: var(--cat-salud-soft);
+  --color-cat-belleza: var(--cat-belleza);
+  --color-cat-belleza-soft: var(--cat-belleza-soft);
+  --color-cat-educacion: var(--cat-educacion);
+  --color-cat-educacion-soft: var(--cat-educacion-soft);
+  --color-cat-mascotas: var(--cat-mascotas);
+  --color-cat-mascotas-soft: var(--cat-mascotas-soft);
+  --color-cat-comercio: var(--cat-comercio);
+  --color-cat-comercio-soft: var(--cat-comercio-soft);
+  --color-cat-transporte: var(--cat-transporte);
+  --color-cat-transporte-soft: var(--cat-transporte-soft);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -56,85 +78,99 @@
 
 :root {
   --radius: 1rem;
-  /* ── Paleta oficial LONGIVET (según especificación estratégica) ── */
-  --brand-navy: #0d3b66;        /* Azul médico profundo: autoridad clínica */
-  --brand-navy-deep: #092a4a;
-  --brand-teal: #2a9d8f;        /* Verde salvia: salud y bienestar */
+  /* ── Paleta oficial "Vecinos y Servicios · Condominio La Rueda" ──
+     Estilo guía turística cálida: papel crema, verde pino, terracota y dorado. */
+  --brand-pine: #12433c;            /* verde pino profundo: comunidad y confianza */
+  --brand-pine-deep: #0c2f2a;
+  --brand-pine-soft: #e3efeb;
+  --brand-teal: #2a9d8f;            /* verde azulado: orientación y guía */
   --brand-teal-dark: #1f7a70;
-  --brand-teal-soft: #e4f2ef;
-  --brand-emerald: #10b981;
-  --brand-sand: #faf7f2;        /* Neutro cálido: hospitalidad */
-  --brand-sand-deep: #f1ece2;
-  --brand-coral: #e63946;       /* Reservado para urgencias */
-  --brand-coral-dark: #c42b37;
-  --brand-gold: #e9c46a;        /* Acento senior/áureo */
+  --brand-teal-soft: #e0f1ee;
+  --brand-terracotta: #e76f51;      /* acento cálido: acciones y CTAs */
+  --brand-terracotta-dark: #c1502e;
+  --brand-terracotta-soft: #fbe9e2;
+  --brand-gold: #e9c46a;            /* resalte dorado: destacados */
+  --brand-gold-soft: #faf0d7;
+  --brand-cream: #fbf7ef;           /* fondo papel de guía */
+  --brand-cream-deep: #f3ecdf;
+  --brand-ink: #23312d;             /* texto principal */
 
-  --background: #fbf9f5;
-  --foreground: #2e3d4d;
-  --card: #ffffff;
-  --card-foreground: #2e3d4d;
-  --popover: #ffffff;
-  --popover-foreground: #2e3d4d;
-  --primary: #0d3b66;
-  --primary-foreground: #f7fafc;
+  /* Colores por categoría predefinida (main / soft) */
+  --cat-alimentos: #c1502e;         --cat-alimentos-soft: #fae7de;
+  --cat-hogar: #8c5e3c;             --cat-hogar-soft: #f2e8de;
+  --cat-salud: #22867a;             --cat-salud-soft: #def0ed;
+  --cat-belleza: #c25e76;           --cat-belleza-soft: #f9e7eb;
+  --cat-educacion: #a97e12;         --cat-educacion-soft: #f6eed3;
+  --cat-mascotas: #6b8f3e;          --cat-mascotas-soft: #eaf1dc;
+  --cat-comercio: #52796f;          --cat-comercio-soft: #e2eeeb;
+  --cat-transporte: #6d6875;        --cat-transporte-soft: #ebe9ee;
+
+  --background: #fbf7ef;
+  --foreground: #23312d;
+  --card: #fffdf9;
+  --card-foreground: #23312d;
+  --popover: #fffdf9;
+  --popover-foreground: #23312d;
+  --primary: #12433c;
+  --primary-foreground: #f6fbf9;
   --secondary: #2a9d8f;
   --secondary-foreground: #ffffff;
-  --muted: #f1ece2;
-  --muted-foreground: #5c6b7a;
-  --accent: #e4f2ef;
+  --muted: #f3ecdf;
+  --muted-foreground: #5c6b64;
+  --accent: #e0f1ee;
   --accent-foreground: #175e54;
-  --destructive: #e63946;
+  --destructive: #d64545;
   --destructive-foreground: #ffffff;
-  --border: #e7e1d4;
-  --input: #ddd6c8;
+  --border: #e7dfcf;
+  --input: #ddd4c2;
   --ring: #2a9d8f;
   --chart-1: #2a9d8f;
-  --chart-2: #0d3b66;
+  --chart-2: #12433c;
   --chart-3: #e9c46a;
-  --chart-4: #10b981;
-  --chart-5: #e63946;
-  --sidebar: #faf7f2;
-  --sidebar-foreground: #2e3d4d;
-  --sidebar-primary: #0d3b66;
-  --sidebar-primary-foreground: #f7fafc;
-  --sidebar-accent: #e4f2ef;
+  --chart-4: #e76f51;
+  --chart-5: #6b8f3e;
+  --sidebar: #fbf7ef;
+  --sidebar-foreground: #23312d;
+  --sidebar-primary: #12433c;
+  --sidebar-primary-foreground: #f6fbf9;
+  --sidebar-accent: #e0f1ee;
   --sidebar-accent-foreground: #175e54;
-  --sidebar-border: #e7e1d4;
+  --sidebar-border: #e7dfcf;
   --sidebar-ring: #2a9d8f;
 }
 
 .dark {
-  --background: #0b1622;
-  --foreground: #e6edf3;
-  --card: #11202f;
-  --card-foreground: #e6edf3;
-  --popover: #11202f;
-  --popover-foreground: #e6edf3;
+  --background: #0e1f1b;
+  --foreground: #e7f0ec;
+  --card: #142925;
+  --card-foreground: #e7f0ec;
+  --popover: #142925;
+  --popover-foreground: #e7f0ec;
   --primary: #2a9d8f;
   --primary-foreground: #ffffff;
-  --secondary: #1c3547;
-  --secondary-foreground: #d9e7e4;
-  --muted: #152839;
-  --muted-foreground: #9db0c0;
-  --accent: #14333a;
-  --accent-foreground: #8ed0c6;
-  --destructive: #f26672;
-  --destructive-foreground: #2a0509;
-  --border: #22364a;
-  --input: #2a4056;
+  --secondary: #1d4a42;
+  --secondary-foreground: #dcefe9;
+  --muted: #1a332e;
+  --muted-foreground: #9db5ac;
+  --accent: #173b34;
+  --accent-foreground: #8ed0c4;
+  --destructive: #e56b6b;
+  --destructive-foreground: #2a0708;
+  --border: #24443d;
+  --input: #2c524a;
   --ring: #3fa796;
   --chart-1: #3fa796;
-  --chart-2: #7fb3d5;
+  --chart-2: #74c6b8;
   --chart-3: #e9c46a;
-  --chart-4: #34d399;
-  --chart-5: #f26672;
-  --sidebar: #11202f;
-  --sidebar-foreground: #e6edf3;
+  --chart-4: #ef8a6d;
+  --chart-5: #9dc06f;
+  --sidebar: #142925;
+  --sidebar-foreground: #e7f0ec;
   --sidebar-primary: #2a9d8f;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #14333a;
-  --sidebar-accent-foreground: #8ed0c6;
-  --sidebar-border: #22364a;
+  --sidebar-accent: #173b34;
+  --sidebar-accent-foreground: #8ed0c4;
+  --sidebar-border: #24443d;
   --sidebar-ring: #3fa796;
 }
 
@@ -152,15 +188,15 @@
   section[id] {
     scroll-margin-top: 5.5rem;
   }
-  /* Selección de texto con color de marca (detalle micro-interacción) */
+  /* Selección de texto con color de marca (micro-detalle) */
   ::selection {
-    background-color: color-mix(in srgb, var(--brand-teal) 30%, transparent);
+    background-color: color-mix(in srgb, var(--brand-gold) 40%, transparent);
     color: var(--foreground);
   }
   .dark ::selection {
-    background-color: color-mix(in srgb, var(--brand-gold) 35%, transparent);
+    background-color: color-mix(in srgb, var(--brand-teal) 35%, transparent);
   }
-  /* Scrollbar global refinada (webkit): discreta y con pulgar de marca */
+  /* Scrollbar global refinada: discreta y con pulgar de marca */
   ::-webkit-scrollbar {
     width: 10px;
     height: 10px;
@@ -199,7 +235,7 @@
 }
 
 @layer utilities {
-  /* Scrollbar refinada para listas largas */
+  /* Scrollbar fina para listas largas */
   .scrollbar-fina {
     scrollbar-width: thin;
     scrollbar-color: var(--border) transparent;
@@ -215,14 +251,14 @@
   .scrollbar-fina::-webkit-scrollbar-track {
     background: transparent;
   }
-  /* Patrón de puntos decorativo sutil */
+  /* Patrón de puntos decorativo sutil (mapa de guía) */
   .patron-puntos {
     background-image: radial-gradient(currentColor 1px, transparent 1px);
     background-size: 22px 22px;
   }
   /* Texto con gradiente de marca */
   .texto-marca {
-    background: linear-gradient(100deg, var(--brand-teal) 10%, var(--brand-navy) 90%);
+    background: linear-gradient(100deg, var(--brand-terracotta) 10%, var(--brand-pine) 90%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -237,9 +273,11 @@
       transform: translateY(-8px);
     }
   }
-  /* Marquee infinito para testimonios: la pista contiene dos copias de la
-     lista, así que recorrer -50 % equivale a exactamente un juego completo
-     → bucle perfecto. Pausa con hover/foco vía [animation-play-state:paused].
+  .animate-floaty {
+    animation: floaty 5s ease-in-out infinite;
+  }
+  /* Marquee infinito: la pista contiene dos copias de la lista, así que
+     recorrer -50 % equivale a exactamente un juego completo → bucle perfecto.
      (prefers-reduced-motion ya neutraliza la animación a nivel global). */
   .animate-marquee {
     animation: marquee 40s linear infinite;

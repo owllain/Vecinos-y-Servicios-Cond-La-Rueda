@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-import { site } from "@/lib/site";
+import { SITE } from "@/lib/site-config";
 
 /* Sitemap del sitio de una sola página.
    Los anclas (#servicios, #faq…) no son URLs independientes, así que
@@ -8,7 +8,7 @@ import { site } from "@/lib/site";
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
     {
-      url: site.url,
+      url: SITE.url,
       lastModified: new Date(),
       changeFrequency: "weekly",
       priority: 1,
