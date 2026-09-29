@@ -1,13 +1,15 @@
 "use client";
 
 import { useState, type KeyboardEvent } from "react";
-import { Eye, Heart, Phone, Star } from "lucide-react";
+import { ChevronRight, Eye, Heart, Phone, Share2, Sparkles, Star } from "lucide-react";
 
 import { categoryUi, type ServiceListing } from "@/lib/data/services";
 import { telHref } from "@/lib/site-config";
+import { shareListing } from "@/lib/share";
 import { useSearchStore } from "@/lib/search-store";
 import { useFavoritesStore } from "@/lib/favorites-store";
 import { useViewCounts } from "@/lib/views-store";
+import { useToast } from "@/hooks/use-toast";
 import { SafeImage } from "@/components/safe-image";
 import { HighlightText } from "@/components/site/highlight-text";
 import { ServiceDialog } from "@/components/site/service-dialog";
@@ -41,6 +43,7 @@ export function ServiceCard({
     state.favorites.includes(service.id),
   );
   const toggleFavorite = useFavoritesStore((state) => state.toggleFavorite);
+  const { toast } = useToast();
   const views = viewCounts[service.id];
 
   const ui = categoryUi(service.category);
@@ -50,6 +53,23 @@ export function ServiceCard({
   const openDialog = () => setSelected(service);
   const closeDialog = (nextOpen: boolean) => {
     if (!nextOpen) setSelected(null);
+  };
+
+  /** Compartir desde la tarjeta: Web Share API con respaldo de portapapeles */
+  const handleShare = async () => {
+    const result = await shareListing(service);
+    if (result === "copied") {
+      toast({
+        title: "Enlace copiado",
+        description: "Compártelo con tus vecinos por WhatsApp o correo.",
+      });
+    } else if (result === "failed") {
+      toast({
+        title: "No se pudo compartir",
+        description: "Abre la ficha y copia el teléfono o enlace.",
+      });
+    }
+    // "shared" y "cancelled" no requieren aviso
   };
 
   // Enter/Space sobre la tarjeta (no sobre los controles internos) abre la ficha
@@ -62,7 +82,7 @@ export function ServiceCard({
   };
 
   return (
-    <article className="group text-left flex h-full flex-col overflow-hidden rounded-2xl border bg-card shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-brand-pine/10">
+    <article className="group text-left flex h-full flex-col overflow-hidden rounded-2xl border bg-card shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-teal/50 hover:shadow-lg hover:shadow-brand-pine/10">
       <div
         role="button"
         tabIndex={0}
@@ -139,9 +159,18 @@ export function ServiceCard({
 
         {/* Cuerpo */}
         <div className="flex flex-1 flex-col gap-2 p-4">
-          <h3 className="font-display text-lg leading-snug text-brand-pine">
-            <HighlightText text={service.title} query={query} />
-          </h3>
+          <div className="flex items-start justify-between gap-2">
+            <h3 className="font-display text-lg leading-snug text-brand-pine transition-colors duration-300 group-hover:text-brand-teal-dark">
+              <HighlightText text={service.title} query={query} />
+            </h3>
+            {/* Píldora "Nuevo" para anuncios recién incorporados */}
+            {service.isNew && (
+              <span className="mt-0.5 inline-flex shrink-0 items-center gap-1 rounded-full bg-brand-teal-soft px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-brand-teal-dark">
+                <Sparkles className="h-3 w-3" aria-hidden="true" />
+                Nuevo
+              </span>
+            )}
+          </div>
 
           {service.tagline && (
             <p className="line-clamp-1 text-sm text-muted-foreground">
@@ -182,8 +211,21 @@ export function ServiceCard({
                 className="h-4 w-4 shrink-0 text-brand-teal-dark"
                 aria-hidden="true"
               />
-              <span className="tabular-nums">{shortPhone(service.phone)}</span>
+              <span className="whitespace-nowrap tabular-nums">{shortPhone(service.phone)}</span>
             </a>
+
+            {/* Compartir rápido desde la tarjeta (respaldo: portapapeles) */}
+            <button
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation();
+                void handleShare();
+              }}
+              aria-label={`Compartir el anuncio de ${service.title}`}
+              className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:border-brand-teal hover:text-brand-teal-dark"
+            >
+              <Share2 className="h-4 w-4" aria-hidden="true" />
+            </button>
 
             <Button
               type="button"
@@ -194,6 +236,10 @@ export function ServiceCard({
               className="h-11 rounded-full bg-brand-pine px-4 text-sm font-semibold text-brand-cream shadow-sm hover:bg-brand-pine-deep"
             >
               Ver detalles
+              <ChevronRight
+                className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5"
+                aria-hidden="true"
+              />
             </Button>
           </div>
         </div>

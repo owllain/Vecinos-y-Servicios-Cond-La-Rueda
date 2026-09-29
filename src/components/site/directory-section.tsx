@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import type { LucideIcon } from "lucide-react";
-import { Heart, LayoutGrid, Search, SearchX } from "lucide-react";
+import { ArrowDownWideNarrow, Heart, LayoutGrid, Search, SearchX } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 
 import {
@@ -14,9 +14,18 @@ import {
 } from "@/lib/data/services";
 import { useSearchStore } from "@/lib/search-store";
 import { useFavoritesStore } from "@/lib/favorites-store";
+import { useViewCounts } from "@/lib/views-store";
+import { useNativeInputSync } from "@/hooks/use-native-input-sync";
 import { ServiceCard } from "@/components/site/service-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 
 /* Conteos estáticos (los datos viven en código) */
@@ -45,6 +54,15 @@ function pluralCount(n: number, singular: string, plural: string): string {
   return `${n} ${n === 1 ? singular : plural}`;
 }
 
+/* Modos de orden del directorio (la relevancia de búsqueda manda al buscar) */
+type SortMode = "destacados" | "alfabetico" | "vistas";
+
+const SORT_OPTIONS: Array<{ id: SortMode; label: string }> = [
+  { id: "destacados", label: "Destacados primero" },
+  { id: "alfabetico", label: "Orden A → Z" },
+  { id: "vistas", label: "Más vistos" },
+];
+
 /**
  * Directorio completo de la guía: grid de todas las tarjetas con barra
  * de controles sticky (búsqueda compacta + pills de categoría) que
@@ -56,16 +74,40 @@ export function DirectorySection() {
   const setQuery = useSearchStore((state) => state.setQuery);
   const setCategory = useSearchStore((state) => state.setCategory);
   const clear = useSearchStore((state) => state.clear);
+
+  // El onChange de React no se dispara ante cambios programáticos del
+  // campo (autocompletado, form.reset()): respaldo nativo de sincronía.
+  const directoryInputRef = useNativeInputSync(setQuery);
+
   const favorites = useFavoritesStore((state) => state.favorites);
   const [onlyFavorites, setOnlyFavorites] = useState(false);
+  const [sort, setSort] = useState<SortMode>("destacados");
+  const viewCounts = useViewCounts();
   const reduceMotion = useReducedMotion() ?? false;
 
   const results = useMemo(() => {
     const base = searchServices(query, category);
-    if (!onlyFavorites) return base;
     const favoriteSet = new Set(favorites);
-    return base.filter((result) => favoriteSet.has(result.service.id));
-  }, [query, category, onlyFavorites, favorites]);
+    const filtered = onlyFavorites
+      ? base.filter((result) => favoriteSet.has(result.service.id))
+      : base;
+
+    if (sort === "alfabetico") {
+      return [...filtered].sort((a, b) =>
+        a.service.title.localeCompare(b.service.title, "es"),
+      );
+    }
+
+    if (sort === "vistas") {
+      return [...filtered].sort(
+        (a, b) =>
+          (viewCounts[b.service.id] ?? 0) - (viewCounts[a.service.id] ?? 0) ||
+          a.service.title.localeCompare(b.service.title, "es"),
+      );
+    }
+
+    return filtered;
+  }, [query, category, onlyFavorites, favorites, sort, viewCounts]);
 
   const hasQuery = query.trim().length > 0;
   const isEmpty = results.length === 0;
@@ -102,6 +144,7 @@ export function DirectorySection() {
                 aria-hidden="true"
               />
               <Input
+                ref={directoryInputRef}
                 type="text"
                 autoComplete="off"
                 value={query}
@@ -115,8 +158,33 @@ export function DirectorySection() {
             <div
               role="group"
               aria-label="Filtrar el directorio por categoría"
-              className="scrollbar-fina flex gap-1.5 overflow-x-auto pb-1 md:max-w-[62%] md:pb-0"
+              className="scrollbar-fina flex items-center gap-1.5 overflow-x-auto pb-1 md:max-w-[62%] md:pb-0"
             >
+              {/* Orden del listado (destacados / A-Z / más vistos) */}
+              <Select value={sort} onValueChange={(value) => setSort(value as SortMode)}>
+                <SelectTrigger
+                  aria-label="Ordenar el directorio"
+                  className="h-10 w-[168px] shrink-0 rounded-full border-border bg-card text-[13px] font-medium text-foreground/75 shadow-none transition-colors hover:border-brand-teal hover:text-brand-teal-dark focus-visible:border-brand-teal md:w-[184px]"
+                >
+                  <ArrowDownWideNarrow
+                    className="h-3.5 w-3.5 shrink-0 text-brand-teal"
+                    aria-hidden="true"
+                  />
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl border-border">
+                  {SORT_OPTIONS.map((option) => (
+                    <SelectItem
+                      key={option.id}
+                      value={option.id}
+                      className="rounded-lg text-[13px]"
+                    >
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
               {/* Filtro de favoritos (persistente en el dispositivo) */}
               <button
                 type="button"

@@ -421,3 +421,25 @@ Stage Summary:
 - Decisiones: cada apertura de ficha = 1 vista (sin guard anti-spam por sesión, se puede añadir después); favoritos 100% locales (sin backend, privacidad por diseño).
 - Riesgos/pendientes: probar navigator.share en dispositivo real (en desktop usó fallback clipboard OK); el contador del directorio prioriza query sobre favoritos en su texto (menor).
 - Siguiente ronda sugerida: ordenar directorio (A-Z/destacados), "copiar enlace" también en tarjetas, o modo oscuro opcional.
+
+---
+
+Task ID: cron-r2 (webDevReview — ronda 2)
+Agent: Orquestador principal (Z.ai Code)
+Task: QA completo con agent-browser (desktop 1440 + móvil 375), corrección de bug de sincronización de buscadores, nuevas features (orden del directorio, compartir desde tarjetas, píldora "Nuevo") y pulido de estilo.
+
+Work Log:
+- QA inicial: lint LIMPIO, GET / → 200, APIs de vistas 200 (POST id desconocido → 404 correcto), sitemap/manifest 200, 0 errores JS. Todas las secciones renderizan (hero, buscador, carrusel, categorías, directorio, FAQ, mapa del sitio, anúnciate, footer triangular). Ficha ServiceDialog abre con galería, contador de vistas, WhatsApp, compartir. Móvil 375px sin overflow horizontal. Scroll-spy OK. → Proyecto ESTABLE, se pasó a desarrollo.
+- BUG ENCONTRADO Y CORREGIDO (sync de buscadores): al vaciar un input programáticamente (autocompletado del navegador, form.reset(), automatizaciones), React deduplica el evento input con su value tracker y onChange NO se dispara → los dos buscadores (héroe y directorio) quedaban desincronizados (reproducido en QA: fill("pan") + fill("") dejaba el store en "pan"). FIX: nuevo hook src/hooks/use-native-input-sync.ts que escucha el evento `input` NATIVO del campo y notifica el valor al estado; aplicado a #input-buscador (handleInput con useCallback estable) y al input del directorio (setQuery). Verificado en vivo: fill("yoga") + fill("") ahora limpia ambos inputs y el store.
+- FEATURE — Orden del directorio (src/components/site/directory-section.tsx): Select shadcn "Ordenar el directorio" en la barra sticky con 3 modos: "Destacados primero" (default), "Orden A → Z" (localeCompare es) y "Más vistos" (usa viewCounts de /api/views con desempate alfabético). Verificado en navegador: A→Z lista los 14 anuncios alfabéticamente; Más vistos pone primero Panadería (2 vistas) y Yoga (1 vista).
+- FEATURE — Compartir desde las tarjetas: extraída la lógica a src/lib/share.ts (listingShareUrl + shareListing → Web Share API con fallback a portapapeles, devuelve "shared"/"copied"/"cancelled"/"failed"); ServiceDialog refactorizado para usarla y ServiceCard añadió botón de icono Share2 (h-11 w-11, aria-label, stopPropagation) en el pie entre el teléfono y "Ver detalles", con toast "Enlace copiado"/"No se pudo compartir". Verificado: clic → toast correcto (en headless sin permisos de portapapeles muestra el fallo amable).
+- FEATURE — Píldora "Nuevo": campo opcional `isNew?: boolean` en ServiceListing (documentado en la cabecera de src/lib/data/services.ts como parte de la guía de edición para el usuario) + píldora teal con icono Sparkles junto al título en ServiceCard. Marcados como isNew: Repostería by Yozenia y Delivery Veloz La Rueda (ejemplos visibles).
+- PULIDO DE ESTILO: hover de tarjeta ahora resalta borde (hover:border-brand-teal/50), el título transiciona a brand-teal-dark, "Ver detalles" lleva ChevronRight que se desliza al hover del grupo; teléfono de la tarjeta con whitespace-nowrap (evitaba wrap a 2 líneas con el nuevo botón); Select integrado al estilo de los chips (rounded-full, h-10, hover teal).
+- VERIFICACIÓN FINAL: bun run lint LIMPIO; tsc sin errores en src/ (solo residuos preexistentes en skills/); regresiones OK: deep-link /?q=yoga#buscador aplica búsqueda + foco, atajo "/" enfoca el buscador, 8 anclas presentes, título es-CR correcto, 0 errores JS de página, móvil 375 sin overflow.
+
+Stage Summary:
+- CORREGIDO el único bug real detectado (desincronización de buscadores ante cambios programáticos de input — afecta también a autofill real de navegadores).
+- NUEVO: orden del directorio (Destacados / A-Z / Más vistos), compartir anuncios desde las tarjetas, píldora "Nuevo" con campo isNew documentado en el archivo de datos, y refinamientos visuales de tarjetas.
+- Estado del proyecto: COMPLETO Y ESTABLE — guía comunitaria con híper-buscador sincronizado, carrusel, categorías, directorio ordenable, favoritos, vistas (backend), FAQ, mapa del sitio y flujo Anúnciate.
+- Riesgos/pendientes menores: probar navigator.share en dispositivo real (en headless usó fallback); el texto del contador del directorio prioriza query sobre favoritos (cosmético); datos se editan SOLO en src/lib/data/services.ts y faq.ts.
+- Siguiente ronda sugerida: modo oscuro opcional, paginación/infinite scroll si el directorio crece de ~30 anuncios, o estadísticas de "más buscados" por categoría.

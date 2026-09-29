@@ -28,6 +28,7 @@
  *       description → descripción del servicio o producto (1–3 oraciones)
  *       featured    → true para que aparezca en el carrusel de destacados
  *                     (se recomienda máximo 6 destacados)
+ *       isNew       → true para mostrar la píldora "Nuevo" en la tarjeta
  *
  *  3. Guarda el archivo: buscador, categorías, carrusel, directorio y
  *     mapa del sitio se actualizan automáticamente.
@@ -228,6 +229,8 @@ export interface ServiceListing {
   description: string;
   /** Aparece en el carrusel de destacados (máx. recomendado: 6) */
   featured?: boolean;
+  /** Marca el anuncio con la píldora "Nuevo" (recién incorporado a la guía) */
+  isNew?: boolean;
 }
 
 export const SERVICES: ServiceListing[] = [
@@ -259,6 +262,7 @@ export const SERVICES: ServiceListing[] = [
     id: "reposteria-yozenia",
     title: "Repostería by Yozenia",
     tagline: "Tortas personalizadas para cada celebración",
+    isNew: true,
     category: "alimentos",
     keywords: [
       "torta",
@@ -538,6 +542,7 @@ export const SERVICES: ServiceListing[] = [
     id: "delivery-veloz",
     title: "Delivery Veloz La Rueda",
     tagline: "Mandados, farmacia y sobres: lo llevamos por ti",
+    isNew: true,
     category: "transporte",
     keywords: [
       "delivery",

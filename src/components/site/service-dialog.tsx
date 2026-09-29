@@ -19,6 +19,7 @@ import {
 
 import { categoryUi, type ServiceListing } from "@/lib/data/services";
 import { SITE, telHref, waHref } from "@/lib/site-config";
+import { shareListing } from "@/lib/share";
 import { useSearchStore } from "@/lib/search-store";
 import { useFavoritesStore } from "@/lib/favorites-store";
 import { useViewsStore } from "@/lib/views-store";
@@ -195,31 +196,21 @@ export function ServiceDialog({ service, open, onOpenChange }: ServiceDialogProp
   const images =
     service.images.length > 0 ? service.images : ["/images/placeholder.svg"];
 
-  const shareUrl =
-    service && typeof window !== "undefined"
-      ? `${window.location.origin}/?q=${encodeURIComponent(service.title)}#buscador`
-      : SITE.url;
-
   const handleShare = async () => {
     if (!service) return;
-    const shareData = {
-      title: `${service.title} · ${SITE.name}`,
-      text: `Mira este anuncio de la guía del ${SITE.community}: ${service.title}${service.tagline ? ` — ${service.tagline}` : ""}`,
-      url: shareUrl,
-    };
-    try {
-      if (typeof navigator.share === "function") {
-        await navigator.share(shareData);
-        return;
-      }
-      await navigator.clipboard.writeText(shareData.url);
+    const result = await shareListing(service);
+    if (result === "copied") {
       toast({
         title: "Enlace copiado",
         description: "Compártelo con tus vecinos por WhatsApp o correo.",
       });
-    } catch {
-      // El usuario canceló el diálogo nativo de compartir: no es un error
+    } else if (result === "failed") {
+      toast({
+        title: "No se pudo compartir",
+        description: `Anota el número: ${service.phone}`,
+      });
     }
+    // "shared" y "cancelled" no requieren aviso
   };
 
   const handleCopy = async () => {

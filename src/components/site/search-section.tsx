@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { LucideIcon } from "lucide-react";
 import { LayoutGrid, Search, SearchX, X } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
@@ -13,6 +13,7 @@ import {
   type CategoryFilter,
 } from "@/lib/data/services";
 import { scrollToSection, useSearchStore } from "@/lib/search-store";
+import { useNativeInputSync } from "@/hooks/use-native-input-sync";
 import { ServiceCard } from "@/components/site/service-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -61,8 +62,22 @@ export function SearchSection() {
   const [input, setInput] = useState(query);
   const [inputFocused, setInputFocused] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
   const reduceMotion = useReducedMotion() ?? false;
+
+  /** Escritura con debounce de 150 ms para no re-renderizar el mundo */
+  const handleInput = useCallback(
+    (value: string) => {
+      setInput(value);
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+      debounceRef.current = setTimeout(() => setQuery(value), 150);
+    },
+    [setQuery],
+  );
+
+  // El onChange de React no se dispara ante cambios programáticos del
+  // campo (autocompletado, form.reset(), automatización): este respaldo
+  // nativo mantiene el estado sincronizado con el valor visible.
+  const inputRef = useNativeInputSync(handleInput);
 
   // Sincroniza el campo local cuando la consulta cambia desde otro
   // punto del sitio (input del directorio, botón limpiar, chips…).
@@ -127,13 +142,6 @@ export function SearchSection() {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
   }, []);
-
-  /** Escritura con debounce de 150 ms para no re-renderizar el mundo */
-  const handleInput = (value: string) => {
-    setInput(value);
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => setQuery(value), 150);
-  };
 
   /** Cambio inmediato de consulta (chips de sugerencia, botón limpiar) */
   const applyQuery = (value: string) => {
