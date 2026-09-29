@@ -34,7 +34,8 @@ export const metadata: Metadata = {
     "guía comercial",
     "comercio local",
     "productos vecinos",
-    "guía turística comunitaria",
+    "guía hecha por y para los vecinos",
+    "grupo de WhatsApp de los vecinos",
     "comprar a vecinos",
   ],
   authors: [{ name: SITE.legalName, url: SITE.url }],
@@ -90,8 +91,11 @@ const jsonLd = {
       name: SITE.legalName,
       url: SITE.url,
       logo: `${SITE.url}/icon.svg`,
-      email: SITE.admin.email,
-      telephone: SITE.admin.phone,
+      slogan: SITE.tagline,
+      description: SITE.description,
+      // La guía la administran los vecinos; el canal oficial de contacto
+      // y de solicitudes (secretaría incluida) es el grupo de WhatsApp.
+      sameAs: [SITE.whatsappGroup.url],
     },
     {
       "@type": "WebSite",

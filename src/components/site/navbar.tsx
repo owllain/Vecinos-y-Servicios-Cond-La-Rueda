@@ -5,6 +5,7 @@ import {
   BookOpen,
   CircleHelp,
   Home,
+  HeartHandshake,
   LayoutGrid,
   LucideIcon,
   Map,
@@ -12,14 +13,13 @@ import {
   Megaphone,
   Menu,
   MessageCircle,
-  Phone,
   Search,
   Star,
   X,
 } from "lucide-react";
 import { Logo } from "@/components/brand/logo";
 import { scrollToSection } from "@/lib/search-store";
-import { SITE, telHref, waHref } from "@/lib/site-config";
+import { SITE, groupHref } from "@/lib/site-config";
 import { cn } from "@/lib/utils";
 import {
   Sheet,
@@ -87,20 +87,22 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-50">
-      {/* ── Barra superior fina: identidad + administración ── */}
+      {/* ── Barra superior fina: identidad vecinal + grupo de WhatsApp ── */}
       <div className="hidden bg-brand-pine-deep text-brand-cream/90 sm:block">
         <div className="mx-auto flex h-9 max-w-7xl items-center justify-between px-4 text-xs">
           <p className="flex items-center gap-1.5">
-            <MapPin className="h-3.5 w-3.5 text-brand-gold" aria-hidden />
-            Guía comunitaria · Condominio La Rueda
+            <HeartHandshake className="h-3.5 w-3.5 text-brand-gold" aria-hidden />
+            Guía hecha por y para los vecinos · Condominio La Rueda
           </p>
           <a
-            href={telHref(SITE.admin.phone)}
+            href={groupHref()}
+            target="_blank"
+            rel="noopener noreferrer"
             className="-my-1 inline-flex items-center gap-1.5 rounded-full px-2 py-1.5 transition-colors duration-200 hover:bg-white/10 hover:text-brand-gold"
-            aria-label={`Llamar a la administración de la guía al ${SITE.admin.phone}`}
+            aria-label="Abrir el grupo de WhatsApp de los vecinos (se abre en una pestaña nueva)"
           >
-            <Phone className="h-3.5 w-3.5" aria-hidden />
-            Administración: {SITE.admin.phone}
+            <MessageCircle className="h-3.5 w-3.5" aria-hidden />
+            Solicitudes por WhatsApp · secretaría incluida
           </a>
         </div>
       </div>
@@ -188,7 +190,7 @@ export function Navbar() {
                 <SheetHeader className="border-b border-border text-left">
                   <SheetTitle className="sr-only">Menú de la guía comunitaria</SheetTitle>
                   <SheetDescription className="sr-only">
-                    Todas las secciones de la guía y contactos de la administración del Condominio La Rueda.
+                    Todas las secciones de la guía y el grupo de WhatsApp de los vecinos del Condominio La Rueda.
                   </SheetDescription>
                   <Logo tone="dark" />
                 </SheetHeader>
@@ -228,35 +230,17 @@ export function Navbar() {
 
                 <div className="space-y-2.5 border-t border-border p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
                   <a
-                    href="#anunciate"
-                    onClick={() => setOpen(false)}
-                    className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-brand-terracotta-dark text-sm font-semibold text-white shadow-md shadow-brand-terracotta/25 transition-all duration-200 hover:brightness-90 active:scale-[0.98]"
+                    href={groupHref()}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-brand-teal-dark text-sm font-semibold text-white shadow-md shadow-brand-teal/25 transition-all duration-200 hover:brightness-90 active:scale-[0.98]"
+                    aria-label="Abrir el grupo de WhatsApp de los vecinos (se abre en una pestaña nueva)"
                   >
-                    <Megaphone className="h-4 w-4" aria-hidden />
-                    Anúnciate en la guía
+                    <MessageCircle className="h-4 w-4" aria-hidden />
+                    Grupo de WhatsApp de los vecinos
                   </a>
-                  <div className="grid grid-cols-2 gap-2">
-                    <a
-                      href={telHref(SITE.admin.phone)}
-                      className="flex min-h-11 items-center justify-center gap-2 rounded-xl bg-brand-pine-soft px-2 text-xs font-semibold text-brand-pine transition-colors duration-200 hover:bg-brand-pine hover:text-brand-cream"
-                      aria-label={`Llamar a la administración al ${SITE.admin.phone}`}
-                    >
-                      <Phone className="h-4 w-4 shrink-0" aria-hidden />
-                      Llamar
-                    </a>
-                    <a
-                      href={waHref(SITE.admin.whatsapp, "Hola, quiero información de la guía comunitaria")}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex min-h-11 items-center justify-center gap-2 rounded-xl bg-brand-teal-soft px-2 text-xs font-semibold text-brand-teal-dark transition-colors duration-200 hover:bg-brand-teal-dark hover:text-white"
-                      aria-label="Escribir a la administración por WhatsApp (se abre en una pestaña nueva)"
-                    >
-                      <MessageCircle className="h-4 w-4 shrink-0" aria-hidden />
-                      WhatsApp
-                    </a>
-                  </div>
                   <p className="text-center text-[11px] text-muted-foreground">
-                    {SITE.admin.label} · Lun a Vie
+                    Solicitudes, publicaciones y secretaría: todo por el grupo.
                   </p>
                 </div>
               </SheetContent>

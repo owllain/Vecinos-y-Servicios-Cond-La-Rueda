@@ -21,8 +21,10 @@
  *                      el buscador ignora tildes y mayúsculas)
  *       images      → lista de rutas de imagen (1 o más, la primera es
  *                     la principal; ej.: "/images/mi-foto.png")
- *       phone       → número de contacto visible (formato +506 XXXX-XXXX)
- *       whatsapp    → true si quieres botón de WhatsApp con ese número
+ *       phone       → número de contacto visible (formato +506 XXXX-XXXX);
+ *                     las SOLICITUDES se hacen por el grupo de WhatsApp
+ *                     (secretaría incluida), el botón verde de cada
+ *                     tarjeta ya apunta al grupo automáticamente
  *       schedule    → (opcional) horario de atención
  *       location    → (opcional) ubicación dentro del condominio
  *       description → descripción del servicio o producto (1–3 oraciones)
@@ -217,10 +219,8 @@ export interface ServiceListing {
   keywords: string[];
   /** Imagen o imágenes (rutas bajo /images/); la primera es la principal */
   images: string[];
-  /** Número de contacto */
+  /** Número de contacto visible (las solicitudes se piden por el grupo) */
   phone: string;
-  /** Mostrar botón de WhatsApp con el mismo número */
-  whatsapp?: boolean;
   /** Horario de atención (opcional) */
   schedule?: string;
   /** Ubicación dentro del condominio (opcional) */
@@ -251,7 +251,6 @@ export const SERVICES: ServiceListing[] = [
     ],
     images: ["/images/svc-panaderia.png"],
     phone: "+506 8888-1001",
-    whatsapp: true,
     schedule: "Lun a Sáb · 6:00 a. m. – 6:00 p. m.",
     location: "Calle principal · Casa 4",
     description:
@@ -276,7 +275,6 @@ export const SERVICES: ServiceListing[] = [
     ],
     images: ["/images/svc-reposteria.png", "/images/svc-panaderia.png"],
     phone: "+506 8888-1002",
-    whatsapp: true,
     schedule: "Pedidos con 3 días de anticipación",
     location: "Torre A · Apartamento 302",
     description:
@@ -299,7 +297,6 @@ export const SERVICES: ServiceListing[] = [
     ],
     images: ["/images/svc-verduras.png"],
     phone: "+506 8888-1003",
-    whatsapp: true,
     schedule: "Vie y Sáb · 7:00 a. m. – 1:00 p. m.",
     location: "Estacionamiento de visitas",
     description:
@@ -323,7 +320,6 @@ export const SERVICES: ServiceListing[] = [
     ],
     images: ["/images/svc-carpinteria.png"],
     phone: "+506 8888-1004",
-    whatsapp: false,
     schedule: "Lun a Vie · 7:00 a. m. – 5:00 p. m.",
     location: "Bodegas · Local 2",
     description:
@@ -348,7 +344,6 @@ export const SERVICES: ServiceListing[] = [
     ],
     images: ["/images/svc-plomeria.png"],
     phone: "+506 8888-1005",
-    whatsapp: true,
     schedule: "Lun a Sáb · 7:00 a. m. – 7:00 p. m. · Urgencias hasta 9 p. m.",
     location: "Servicio a domicilio",
     description:
@@ -371,7 +366,6 @@ export const SERVICES: ServiceListing[] = [
     ],
     images: ["/images/svc-unas.png"],
     phone: "+506 8888-1006",
-    whatsapp: true,
     schedule: "Lun a Sáb · 8:00 a. m. – 6:00 p. m.",
     location: "Torre C · Apartamento 105",
     description:
@@ -395,7 +389,6 @@ export const SERVICES: ServiceListing[] = [
     ],
     images: ["/images/svc-salon.png"],
     phone: "+506 8888-1007",
-    whatsapp: false,
     schedule: "Mar a Sáb · 8:00 a. m. – 5:00 p. m.",
     location: "Casa 11 · Entrada lateral",
     description:
@@ -417,7 +410,6 @@ export const SERVICES: ServiceListing[] = [
     ],
     images: ["/images/svc-masajes.png"],
     phone: "+506 8888-1008",
-    whatsapp: true,
     schedule: "Lun a Sáb · 9:00 a. m. – 7:00 p. m.",
     location: "Servicio a domicilio",
     description:
@@ -439,7 +431,6 @@ export const SERVICES: ServiceListing[] = [
     ],
     images: ["/images/svc-yoga.png"],
     phone: "+506 8888-1009",
-    whatsapp: true,
     schedule: "Lun, Mié y Vie · 5:30 a. m. – 6:30 a. m.",
     location: "Jardín central del condominio",
     description:
@@ -464,7 +455,6 @@ export const SERVICES: ServiceListing[] = [
     ],
     images: ["/images/svc-clases.png"],
     phone: "+506 8888-1010",
-    whatsapp: true,
     schedule: "Lun a Vie · 3:00 p. m. – 7:00 p. m.",
     location: "Torre B · Apartamento 201",
     description:
@@ -486,7 +476,6 @@ export const SERVICES: ServiceListing[] = [
     ],
     images: ["/images/svc-clases.png"],
     phone: "+506 8888-1011",
-    whatsapp: true,
     schedule: "Mar y Jue · 4:00 p. m. – 7:00 p. m.",
     location: "Casa 7 · Terraza",
     description:
@@ -508,7 +497,6 @@ export const SERVICES: ServiceListing[] = [
     ],
     images: ["/images/svc-mascotas.png"],
     phone: "+506 8888-1012",
-    whatsapp: true,
     schedule: "Lun a Sáb · 8:00 a. m. – 5:00 p. m.",
     location: "Casa 19 · Retral frontal",
     description:
@@ -532,7 +520,6 @@ export const SERVICES: ServiceListing[] = [
     ],
     images: ["/images/svc-taxi.png"],
     phone: "+506 8888-1013",
-    whatsapp: false,
     schedule: "Todos los días · 5:00 a. m. – 9:00 p. m.",
     location: "Servicio a domicilio",
     description:
@@ -556,7 +543,6 @@ export const SERVICES: ServiceListing[] = [
     ],
     images: ["/images/svc-delivery.png"],
     phone: "+506 8888-1014",
-    whatsapp: true,
     schedule: "Todos los días · 7:00 a. m. – 8:00 p. m.",
     location: "Servicio a domicilio",
     description:

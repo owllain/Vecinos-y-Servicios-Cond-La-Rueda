@@ -3,8 +3,12 @@
  *  CONFIGURACIÓN GENERAL DEL SITIO
  *  Vecinos y Servicios · Condominio La Rueda
  * ═══════════════════════════════════════════════════════════════════
- *  Edita aquí el nombre, lema, datos de contacto de la administración
- *  y los enlaces de navegación. El resto del sitio se actualiza solo.
+ *  Guía HECHA POR Y PARA LOS VECINOS y administrada por los propios
+ *  vecinos. TODAS las solicitudes —servicios, pedidos y trámites de
+ *  secretaría incluidos— se hacen escribiendo al grupo de WhatsApp.
+ *
+ *  Edita aquí el nombre, el lema y el enlace del grupo. El resto del
+ *  sitio se actualiza solo.
  */
 
 export interface AnchorItem {
@@ -24,16 +28,18 @@ export const SITE = {
   /** URL pública del sitio (para metadata y sitemap) */
   url: "https://condominiolarueda.cr",
   /** Lema corto */
-  tagline: "La guía viva de la comunidad",
+  tagline: "La guía hecha por y para los vecinos",
   /** Descripción SEO */
   description:
-    "Directorio comercial comunitario del Condominio La Rueda: descubre y apoya los productos y servicios que ofrecen tus propios vecinos. Buscador inteligente, carrusel de destacados, categorías predefinidas y preguntas frecuentes.",
-  /** Datos de contacto de la administración de la guía */
-  admin: {
-    label: "Administración de la guía",
-    phone: "+506 8888-0000",
-    whatsapp: "50688880000",
-    email: "guia@condominiolarueda.cr",
+    "La guía hecha por y para los vecinos del Condominio La Rueda: descubre los productos y servicios que ofrece tu propia comunidad. Administrada por los vecinos y con todas las solicitudes —secretaría incluida— por el grupo de WhatsApp.",
+  /**
+   * Grupo de WhatsApp de los vecinos: el ÚNICO canal de solicitud.
+   * ▶ REEMPLAZA el enlace provisional por el enlace de invitación real
+   *   de tu grupo (WhatsApp → Información del grupo → Invitar enlace).
+   */
+  whatsappGroup: {
+    url: "https://chat.whatsapp.com/invito-vecinos-la-rueda",
+    label: "Grupo de WhatsApp de los vecinos",
   },
   /** Secciones del sitio de una sola página (anclas) */
   anchors: [
@@ -53,8 +59,7 @@ export function telHref(phone: string): string {
   return `tel:${phone.replace(/[^\d+]/g, "")}`;
 }
 
-/** Utilidad: enlace de WhatsApp con mensaje precargado */
-export function waHref(phone: string, message: string): string {
-  const digits = phone.replace(/\D/g, "");
-  return `https://wa.me/${digits}?text=${encodeURIComponent(message)}`;
+/** Atajo: enlace del grupo de WhatsApp de los vecinos */
+export function groupHref(): string {
+  return SITE.whatsappGroup.url;
 }

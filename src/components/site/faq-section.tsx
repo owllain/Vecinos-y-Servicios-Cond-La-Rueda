@@ -28,7 +28,7 @@ import {
   FAQ_ITEMS,
   type FaqCategoryId,
 } from "@/lib/data/faq";
-import { SITE, waHref } from "@/lib/site-config";
+import { groupHref } from "@/lib/site-config";
 import { normalizeText, tokenize } from "@/lib/text";
 import { cn } from "@/lib/utils";
 
@@ -220,19 +220,17 @@ export function FaqSection() {
                 No encontramos esa pregunta.
               </h3>
               <p className="mt-2 text-sm text-muted-foreground">
-                Escríbenos y la respondemos enseguida.
+                Escríbelo al grupo de WhatsApp de los vecinos y la respondemos enseguida.
               </p>
               <a
-                href={waHref(
-                  SITE.admin.whatsapp,
-                  "Hola, tengo una pregunta sobre la guía de vecinos:",
-                )}
+                href={groupHref()}
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label="Preguntar en el grupo de WhatsApp de los vecinos (se abre en una pestaña nueva)"
                 className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-full bg-brand-teal-dark px-6 text-sm font-semibold text-white shadow-xs transition-colors hover:bg-brand-teal-dark/90"
               >
                 <MessageCircle aria-hidden="true" className="size-4" />
-                Escríbenos por WhatsApp
+                Preguntar al grupo de WhatsApp
               </a>
             </div>
           )}

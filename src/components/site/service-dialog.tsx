@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 
 import { categoryUi, type ServiceListing } from "@/lib/data/services";
-import { SITE, telHref, waHref } from "@/lib/site-config";
+import { SITE, telHref, groupHref } from "@/lib/site-config";
 import { shareListing } from "@/lib/share";
 import { useSearchStore } from "@/lib/search-store";
 import { useFavoritesStore } from "@/lib/favorites-store";
@@ -37,10 +37,9 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 
-/** Mensaje precargado de WhatsApp para el anuncio */
-function whatsappMessage(title: string): string {
-  return `Hola, vi tu anuncio "${title}" en la guía Vecinos y Servicios del Condominio La Rueda y me interesa.`;
-}
+/* Nota fija que acompaña a los botones de contacto de la ficha */
+const NOTA_GRUPO =
+  "Las solicitudes —secretaría incluida— se atienden escribiendo al grupo de WhatsApp de los vecinos.";
 
 /* ────────────────────────────────────────────────────────────────────
  * Galería interna: carrusel embla (loop, sin autoplay) si hay varias
@@ -345,8 +344,19 @@ export function ServiceDialog({ service, open, onOpenChange }: ServiceDialogProp
                 </div>
               )}
 
-              {/* Contacto */}
+              {/* Contacto: pedir por el grupo (canal oficial) o llamar */}
               <div className="grid gap-3 pt-1 sm:grid-cols-2">
+                <a
+                  href={groupHref()}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`Pedir ${service.title} en el grupo de WhatsApp de los vecinos (se abre en una pestaña nueva)`}
+                  className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-brand-teal px-4 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-teal-dark"
+                >
+                  <MessageCircle className="h-4 w-4" aria-hidden="true" />
+                  Pedir por WhatsApp
+                </a>
+
                 <a
                   href={telHref(service.phone)}
                   className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
@@ -354,18 +364,6 @@ export function ServiceDialog({ service, open, onOpenChange }: ServiceDialogProp
                   <Phone className="h-4 w-4" aria-hidden="true" />
                   Llamar {service.phone}
                 </a>
-
-                {service.whatsapp && (
-                  <a
-                    href={waHref(service.phone, whatsappMessage(service.title))}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-brand-teal px-4 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-teal-dark"
-                  >
-                    <MessageCircle className="h-4 w-4" aria-hidden="true" />
-                    WhatsApp
-                  </a>
-                )}
 
                 <Button
                   type="button"
@@ -396,6 +394,14 @@ export function ServiceDialog({ service, open, onOpenChange }: ServiceDialogProp
                   Compartir
                 </Button>
               </div>
+
+              <p className="flex items-start gap-2 rounded-xl bg-brand-teal-soft/60 px-3.5 py-2.5 text-xs leading-relaxed text-brand-pine">
+                <MessageCircle
+                  className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand-teal-dark"
+                  aria-hidden="true"
+                />
+                {NOTA_GRUPO}
+              </p>
             </div>
           </div>
         </div>

@@ -5,14 +5,14 @@ import {
   BookOpen,
   HeartHandshake,
   LayoutGrid,
-  MapPin,
-  Phone,
+  MessageCircle,
   Search,
   Star,
 } from "lucide-react";
 import { SafeImage } from "@/components/safe-image";
 import { CATEGORIES, SERVICES } from "@/lib/data/services";
 import { scrollToSection } from "@/lib/search-store";
+import { groupHref } from "@/lib/site-config";
 
 const stagger: Variants = {
   hidden: {},
@@ -32,9 +32,9 @@ export function Hero() {
   const reduce = useReducedMotion();
 
   const stats = [
-    { icon: BookOpen, value: `${SERVICES.length} anuncios`, label: "publicados en la guía" },
+    { icon: BookOpen, value: `${SERVICES.length} anuncios`, label: "publicados por vecinos" },
     { icon: LayoutGrid, value: `${CATEGORIES.length} categorías`, label: "para encontrar rápido" },
-    { icon: HeartHandshake, value: "100% vecinos", label: "proveedores de confianza" },
+    { icon: HeartHandshake, value: "100% vecinal", label: "hecha y administrada por vecinos" },
   ];
 
   return (
@@ -61,8 +61,8 @@ export function Hero() {
             variants={fadeUp}
             className="inline-flex items-center gap-1.5 rounded-full border border-brand-teal/40 bg-brand-teal-soft px-3.5 py-1.5 text-xs font-semibold text-brand-teal-dark"
           >
-            <MapPin className="h-3.5 w-3.5" aria-hidden />
-            Guía comunitaria · Condominio La Rueda
+            <HeartHandshake className="h-3.5 w-3.5" aria-hidden />
+            Hecha por y para los vecinos · Condominio La Rueda
           </motion.p>
 
           <motion.h1
@@ -78,7 +78,9 @@ export function Hero() {
           >
             Descubre los productos y servicios que ofrecen los propios vecinos del
             condominio: pan caliente, plomero de confianza, clases, uñas, mascotas y
-            más. Como una guía turística, pero de nuestra comunidad.
+            más. La guía la escriben y la administran los vecinos, y todo se solicita
+            por el grupo de WhatsApp: servicios, pedidos y trámites de secretaría
+            incluidos.
           </motion.p>
 
           {/* Hick: máximo 2 CTAs principales */}
@@ -91,14 +93,16 @@ export function Hero() {
               <Search className="h-5 w-5" aria-hidden />
               Buscar servicios
             </button>
-            <button
-              type="button"
-              onClick={() => scrollToSection("categorias")}
-              className="inline-flex h-12 items-center justify-center gap-2 rounded-full border-2 border-brand-pine/25 px-7 text-base font-semibold text-brand-pine transition-colors duration-200 hover:border-brand-teal hover:text-brand-teal-dark"
+            <a
+              href={groupHref()}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Abrir el grupo de WhatsApp de los vecinos (se abre en una pestaña nueva)"
+              className="inline-flex h-12 items-center justify-center gap-2 rounded-full border-2 border-brand-teal/60 bg-brand-teal-soft px-7 text-base font-semibold text-brand-teal-dark transition-colors duration-200 hover:bg-brand-teal-dark hover:text-white"
             >
-              <LayoutGrid className="h-5 w-5" aria-hidden />
-              Explorar categorías
-            </button>
+              <MessageCircle className="h-5 w-5" aria-hidden />
+              Grupo de WhatsApp
+            </a>
           </motion.div>
 
           {/* Mini-estadísticas */}
@@ -153,13 +157,13 @@ export function Hero() {
             <Star className="h-4 w-4 fill-brand-gold text-brand-gold" aria-hidden />
           </div>
 
-          {/* Píldora flotante: teléfono de un vecino */}
+          {/* Píldora flotante: todo se solicita por el grupo */}
           <div
-            className="animate-floaty absolute -right-3 bottom-10 hidden items-center gap-2 rounded-full bg-brand-pine px-4 py-2.5 text-xs text-brand-cream shadow-xl sm:flex"
+            className="animate-floaty absolute -right-3 bottom-10 hidden items-center gap-2 rounded-full bg-brand-teal-dark px-4 py-2.5 text-xs text-white shadow-xl sm:flex"
             style={{ animationDelay: "1.5s" }}
           >
-            <Phone className="h-3.5 w-3.5 text-brand-gold" aria-hidden />
-            <span className="font-semibold">+506 8888-1001</span>
+            <MessageCircle className="h-3.5 w-3.5 text-brand-gold" aria-hidden />
+            <span className="font-semibold">Solicitudes por WhatsApp · secretaría incluida</span>
           </div>
         </motion.div>
       </div>

@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import { LayoutGrid, MessageCircle, Search } from "lucide-react";
 import { scrollToSection } from "@/lib/search-store";
-import { SITE, waHref } from "@/lib/site-config";
+import { groupHref } from "@/lib/site-config";
 
 /**
  * Barra de acciones rápidas para móvil: buscar, directorio y WhatsApp.
@@ -58,12 +58,12 @@ export function MobileStickyBar() {
           <span className="text-[11px] font-medium text-brand-ink">Directorio</span>
         </button>
 
-        {/* WhatsApp */}
+        {/* WhatsApp: grupo de los vecinos (solicitudes, secretaría incluida) */}
         <a
-          href={waHref(SITE.admin.whatsapp, "Hola")}
+          href={groupHref()}
           target="_blank"
           rel="noopener noreferrer"
-          aria-label="Contactar a la administración por WhatsApp (se abre en una pestaña nueva)"
+          aria-label="Abrir el grupo de WhatsApp de los vecinos (se abre en una pestaña nueva)"
           className={actionClass}
         >
           <MessageCircle className="h-5 w-5" aria-hidden />

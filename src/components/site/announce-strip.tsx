@@ -1,7 +1,7 @@
 "use client";
 
 import { BookMarked, MessageCircle, Sparkles } from "lucide-react";
-import { SITE, waHref } from "@/lib/site-config";
+import { groupHref } from "@/lib/site-config";
 
 /** Mini chips con los 6 datos que debe preparar el vecino (Ley de Miller) */
 const DATOS_ANUNCIO = [
@@ -37,8 +37,9 @@ export function AnnounceStrip() {
               Anúnciate gratis en la guía
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground md:text-lg">
-              Los vecinos son nuestros mejores proveedores. Publica tu servicio o
-              producto y que todo el condominio te encuentre en segundos.
+              La guía la hacemos entre vecinos: publican los vecinos, la administran
+              los vecinos. Publica tu servicio o producto y que todo el condominio
+              te encuentre en segundos.
             </p>
           </div>
 
@@ -79,23 +80,21 @@ export function AnnounceStrip() {
                 2
               </span>
               <h3 className="mt-3 text-base font-semibold text-brand-pine">
-                Envíala a administración
+                Escríbelo al grupo de WhatsApp
               </h3>
               <p className="mb-4 mt-1.5 text-sm leading-relaxed text-muted-foreground">
-                Mándanos todo por WhatsApp y nosotros lo revisamos contigo.
+                Pega tu información en el grupo de los vecinos y el equipo vecinal
+                la revisa contigo.
               </p>
               <a
-                href={waHref(
-                  SITE.admin.whatsapp,
-                  "Hola, quiero publicar mi servicio en la guía del Condominio La Rueda. Mi información: [título, categoría, palabras clave, imágenes, teléfono y descripción]",
-                )}
+                href={groupHref()}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="Enviar información por WhatsApp a la administración (se abre en una pestaña nueva)"
+                aria-label="Abrir el grupo de WhatsApp de los vecinos para enviar tu información (se abre en una pestaña nueva)"
                 className="mt-auto inline-flex h-11 items-center justify-center gap-2 rounded-full bg-brand-teal-dark px-5 text-sm font-semibold text-white shadow-md shadow-brand-teal/25 transition-all duration-200 hover:brightness-90 active:scale-[0.98]"
               >
                 <MessageCircle className="h-4 w-4" aria-hidden />
-                Enviar por WhatsApp
+                Abrir el grupo de WhatsApp
               </a>
             </li>
 
@@ -111,7 +110,8 @@ export function AnnounceStrip() {
                 Aparece en la guía
               </h3>
               <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
-                En menos de 48 horas tu anuncio está visible para todos.
+                Los vecinos administradores la publican y queda visible para todo
+                el condominio.
               </p>
               <p className="mt-3 inline-flex items-center rounded-full bg-brand-gold-soft px-3 py-1 text-xs font-semibold text-brand-pine">
                 100% gratis

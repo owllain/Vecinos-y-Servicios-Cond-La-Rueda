@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { LucideIcon } from "lucide-react";
-import { LayoutGrid, Search, SearchX, X } from "lucide-react";
+import { LayoutGrid, MessageCircle, Search, SearchX, X } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 
 import {
@@ -13,6 +13,7 @@ import {
   type CategoryFilter,
 } from "@/lib/data/services";
 import { scrollToSection, useSearchStore } from "@/lib/search-store";
+import { groupHref } from "@/lib/site-config";
 import { useNativeInputSync } from "@/hooks/use-native-input-sync";
 import { ServiceCard } from "@/components/site/service-card";
 import { Button } from "@/components/ui/button";
@@ -184,7 +185,8 @@ export function SearchSection() {
           ¿Qué necesitas hoy?
         </h2>
         <p className="mx-auto mt-3 max-w-2xl text-base text-muted-foreground md:text-lg">
-          Escribe y descubre quién en el condominio lo ofrece: pan, un plomero, uñas, yoga…
+          Escribe y descubre quién en el condominio lo ofrece: pan, un plomero, uñas,
+          yoga… y pídelo por el grupo de WhatsApp de los vecinos.
         </p>
 
         {/* Caja de búsqueda */}
@@ -306,17 +308,30 @@ export function SearchSection() {
                 <p className="mt-3 font-display text-xl text-brand-pine">
                   Sin resultados para «{query}»
                 </p>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Prueba con otra palabra (el buscador ignora tildes y mayúsculas)
+                <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">
+                  Ningún vecino lo publica todavía. Pídelo en el grupo de WhatsApp —la
+                  comunidad te ayuda, secretaría incluida— o anúnciate si lo ofreces tú.
                 </p>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => scrollToSection("anunciate")}
-                  className="mt-5 h-11 rounded-full border-brand-pine/30 px-5 text-sm font-semibold text-brand-pine hover:bg-brand-pine-soft"
-                >
-                  ¿Ofreces este servicio? Anúnciate
-                </Button>
+                <div className="mt-5 flex flex-wrap items-center justify-center gap-2.5">
+                  <a
+                    href={groupHref()}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Pedir este servicio en el grupo de WhatsApp de los vecinos (se abre en una pestaña nueva)"
+                    className="inline-flex h-11 items-center gap-2 rounded-full bg-brand-teal px-5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-teal-dark"
+                  >
+                    <MessageCircle className="h-4 w-4" aria-hidden="true" />
+                    Pedirlo al grupo de WhatsApp
+                  </a>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => scrollToSection("anunciate")}
+                    className="h-11 rounded-full border-brand-pine/30 px-5 text-sm font-semibold text-brand-pine hover:bg-brand-pine-soft"
+                  >
+                    ¿Ofreces este servicio? Anúnciate
+                  </Button>
+                </div>
               </motion.div>
             ) : (
               <motion.div

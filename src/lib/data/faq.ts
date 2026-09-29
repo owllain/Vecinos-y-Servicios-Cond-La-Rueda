@@ -39,14 +39,14 @@ export const FAQ_ITEMS: FaqItem[] = [
     id: "que-hay-en-el-carrusel",
     question: "¿Qué aparece en el carrusel de destacados?",
     answer:
-      "El carrusel muestra los servicios y productos seleccionados por la administración para resaltar en cada temporada. Rota automáticamente, se puede deslizar con el dedo o con las flechas, y cada tarjeta tiene botones directos para llamar o abrir la ficha completa.",
+      "El carrusel muestra los servicios y productos que los vecinos administradores seleccionan para resaltar en cada temporada. Rota automáticamente, se puede deslizar con el dedo o con las flechas, y cada tarjeta tiene botones directos para llamar al vecino o pedir por el grupo de WhatsApp.",
     category: "general",
   },
   {
     id: "responsabilidad-transacciones",
     question: "¿El condominio se hace responsable de las compras?",
     answer:
-      "No. La guía es un medio informativo entre vecinos: precios, entregas, garantías y calidad se acuerdan directamente con cada vecino vendedor. Te recomendamos coordinar siempre dentro del condominio y usar los canales oficiales de contacto de cada anuncio.",
+      "No. La guía es un medio informativo entre vecinos: precios, entregas, garantías y calidad se acuerdan directamente con cada vecino vendedor. Te recomendamos coordinar siempre dentro del condominio y hacer tus solicitudes por el grupo oficial de WhatsApp de la comunidad.",
     category: "general",
   },
   {
@@ -60,7 +60,7 @@ export const FAQ_ITEMS: FaqItem[] = [
     id: "quien-mantiene",
     question: "¿Quién mantiene la guía?",
     answer:
-      "La administra la Administración del condominio junto con el comité de vecinos. Si detectas información desactualizada o quieres sugerir una mejora, escríbenos por WhatsApp o correo (ver sección Anúnciate).",
+      "La administran los propios vecinos del condominio de forma voluntaria: ellos revisan, publican y mantienen los anuncios al día. No hay empresas ni administradores externos. Si detectas información desactualizada o quieres sugerir una mejora, escríbelo al grupo de WhatsApp de los vecinos.",
     category: "general",
   },
   {
@@ -74,7 +74,7 @@ export const FAQ_ITEMS: FaqItem[] = [
     id: "como-publicar",
     question: "¿Cómo publico mi servicio o producto?",
     answer:
-      "Tres pasos: 1) Prepara tu información (título, categoría, palabras clave, fotos, número de contacto y descripción). 2) Envíala a la administración por WhatsApp o correo. 3) En menos de 48 horas tu anuncio aparece en la guía, listo para que tus vecinos te encuentren.",
+      "Tres pasos: 1) Prepara tu información (título, categoría, palabras clave, fotos, número de contacto y descripción). 2) Escríbela al grupo de WhatsApp de los vecinos. 3) Los vecinos administradores la revisan y en menos de 48 horas tu anuncio aparece en la guía, listo para que tus vecinos te encuentren.",
     category: "publicar",
   },
   {
@@ -95,14 +95,14 @@ export const FAQ_ITEMS: FaqItem[] = [
     id: "como-enviar-imagenes",
     question: "¿Cómo envío las imágenes de mi anuncio?",
     answer:
-      "Envía entre 1 y 4 fotos buenas (JPG o PNG), con buena luz y sin marcas de agua. La primera será la imagen principal del anuncio. Puedes adjuntarlas al mismo WhatsApp o correo en que envías tu información.",
+      "Envía entre 1 y 4 fotos buenas (JPG o PNG), con buena luz y sin marcas de agua. La primera será la imagen principal del anuncio. Adjúntalas en el grupo de WhatsApp de los vecinos, junto con el resto de tu información.",
     category: "publicar",
   },
   {
     id: "editar-o-eliminar",
     question: "¿Puedo editar o eliminar mi anuncio después?",
     answer:
-      "Sí. Escríbele a la administración por WhatsApp o correo indicando el nombre de tu anuncio y el cambio (nuevo horario, nuevo teléfono, nuevas fotos o retirarlo). Los cambios se aplican en menos de 48 horas.",
+      "Sí. Escríbelo en el grupo de WhatsApp de los vecinos indicando el nombre de tu anuncio y el cambio (nuevo horario, nuevo teléfono, nuevas fotos o retirarlo). Los vecinos administradores aplican los cambios en menos de 48 horas.",
     category: "publicar",
   },
   {
@@ -144,14 +144,28 @@ export const FAQ_ITEMS: FaqItem[] = [
     id: "como-contactar-vecino",
     question: "¿Cómo contacto a un vecino vendedor?",
     answer:
-      "Cada tarjeta tiene botones directos: llamar por teléfono o abrir WhatsApp con un mensaje precargado. También puedes ver la ficha completa con horario, ubicación dentro del condominio y descripción detallada.",
+      "Para solicitar cualquier servicio —secretaría incluida— escribe al grupo de WhatsApp de los vecinos: el botón verde «Pedir por WhatsApp» de cada tarjeta te lleva directo al grupo. Cada anuncio también muestra el número del vecino por si prefieres llamar, y la ficha completa incluye horario, ubicación y descripción detallada.",
+    category: "contacto",
+  },
+  {
+    id: "tramites-secretaria",
+    question: "¿Cómo solicito un trámite de la secretaría?",
+    answer:
+      "Igual que un servicio: escribiendo al grupo de WhatsApp de los vecinos. Constancias de residencia, cartas, reservas de espacios y cualquier gestión con la secretaría se piden únicamente por el grupo; los vecinos encargados reciben y responden ahí mismo, y así queda registro para toda la comunidad.",
+    category: "contacto",
+  },
+  {
+    id: "como-entrar-al-grupo",
+    question: "¿Cómo me uno al grupo de WhatsApp?",
+    answer:
+      "Usa el botón verde «Unirme al grupo de WhatsApp» del pie de página o el de la sección «Anúnciate». Si el enlace cambió, pídeselo a cualquier vecino administrador de la guía; todas las solicitudes de la comunidad se coordinan en ese grupo.",
     category: "contacto",
   },
   {
     id: "reportar-anuncio",
     question: "¿Cómo reporto un anuncio o hago una sugerencia?",
     answer:
-      "Escríbele a la administración por WhatsApp o correo con el nombre del anuncio y el motivo. Revisamos todo reporte para mantener una guía confiable y útil para toda la comunidad.",
+      "Escríbelo en el grupo de WhatsApp de los vecinos con el nombre del anuncio y el motivo. Los vecinos administradores revisan todo reporte para mantener una guía confiable y útil para toda la comunidad.",
     category: "contacto",
   },
 ];

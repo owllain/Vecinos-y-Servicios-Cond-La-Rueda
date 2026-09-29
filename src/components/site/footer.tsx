@@ -1,10 +1,10 @@
 "use client";
 
-import { Clock, Mail, MessageCircle, Phone } from "lucide-react";
+import { Check, MessageCircle } from "lucide-react";
 import { Logo } from "@/components/brand/logo";
 import { CATEGORIES, categoryCounts } from "@/lib/data/services";
 import { useSearchStore, scrollToSection } from "@/lib/search-store";
-import { SITE, telHref, waHref } from "@/lib/site-config";
+import { SITE, groupHref } from "@/lib/site-config";
 
 /**
  * Pie de página con la firma visual del proyecto: una banda de
@@ -60,7 +60,8 @@ export function Footer() {
             <Logo tone="light" />
             <p className="font-display text-lg text-brand-cream">{SITE.tagline}</p>
             <p className="max-w-xs text-sm text-brand-cream/70">
-              Hecha por vecinos, para vecinos.
+              Hecha por y para los vecinos del condominio: la escriben, administran
+              y actualizan los propios vecinos.
             </p>
           </div>
 
@@ -109,50 +110,36 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* 4 · Administración de la guía */}
+          {/* 4 · Grupo de WhatsApp: único canal de solicitudes */}
           <div>
-            <h3 className="font-display text-lg text-brand-gold">Administración de la guía</h3>
-            <ul className="mt-3 space-y-0.5">
-              <li>
-                <a
-                  href={telHref(SITE.admin.phone)}
-                  className="flex min-h-11 items-center gap-2.5 text-sm text-brand-cream/80 transition-colors duration-200 hover:text-brand-gold"
-                  aria-label={`Llamar a la administración al ${SITE.admin.phone}`}
-                >
-                  <Phone className="h-4 w-4 shrink-0 text-brand-gold" aria-hidden />
-                  {SITE.admin.phone}
-                </a>
-              </li>
-              <li>
-                <a
-                  href={waHref(
-                    SITE.admin.whatsapp,
-                    "Hola, quiero publicar mi servicio en la guía de vecinos",
-                  )}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex min-h-11 items-center gap-2.5 text-sm text-brand-cream/80 transition-colors duration-200 hover:text-brand-gold"
-                  aria-label="Escribir a la administración por WhatsApp (se abre en una pestaña nueva)"
-                >
-                  <MessageCircle className="h-4 w-4 shrink-0 text-brand-gold" aria-hidden />
-                  WhatsApp de administración
-                </a>
-              </li>
-              <li>
-                <a
-                  href={`mailto:${SITE.admin.email}`}
-                  className="flex min-h-11 items-center gap-2.5 text-sm text-brand-cream/80 transition-colors duration-200 hover:text-brand-gold"
-                  aria-label={`Escribir un correo a ${SITE.admin.email}`}
-                >
-                  <Mail className="h-4 w-4 shrink-0 text-brand-gold" aria-hidden />
-                  {SITE.admin.email}
-                </a>
-              </li>
-              <li className="flex min-h-11 items-center gap-2.5 text-sm text-brand-cream/80">
-                <Clock className="h-4 w-4 shrink-0 text-brand-gold" aria-hidden />
-                Lun a Vie · 8 a. m. – 5 p. m.
-              </li>
+            <h3 className="font-display text-lg text-brand-gold">Grupo de WhatsApp de los vecinos</h3>
+            <p className="mt-3 text-sm text-brand-cream/70">
+              La guía la administran los vecinos y todo se solicita escribiendo al
+              grupo (secretaría incluida):
+            </p>
+            <ul className="mt-2 space-y-0.5">
+              {["Pedir servicios y productos", "Trámites de la secretaría", "Publicar o editar tu anuncio"].map(
+                (item) => (
+                  <li
+                    key={item}
+                    className="flex min-h-9 items-center gap-2 text-sm text-brand-cream/80"
+                  >
+                    <Check className="h-4 w-4 shrink-0 text-brand-gold" aria-hidden />
+                    {item}
+                  </li>
+                ),
+              )}
             </ul>
+            <a
+              href={groupHref()}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-4 inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-brand-teal px-5 text-sm font-semibold text-white shadow-md shadow-brand-teal/25 transition-all duration-200 hover:bg-brand-teal-dark active:scale-[0.98]"
+              aria-label="Abrir el grupo de WhatsApp de los vecinos (se abre en una pestaña nueva)"
+            >
+              <MessageCircle className="h-4 w-4" aria-hidden />
+              Unirme al grupo de WhatsApp
+            </a>
           </div>
         </div>
 

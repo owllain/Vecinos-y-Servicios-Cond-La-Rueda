@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, type KeyboardEvent } from "react";
-import { ChevronRight, Eye, Heart, Phone, Share2, Sparkles, Star } from "lucide-react";
+import { Eye, Heart, MessageCircle, Phone, Share2, Sparkles, Star } from "lucide-react";
 
 import { categoryUi, type ServiceListing } from "@/lib/data/services";
-import { telHref } from "@/lib/site-config";
+import { telHref, groupHref } from "@/lib/site-config";
 import { shareListing } from "@/lib/share";
 import { useSearchStore } from "@/lib/search-store";
 import { useFavoritesStore } from "@/lib/favorites-store";
@@ -13,7 +13,6 @@ import { useToast } from "@/hooks/use-toast";
 import { SafeImage } from "@/components/safe-image";
 import { HighlightText } from "@/components/site/highlight-text";
 import { ServiceDialog } from "@/components/site/service-dialog";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 /** Tamaños de la imagen según el grid de resultados */
@@ -199,7 +198,7 @@ export function ServiceCard({
             </div>
           )}
 
-          {/* Pie: acceso rápido al teléfono + ficha completa */}
+          {/* Pie: teléfono del vecino + pedir por el grupo (canal oficial) */}
           <div className="mt-auto flex items-center justify-between gap-2 border-t border-border pt-2">
             <a
               href={telHref(service.phone)}
@@ -227,20 +226,18 @@ export function ServiceCard({
               <Share2 className="h-4 w-4" aria-hidden="true" />
             </button>
 
-            <Button
-              type="button"
-              onClick={(event) => {
-                event.stopPropagation();
-                openDialog();
-              }}
-              className="h-11 rounded-full bg-brand-pine px-4 text-sm font-semibold text-brand-cream shadow-sm hover:bg-brand-pine-deep"
+            {/* Solicitudes por el grupo de WhatsApp — secretaría incluida */}
+            <a
+              href={groupHref()}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(event) => event.stopPropagation()}
+              aria-label={`Pedir ${service.title} en el grupo de WhatsApp de los vecinos (se abre en una pestaña nueva)`}
+              className="inline-flex h-11 items-center gap-1.5 rounded-full bg-brand-teal px-4 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-teal-dark"
             >
-              Ver detalles
-              <ChevronRight
-                className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5"
-                aria-hidden="true"
-              />
-            </Button>
+              <MessageCircle className="h-4 w-4" aria-hidden="true" />
+              Pedir
+            </a>
           </div>
         </div>
       </div>
