@@ -8,15 +8,20 @@ import {
   ChevronRight,
   Clock,
   Copy,
+  Eye,
+  Heart,
   MapPin,
   MessageCircle,
   Phone,
+  Share2,
   X,
 } from "lucide-react";
 
 import { categoryUi, type ServiceListing } from "@/lib/data/services";
 import { SITE, telHref, waHref } from "@/lib/site-config";
 import { useSearchStore } from "@/lib/search-store";
+import { useFavoritesStore } from "@/lib/favorites-store";
+import { useViewsStore } from "@/lib/views-store";
 import { SafeImage } from "@/components/safe-image";
 import { HighlightText } from "@/components/site/highlight-text";
 import { Badge } from "@/components/ui/badge";
@@ -151,6 +156,14 @@ export function ServiceDialog({ service, open, onOpenChange }: ServiceDialogProp
   const query = useSearchStore((state) => state.query);
   const [copied, setCopied] = useState(false);
   const copyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const registerView = useViewsStore((state) => state.registerView);
+  const isFavorite = useFavoritesStore((state) =>
+    service ? state.favorites.includes(service.id) : false,
+  );
+  const toggleFavorite = useFavoritesStore((state) => state.toggleFavorite);
+  const views = useViewsStore((state) =>
+    service ? state.counts[service.id] : undefined,
+  );
 
   // Limpia el temporizador del botón copiar al desmontar
   useEffect(() => {
@@ -164,7 +177,11 @@ export function ServiceDialog({ service, open, onOpenChange }: ServiceDialogProp
   const [wasOpen, setWasOpen] = useState(open);
   if (open !== wasOpen) {
     setWasOpen(open);
-    if (open) setCopied(false);
+    if (open) {
+      setCopied(false);
+      // Cada apertura de ficha cuenta como una vista del anuncio
+      if (service) void registerView(service.id);
+    }
   }
 
   // Sin anuncio no se renderiza contenido (el padre controla `open`);
@@ -177,6 +194,33 @@ export function ServiceDialog({ service, open, onOpenChange }: ServiceDialogProp
   const CategoryIcon = ui.icon;
   const images =
     service.images.length > 0 ? service.images : ["/images/placeholder.svg"];
+
+  const shareUrl =
+    service && typeof window !== "undefined"
+      ? `${window.location.origin}/?q=${encodeURIComponent(service.title)}#buscador`
+      : SITE.url;
+
+  const handleShare = async () => {
+    if (!service) return;
+    const shareData = {
+      title: `${service.title} · ${SITE.name}`,
+      text: `Mira este anuncio de la guía del ${SITE.community}: ${service.title}${service.tagline ? ` — ${service.tagline}` : ""}`,
+      url: shareUrl,
+    };
+    try {
+      if (typeof navigator.share === "function") {
+        await navigator.share(shareData);
+        return;
+      }
+      await navigator.clipboard.writeText(shareData.url);
+      toast({
+        title: "Enlace copiado",
+        description: "Compártelo con tus vecinos por WhatsApp o correo.",
+      });
+    } catch {
+      // El usuario canceló el diálogo nativo de compartir: no es un error
+    }
+  };
 
   const handleCopy = async () => {
     try {
@@ -203,6 +247,35 @@ export function ServiceDialog({ service, open, onOpenChange }: ServiceDialogProp
           {/* Galería */}
           <div className="relative shrink-0">
             <ServiceGallery images={images} title={service.title} />
+            {/* Favorito: corazón junto al cierre, sobre la imagen */}
+            <button
+              type="button"
+              onClick={() => toggleFavorite(service.id)}
+              aria-pressed={isFavorite}
+              aria-label={
+                isFavorite
+                  ? `Quitar ${service.title} de favoritos`
+                  : `Guardar ${service.title} en favoritos`
+              }
+              className={cn(
+                "absolute right-16 top-3 z-10 flex h-11 w-11 items-center justify-center rounded-full shadow-md transition-colors",
+                isFavorite
+                  ? "bg-brand-terracotta text-white hover:bg-brand-terracotta-dark"
+                  : "bg-white/90 text-brand-terracotta hover:bg-white",
+              )}
+            >
+              <Heart
+                className={cn("h-5 w-5", isFavorite && "fill-current")}
+                aria-hidden="true"
+              />
+            </button>
+            {/* Contador de vistas del anuncio */}
+            {typeof views === "number" && (
+              <span className="absolute bottom-3 left-3 z-10 inline-flex items-center gap-1.5 rounded-full bg-black/35 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-sm">
+                <Eye className="h-3.5 w-3.5" aria-hidden="true" />
+                {views} {views === 1 ? "vista" : "vistas"}
+              </span>
+            )}
             <DialogClose
               className="absolute right-3 top-3 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-white/90 text-brand-pine shadow-md transition-colors hover:bg-white"
               aria-label="Cerrar ficha del anuncio"
@@ -282,12 +355,7 @@ export function ServiceDialog({ service, open, onOpenChange }: ServiceDialogProp
               )}
 
               {/* Contacto */}
-              <div
-                className={cn(
-                  "grid gap-3 pt-1",
-                  service.whatsapp ? "sm:grid-cols-3" : "sm:grid-cols-2",
-                )}
-              >
+              <div className="grid gap-3 pt-1 sm:grid-cols-2">
                 <a
                   href={telHref(service.phone)}
                   className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
@@ -323,6 +391,18 @@ export function ServiceDialog({ service, open, onOpenChange }: ServiceDialogProp
                     <Copy className="h-4 w-4" aria-hidden="true" />
                   )}
                   {copied ? "¡Copiado!" : "Copiar número"}
+                </Button>
+
+                {/* Compartir: Web Share API con respaldo de portapapeles */}
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleShare}
+                  className="h-12 rounded-xl px-4 font-semibold"
+                  aria-label={`Compartir el anuncio de ${service.title}`}
+                >
+                  <Share2 className="h-4 w-4" aria-hidden="true" />
+                  Compartir
                 </Button>
               </div>
             </div>

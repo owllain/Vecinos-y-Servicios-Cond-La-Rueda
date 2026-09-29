@@ -47,11 +47,13 @@ const ANCHOR_ICONS: Record<string, LucideIcon> = {
 
 /**
  * Navbar fija de la guía: barra superior con datos de la comunidad,
- * barra principal transparente que se vuelve sólida al hacer scroll
- * y menú lateral (Sheet) para móvil con todas las secciones.
+ * barra principal transparente que se vuelve sólida al hacer scroll,
+ * scroll-spy que resalta la sección visible y menú lateral (Sheet)
+ * para móvil con todas las secciones.
  */
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
+  const [activeSection, setActiveSection] = useState<string>("inicio");
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -59,6 +61,26 @@ export function Navbar() {
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // Scroll-spy: resalta en el nav la sección actualmente visible
+  useEffect(() => {
+    const sections = SITE.anchors
+      .map((anchor) => document.getElementById(anchor.id))
+      .filter((el): el is HTMLElement => el !== null);
+    if (sections.length === 0) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) setActiveSection(entry.target.id);
+        }
+      },
+      // Franja de detección centrada bajo el navbar fijo
+      { rootMargin: "-30% 0px -60% 0px", threshold: 0 },
+    );
+    for (const section of sections) observer.observe(section);
+    return () => observer.disconnect();
   }, []);
 
   const mainLinks = SITE.anchors.filter((a) => NAV_IDS.includes(a.id));
@@ -101,17 +123,31 @@ export function Navbar() {
             <Logo tone="dark" />
           </a>
 
-          {/* Nav central (escritorio): 5 enlaces */}
+          {/* Nav central (escritorio): 5 enlaces con scroll-spy */}
           <nav aria-label="Secciones de la guía" className="hidden items-center gap-1 lg:flex">
-            {mainLinks.map((link) => (
-              <a
-                key={link.id}
-                href={`#${link.id}`}
-                className="flex min-h-11 items-center rounded-full px-4 text-sm font-medium text-brand-ink transition-colors duration-200 hover:text-brand-teal-dark"
-              >
-                {link.label}
-              </a>
-            ))}
+            {mainLinks.map((link) => {
+              const active = activeSection === link.id;
+              return (
+                <a
+                  key={link.id}
+                  href={`#${link.id}`}
+                  aria-current={active ? "true" : undefined}
+                  className={cn(
+                    "relative flex min-h-11 items-center rounded-full px-4 text-sm font-medium transition-colors duration-200 hover:text-brand-teal-dark",
+                    active ? "text-brand-teal-dark" : "text-brand-ink",
+                  )}
+                >
+                  {link.label}
+                  <span
+                    aria-hidden="true"
+                    className={cn(
+                      "absolute inset-x-4 bottom-1.5 h-0.5 rounded-full bg-brand-teal transition-all duration-300",
+                      active ? "opacity-100" : "opacity-0",
+                    )}
+                  />
+                </a>
+              );
+            })}
           </nav>
 
           <div className="flex items-center gap-1.5">
@@ -161,15 +197,28 @@ export function Navbar() {
                   <ul className="space-y-1">
                     {SITE.anchors.map((anchor) => {
                       const Icon = ANCHOR_ICONS[anchor.id] ?? MapPin;
+                      const active = activeSection === anchor.id;
                       return (
                         <li key={anchor.id}>
                           <a
                             href={`#${anchor.id}`}
                             onClick={() => setOpen(false)}
-                            className="flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-medium text-brand-ink transition-colors duration-200 hover:bg-brand-pine-soft hover:text-brand-pine"
+                            aria-current={active ? "true" : undefined}
+                            className={cn(
+                              "flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-medium transition-colors duration-200 hover:bg-brand-pine-soft hover:text-brand-pine",
+                              active
+                                ? "bg-brand-pine-soft text-brand-pine"
+                                : "text-brand-ink",
+                            )}
                           >
                             <Icon className="h-5 w-5 shrink-0 text-brand-teal-dark" aria-hidden />
                             {anchor.label}
+                            {active && (
+                              <span
+                                aria-hidden="true"
+                                className="ml-auto h-1.5 w-1.5 rounded-full bg-brand-teal"
+                              />
+                            )}
                           </a>
                         </li>
                       );

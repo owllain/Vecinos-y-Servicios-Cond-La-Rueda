@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import type { LucideIcon } from "lucide-react";
-import { LayoutGrid, Search, SearchX } from "lucide-react";
+import { Heart, LayoutGrid, Search, SearchX } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 
 import {
@@ -13,6 +13,7 @@ import {
   type CategoryFilter,
 } from "@/lib/data/services";
 import { useSearchStore } from "@/lib/search-store";
+import { useFavoritesStore } from "@/lib/favorites-store";
 import { ServiceCard } from "@/components/site/service-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -55,19 +56,25 @@ export function DirectorySection() {
   const setQuery = useSearchStore((state) => state.setQuery);
   const setCategory = useSearchStore((state) => state.setCategory);
   const clear = useSearchStore((state) => state.clear);
+  const favorites = useFavoritesStore((state) => state.favorites);
+  const [onlyFavorites, setOnlyFavorites] = useState(false);
   const reduceMotion = useReducedMotion() ?? false;
 
-  const results = useMemo(
-    () => searchServices(query, category),
-    [query, category],
-  );
+  const results = useMemo(() => {
+    const base = searchServices(query, category);
+    if (!onlyFavorites) return base;
+    const favoriteSet = new Set(favorites);
+    return base.filter((result) => favoriteSet.has(result.service.id));
+  }, [query, category, onlyFavorites, favorites]);
 
   const hasQuery = query.trim().length > 0;
   const isEmpty = results.length === 0;
 
   const counterText = hasQuery
     ? `${pluralCount(results.length, "resultado", "resultados")} para «${query}»`
-    : `${pluralCount(results.length, "anuncio", "anuncios")} en el directorio`;
+    : onlyFavorites
+      ? `${pluralCount(results.length, "anuncio favorito", "anuncios favoritos")}`
+      : `${pluralCount(results.length, "anuncio", "anuncios")} en el directorio`;
 
   return (
     <section id="servicios" aria-label="Directorio de servicios" className="py-16 md:py-20">
@@ -110,6 +117,33 @@ export function DirectorySection() {
               aria-label="Filtrar el directorio por categoría"
               className="scrollbar-fina flex gap-1.5 overflow-x-auto pb-1 md:max-w-[62%] md:pb-0"
             >
+              {/* Filtro de favoritos (persistente en el dispositivo) */}
+              <button
+                type="button"
+                aria-pressed={onlyFavorites}
+                onClick={() => setOnlyFavorites((value) => !value)}
+                className={cn(
+                  "inline-flex h-10 shrink-0 items-center gap-1.5 rounded-full border px-3.5 text-[13px] font-medium transition-all duration-200",
+                  onlyFavorites
+                    ? "border-transparent bg-brand-terracotta text-white shadow-sm"
+                    : "border-border bg-card text-foreground/75 hover:border-brand-terracotta hover:text-brand-terracotta-dark",
+                )}
+              >
+                <Heart
+                  className={cn("h-3.5 w-3.5", onlyFavorites && "fill-current")}
+                  aria-hidden="true"
+                />
+                <span className="whitespace-nowrap">Favoritos</span>
+                <span
+                  className={cn(
+                    "rounded-full px-1.5 text-[11px] font-semibold leading-4",
+                    onlyFavorites ? "bg-white/20 text-white" : "bg-muted text-muted-foreground",
+                  )}
+                >
+                  {favorites.length}
+                </span>
+              </button>
+
               {FILTER_CHIPS.map((chip) => {
                 const active = category === chip.id;
                 return (
@@ -157,20 +191,24 @@ export function DirectorySection() {
               aria-hidden="true"
             />
             <p className="mt-3 font-display text-xl text-brand-pine">
-              {hasQuery
-                ? `Sin resultados para «${query}»`
-                : "No hay anuncios en esta categoría todavía"}
+              {onlyFavorites && favorites.length === 0
+                ? "Aún no guardas favoritos"
+                : hasQuery
+                  ? `Sin resultados para «${query}»`
+                  : "No hay anuncios en esta categoría todavía"}
             </p>
             <p className="mt-1 text-sm text-muted-foreground">
-              Prueba con otra palabra o quita los filtros activos.
+              {onlyFavorites && favorites.length === 0
+                ? "Toca el corazón de cualquier anuncio para guardarlo aquí."
+                : "Prueba con otra palabra o quita los filtros activos."}
             </p>
             <Button
               type="button"
               variant="outline"
-              onClick={clear}
+              onClick={onlyFavorites ? () => setOnlyFavorites(false) : clear}
               className="mt-5 h-11 rounded-full px-5 text-sm font-semibold text-brand-pine hover:bg-brand-pine-soft"
             >
-              Limpiar filtros
+              {onlyFavorites ? "Ver todos los anuncios" : "Limpiar filtros"}
             </Button>
           </div>
         )}

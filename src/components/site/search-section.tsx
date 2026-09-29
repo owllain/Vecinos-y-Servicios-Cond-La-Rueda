@@ -59,6 +59,7 @@ export function SearchSection() {
   const setCategory = useSearchStore((state) => state.setCategory);
 
   const [input, setInput] = useState(query);
+  const [inputFocused, setInputFocused] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const reduceMotion = useReducedMotion() ?? false;
@@ -68,6 +69,57 @@ export function SearchSection() {
   useEffect(() => {
     setInput(query);
   }, [query]);
+
+  // Soporte ?q= en la URL (activa el SearchAction del JSON-LD):
+  // al llegar con /?q=pan#buscador la búsqueda se aplica sola.
+  const urlQueryApplied = useRef(false);
+  useEffect(() => {
+    if (urlQueryApplied.current) return;
+    urlQueryApplied.current = true;
+    // Defer a un macrotask: evita setState síncrono en el efecto y
+    // deja que la página termine de hidratar antes de desplazarse.
+    const timer = setTimeout(() => {
+      const params = new URLSearchParams(window.location.search);
+      let urlQuery = params.get("q") ?? "";
+      if (!urlQuery) {
+        const match = /[?#&]q=([^&]+)/.exec(window.location.hash);
+        if (match) urlQuery = decodeURIComponent(match[1]);
+      }
+      if (urlQuery) {
+        setInput(urlQuery);
+        setQuery(urlQuery);
+        document
+          .getElementById("buscador")
+          ?.scrollIntoView({ behavior: "smooth", block: "start" });
+        inputRef.current?.focus({ preventScroll: true });
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [setQuery]);
+
+  // Atajo de teclado "/": salta al buscador desde cualquier parte
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "/" || event.metaKey || event.ctrlKey || event.altKey) {
+        return;
+      }
+      const target = event.target as HTMLElement | null;
+      const isTyping =
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.tagName === "SELECT" ||
+          target.isContentEditable);
+      if (isTyping) return;
+      event.preventDefault();
+      document
+        .getElementById("buscador")
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+      inputRef.current?.focus({ preventScroll: true });
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, []);
 
   // Limpia el debounce pendiente al desmontar
   useEffect(() => {
@@ -141,10 +193,21 @@ export function SearchSection() {
             enterKeyHint="search"
             value={input}
             onChange={(event) => handleInput(event.target.value)}
+            onFocus={() => setInputFocused(true)}
+            onBlur={() => setInputFocused(false)}
             placeholder="Busca pan, plomero, uñas, taxi…"
             aria-label="Buscar servicios y productos de vecinos"
             className="h-14 rounded-2xl border-2 border-brand-pine/15 bg-card pl-14 pr-12 text-lg shadow-lg shadow-brand-pine/5 focus-visible:border-brand-teal md:h-16"
           />
+          {/* Pista de atajo de teclado (escritorio) */}
+          {input.length === 0 && !inputFocused && (
+            <kbd
+              aria-hidden="true"
+              className="pointer-events-none absolute right-4 top-1/2 hidden h-6 -translate-y-1/2 items-center rounded-md border border-border bg-muted px-2 font-sans text-xs font-semibold text-muted-foreground md:inline-flex"
+            >
+              /
+            </kbd>
+          )}
           {input.length > 0 && (
             <button
               type="button"

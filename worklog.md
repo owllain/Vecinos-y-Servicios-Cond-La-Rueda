@@ -382,3 +382,42 @@ Stage Summary:
 - LANZAMIENTO COMPLETO: "Vecinos y Servicios · Condominio La Rueda" 100% funcional en / (ruta única + anclas).
 - Arquitectura final: datos editables en src/lib/data/services.ts (14 anuncios ejemplo, 8 categorías) y faq.ts (18 preguntas); store zustand sincroniza buscador/filtros; SafeImage con fallback; SafeImage/placeholder.svg para futuras fotos del usuario.
 - Próximos pasos sugeridos (para el cron webDevReview): pulir detalles visuales (hover de tarjetas, transiciones), añadir contador de visitas por anuncio si se desea backend, o modo oscuro opcional.
+
+---
+
+Task ID: cron-r1 (webDevReview — ronda 1)
+Agent: Orquestador principal (Z.ai Code)
+Task: Revisión automática programada: QA del sitio estable → nuevas features fullstack (vistas + favoritos), deep-link ?q=, atajo "/", y pulido de estilo (scroll-spy, compartir, numeración de guía).
+
+Work Log:
+- QA inicial: 0 errores JS, 22/22 imágenes OK, consola limpia, APIs 200 → proyecto ESTABLE, se pasa a desarrollo de features.
+- FEATURE A — Contador de vistas (fullstack):
+  * prisma/schema.prisma: modelo ServiceView { serviceId @id, views, updatedAt } + índice por views; bun run db:push OK (Prisma Client v6.19.2 generado).
+  * GET /api/views → mapa { serviceId: views } (incluye todos los ids conocidos en 0).
+  * POST /api/views/[serviceId] → upsert +1; rechaza ids desconocidos con 404 "Anuncio desconocido".
+  * src/lib/views-store.ts: zustand + singleton de promesa useViewCounts() (carga única) y registerView() (POST y actualización en vivo del store).
+  * UI: chip "👁 N vistas" sobre la imagen en tarjetas (solo si >0) y en la ficha; registerView se dispara al ABRIR la ficha (ajuste en render, sin efectos).
+- FEATURE B — Favoritos del vecino:
+  * src/lib/favorites-store.ts: zustand + persist (localStorage "vecinos-larueda-favoritos").
+  * Corazón en tarjetas (esquina inferior derecha, aria-pressed, stopPropagation) y en la ficha (junto al cierre, se rellena terracotta).
+  * Filtro "Favoritos (n)" en la barra sticky del directorio con estado vacío propio ("Aún no guardas favoritos…").
+- FEATURE C — Deep-link y atajo:
+  * search-section: soporte ?q= y #buscador?q= (activa el SearchAction del JSON-LD) — aplica búsqueda, desplaza y enfoca el input (defer 300ms para hidratación).
+  * Atajo de teclado "/" (ignora inputs/textareas y modificadores) + pista <kbd>/</kbd> visible cuando el input está vacío y sin foco (solo desktop).
+- FEATURE D — Pulido de estilo:
+  * Navbar: scroll-spy con IntersectionObserver (franja -30%/-60%) — enlace activo con subrayado teal + aria-current; menú móvil resalta la sección activa con punto teal.
+  * Ficha: botón "Compartir" (Web Share API con fallback clipboard + toast "Enlace copiado"); comparte URL /?q={título}#buscador → el vecino que lo recibe aterriza con la búsqueda hecha.
+  * Categorías: numeración tipo guía 01–08 en font-display gigante con opacidad al hover.
+- VERIFICACIÓN (browser + API, todo OK):
+  * GET /api/views devuelve mapa completo; POST suma (panadería 0→1); POST id desconocido → 404.
+  * /?q=yoga#buscador → input="yoga", foco en input, "1 resultado para «yoga»".
+  * Corazón → aria-pressed=true + localStorage persistido ["yoga-larueda"]; filtro Favoritos → "1 anuncio favorito".
+  * Ficha abierta → chip "1 vista" visible y API yoga-larueda:1; botón Compartir presente.
+  * Scroll-spy: al llegar a #faq el nav resalta "Preguntas".
+  * bun run lint: LIMPIO tras todos los cambios.
+
+Stage Summary:
+- NUEVAS CAPACIDADES: métricas de vistas (Prisma/SQLite), favoritos locales con filtro, deep-links de búsqueda compatibles con SEO SearchAction, atajo "/", compartir anuncios, scroll-spy y numeración de guía.
+- Decisiones: cada apertura de ficha = 1 vista (sin guard anti-spam por sesión, se puede añadir después); favoritos 100% locales (sin backend, privacidad por diseño).
+- Riesgos/pendientes: probar navigator.share en dispositivo real (en desktop usó fallback clipboard OK); el contador del directorio prioriza query sobre favoritos en su texto (menor).
+- Siguiente ronda sugerida: ordenar directorio (A-Z/destacados), "copiar enlace" también en tarjetas, o modo oscuro opcional.

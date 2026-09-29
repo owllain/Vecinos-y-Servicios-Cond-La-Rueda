@@ -141,10 +141,21 @@ export function CategoriesSection() {
                   onClick={() => irAlDirectorio(categoria.id)}
                   aria-label={`Ver ${etiquetaAnuncios(n)} de ${ui.label}`}
                   className={cn(
-                    "group flex h-full min-h-[150px] w-full flex-col rounded-2xl border border-border bg-card p-5 text-left transition-all duration-300 hover:-translate-y-1 hover:border-transparent hover:shadow-xl focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                    "group relative flex h-full min-h-[150px] w-full flex-col overflow-hidden rounded-2xl border border-border bg-card p-5 text-left transition-all duration-300 hover:-translate-y-1 hover:border-transparent hover:shadow-xl focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                     RING_POR_CATEGORIA[categoria.id],
                   )}
                 >
+                  {/* Numeración tipo guía turística (01–08) */}
+                  <span
+                    aria-hidden="true"
+                    className={cn(
+                      "pointer-events-none absolute -right-1 -top-3 select-none font-display text-6xl font-semibold opacity-15 transition-opacity duration-300 group-hover:opacity-30",
+                      ui.classes.text,
+                    )}
+                  >
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+
                   <span
                     className={cn(
                       "inline-flex w-fit rounded-2xl p-3",

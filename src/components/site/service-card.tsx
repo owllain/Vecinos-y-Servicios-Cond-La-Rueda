@@ -1,11 +1,13 @@
 "use client";
 
 import { useState, type KeyboardEvent } from "react";
-import { Phone, Star } from "lucide-react";
+import { Eye, Heart, Phone, Star } from "lucide-react";
 
 import { categoryUi, type ServiceListing } from "@/lib/data/services";
 import { telHref } from "@/lib/site-config";
 import { useSearchStore } from "@/lib/search-store";
+import { useFavoritesStore } from "@/lib/favorites-store";
+import { useViewCounts } from "@/lib/views-store";
 import { SafeImage } from "@/components/safe-image";
 import { HighlightText } from "@/components/site/highlight-text";
 import { ServiceDialog } from "@/components/site/service-dialog";
@@ -34,6 +36,12 @@ export function ServiceCard({
 }) {
   const [selected, setSelected] = useState<ServiceListing | null>(null);
   const query = useSearchStore((state) => state.query);
+  const viewCounts = useViewCounts();
+  const isFavorite = useFavoritesStore((state) =>
+    state.favorites.includes(service.id),
+  );
+  const toggleFavorite = useFavoritesStore((state) => state.toggleFavorite);
+  const views = viewCounts[service.id];
 
   const ui = categoryUi(service.category);
   const CategoryIcon = ui.icon;
@@ -91,6 +99,40 @@ export function ServiceCard({
             <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-brand-gold px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-brand-pine shadow-sm">
               <Star className="h-3 w-3 fill-brand-pine" aria-hidden="true" />
               Destacado
+            </span>
+          )}
+
+          {/* Favorito: corazón sobre la imagen (esquina inferior derecha) */}
+          <button
+            type="button"
+            onClick={(event) => {
+              event.stopPropagation();
+              toggleFavorite(service.id);
+            }}
+            aria-pressed={isFavorite}
+            aria-label={
+              isFavorite
+                ? `Quitar ${service.title} de favoritos`
+                : `Guardar ${service.title} en favoritos`
+            }
+            className={cn(
+              "absolute bottom-3 right-3 flex h-11 w-11 items-center justify-center rounded-full shadow-md transition-all active:scale-90",
+              isFavorite
+                ? "bg-brand-terracotta text-white"
+                : "bg-white/90 text-brand-terracotta hover:bg-white",
+            )}
+          >
+            <Heart
+              className={cn("h-5 w-5", isFavorite && "fill-current")}
+              aria-hidden="true"
+            />
+          </button>
+
+          {/* Contador de vistas del anuncio */}
+          {typeof views === "number" && views > 0 && (
+            <span className="absolute bottom-3 left-3 inline-flex items-center gap-1.5 rounded-full bg-black/35 px-2.5 py-1 text-[11px] font-medium text-white backdrop-blur-sm">
+              <Eye className="h-3.5 w-3.5" aria-hidden="true" />
+              {views}
             </span>
           )}
         </div>
