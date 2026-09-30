@@ -103,10 +103,7 @@ export function CategoriesSection() {
           transition={{ duration: reducedMotion ? 0 : 0.6, ease: "easeOut" }}
         >
           <div className="mx-auto max-w-2xl text-center">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-teal-soft px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wide text-brand-teal-dark">
-              <Compass className="h-3.5 w-3.5" aria-hidden="true" />
-              Categorías predefinidas
-            </span>
+
             <h2 className="mt-4 font-display text-3xl leading-tight text-brand-pine md:text-4xl">
               Explora la guía por categoría
             </h2>
@@ -145,16 +142,7 @@ export function CategoriesSection() {
                     RING_POR_CATEGORIA[categoria.id],
                   )}
                 >
-                  {/* Numeración tipo guía turística (01–08) */}
-                  <span
-                    aria-hidden="true"
-                    className={cn(
-                      "pointer-events-none absolute -right-1 -top-3 select-none font-display text-6xl font-semibold opacity-15 transition-opacity duration-300 group-hover:opacity-30",
-                      ui.classes.text,
-                    )}
-                  >
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
+
 
                   <span
                     className={cn(

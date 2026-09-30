@@ -22,11 +22,7 @@ export function AnnounceStrip() {
     <section id="anunciate" aria-label="Anúnciate" className="py-16">
       <div className="container mx-auto max-w-5xl px-4">
         <div className="relative overflow-hidden rounded-[2rem] border-2 border-brand-gold/50 bg-gradient-to-br from-brand-gold-soft via-card to-brand-teal-soft p-8 shadow-xl shadow-brand-pine/5 md:p-12">
-          {/* Icono decorativo gigante */}
-          <BookMarked
-            aria-hidden
-            className="pointer-events-none absolute -right-6 -top-6 h-40 w-40 text-brand-pine opacity-10"
-          />
+
 
           <div className="relative text-center">
             <p className="inline-flex items-center gap-1.5 rounded-full bg-brand-terracotta-soft px-4 py-1.5 text-xs font-semibold text-brand-terracotta-dark">

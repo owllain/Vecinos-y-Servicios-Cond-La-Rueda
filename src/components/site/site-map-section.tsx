@@ -245,10 +245,7 @@ export function SiteMapSection() {
 
           {/* ── Pie del panel ───────────────────────────────────── */}
           <div className="relative mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-dashed border-border pt-6">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-gold-soft px-4 py-2 text-xs font-semibold text-brand-pine">
-              <MapPin aria-hidden="true" className="size-3.5" />
-              Estás en: Inicio
-            </span>
+
             <p className="text-xs text-muted-foreground">
               {SERVICES.length} anuncios · {CATEGORIES.length} categorías ·{" "}
               {FAQ_ITEMS.length} preguntas

@@ -23,8 +23,18 @@ export default function Home() {
 
         {/* Carrusel de destacados estilo guía turística */}
         <ServiceCarousel />
+
+        <div className="mx-auto w-full max-w-7xl px-4 py-8">
+          <hr className="border-border/60" />
+        </div>
+
         {/* Categorías predefinidas (Ley de Miller) */}
         <CategoriesSection />
+
+        <div className="mx-auto w-full max-w-7xl px-4 py-8">
+          <hr className="border-border/60" />
+        </div>
+
         {/* Directorio completo con filtros sincronizados */}
         <DirectorySection />
         {/* Mapa del sitio: índice visual de la guía */}
