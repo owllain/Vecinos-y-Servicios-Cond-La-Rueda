@@ -9,31 +9,11 @@
  *  1. Guarda la(s) imagen(es) en  /public/images/  (ej.: mi-servicio.png)
  *     y escríbelas como  "/images/mi-servicio.png".
  *
- *  2. Copia un bloque { ... } de ejemplo de la lista SERVICES, pégalo al
- *     final y cambia los campos:
+ *  2. Abre el archivo  /src/data/services.json  y agrega o edita el objeto
+ *     JSON con los campos del servicio (id, title, category, keywords, etc.).
  *
- *       id          → identificador ÚNICO, minúsculas y sin espacios
- *       title       → nombre del negocio o servicio (obligatorio)
- *       tagline     → frase corta gancho que se muestra en el carrusel
- *       category    → UNA de las categorías predefinidas (ver CATEGORIES)
- *       keywords    → palabras clave que alimentan el buscador
- *                     (mínimo 5 recomendado; sin tildes también funciona,
- *                      el buscador ignora tildes y mayúsculas)
- *       images      → lista de rutas de imagen (1 o más, la primera es
- *                     la principal; ej.: "/images/mi-foto.png")
- *       phone       → número de contacto visible (formato +506 XXXX-XXXX);
- *                     las SOLICITUDES se hacen por el grupo de WhatsApp
- *                     (secretaría incluida), el botón verde de cada
- *                     tarjeta ya apunta al grupo automáticamente
- *       schedule    → (opcional) horario de atención
- *       location    → (opcional) ubicación dentro del condominio
- *       description → descripción del servicio o producto (1–3 oraciones)
- *       featured    → true para que aparezca en el carrusel de destacados
- *                     (se recomienda máximo 6 destacados)
- *       isNew       → true para mostrar la píldora "Nuevo" en la tarjeta
- *
- *  3. Guarda el archivo: buscador, categorías, carrusel, directorio y
- *     mapa del sitio se actualizan automáticamente.
+ *  3. Guarda el archivo JSON: buscador, categorías, carrusel, directorio y
+ *     mapa del sitio se actualizan automáticamente sin necesidad de base de datos.
  */
 
 import {
@@ -231,324 +211,20 @@ export interface ServiceListing {
   featured?: boolean;
   /** Marca el anuncio con la píldora "Nuevo" (recién incorporado a la guía) */
   isNew?: boolean;
+  /** Precio visible o tarifa de referencia (opcional) */
+  price?: string;
+  /** Enlaces directos a redes sociales, web o correo (opcional) */
+  socialLinks?: {
+    facebook?: string;
+    instagram?: string;
+    website?: string;
+    email?: string;
+  };
 }
 
-export const SERVICES: ServiceListing[] = [
-  {
-    id: "panaderia-dona-marta",
-    title: "Panadería Doña Marta",
-    tagline: "Pan caliente cada mañana, a dos casas de distancia",
-    category: "alimentos",
-    keywords: [
-      "pan",
-      "panadería",
-      "pan dulce",
-      "empanadas",
-      "media agua",
-      "baguette",
-      "desayuno",
-      "panificado",
-    ],
-    images: ["/images/svc-panaderia.png"],
-    phone: "+506 8888-1001",
-    schedule: "Lun a Sáb · 6:00 a. m. – 6:00 p. m.",
-    location: "Calle principal · Casa 4",
-    description:
-      "Pan artesanal horneado cada mañana: media agua, baguettes, pan dulce y empanadas. Encarga tus panes para el desayuno por WhatsApp y pásalos a buscar calientitos.",
-    featured: true,
-  },
-  {
-    id: "reposteria-yozenia",
-    title: "Repostería by Yozenia",
-    tagline: "Tortas personalizadas para cada celebración",
-    isNew: true,
-    category: "alimentos",
-    keywords: [
-      "torta",
-      "tortas",
-      "repostería",
-      "cumpleaños",
-      "cupcakes",
-      "postres",
-      "galletas",
-      "brownies",
-    ],
-    images: ["/images/svc-reposteria.png", "/images/svc-panaderia.png"],
-    phone: "+506 8888-1002",
-    schedule: "Pedidos con 3 días de anticipación",
-    location: "Torre A · Apartamento 302",
-    description:
-      "Tortas decoradas por encargo para cumpleaños, baby showers y aniversarios. Cupcakes, galletas y brownies con temática personalizada y ingredientes frescos.",
-  },
-  {
-    id: "finquita-frutas",
-    title: "La Finquita · Frutas y Verduras",
-    tagline: "De la huerta a tu puerta, sin intermediarios",
-    category: "comercio",
-    keywords: [
-      "frutas",
-      "verduras",
-      "hortalizas",
-      "huerta",
-      "orgánico",
-      "bolsa semanal",
-      "productos frescos",
-      "mercado",
-    ],
-    images: ["/images/svc-verduras.png"],
-    phone: "+506 8888-1003",
-    schedule: "Vie y Sáb · 7:00 a. m. – 1:00 p. m.",
-    location: "Estacionamiento de visitas",
-    description:
-      "Bolsas semanales de frutas y verduras frescas traídas de la finca familiar en Cartago. Pide la bolsa mixta o arma tu propia selección por WhatsApp.",
-    featured: true,
-  },
-  {
-    id: "taller-don-chente",
-    title: "Taller Don Chente",
-    tagline: "Carpintería a medida con 30 años de oficio",
-    category: "hogar",
-    keywords: [
-      "carpintería",
-      "muebles",
-      "madera",
-      "reparación",
-      "puertas",
-      "closets",
-      "estantes",
-      "taller",
-    ],
-    images: ["/images/svc-carpinteria.png"],
-    phone: "+506 8888-1004",
-    schedule: "Lun a Vie · 7:00 a. m. – 5:00 p. m.",
-    location: "Bodegas · Local 2",
-    description:
-      "Fabricación y reparación de muebles de madera: closets, estantes, puertas y mobiliario a medida. Presupuesto sin costo para vecinos del condominio.",
-    featured: true,
-  },
-  {
-    id: "plomeria-mario",
-    title: "Plomería y Electricidad Mario",
-    tagline: "Fugas, destapes e instalaciones: respuesta el mismo día",
-    category: "hogar",
-    keywords: [
-      "plomería",
-      "plomero",
-      "destape",
-      "fugas",
-      "electricidad",
-      "electricista",
-      "instalaciones",
-      "reparaciones",
-      "emergencia",
-    ],
-    images: ["/images/svc-plomeria.png"],
-    phone: "+506 8888-1005",
-    schedule: "Lun a Sáb · 7:00 a. m. – 7:00 p. m. · Urgencias hasta 9 p. m.",
-    location: "Servicio a domicilio",
-    description:
-      "Reparación de fugas, destape de cañerías, instalación de lámparas y tomacorrientes. Servicio de urgencia para vecinos con respuesta el mismo día.",
-  },
-  {
-    id: "unas-karla",
-    title: "Uñas & Spa Karla",
-    tagline: "Uñas esculpidas y nail art sin salir del condominio",
-    category: "belleza",
-    keywords: [
-      "uñas",
-      "manicure",
-      "pedicure",
-      "nail art",
-      "gel",
-      "acrylic",
-      "esmaltado",
-      "spa",
-    ],
-    images: ["/images/svc-unas.png"],
-    phone: "+506 8888-1006",
-    schedule: "Lun a Sáb · 8:00 a. m. – 6:00 p. m.",
-    location: "Torre C · Apartamento 105",
-    description:
-      "Manicure y pedicure con esmaltado semipermanente, uñas esculpidas y nail art personalizado. Atención con cita previa en un espacio relajante y privado.",
-    featured: true,
-  },
-  {
-    id: "salon-elena",
-    title: "Salón de Belleza Elena",
-    tagline: "Cortes, color y peinados para toda la familia",
-    category: "belleza",
-    keywords: [
-      "corte de cabello",
-      "tinte",
-      "color",
-      "peinado",
-      "maquillaje",
-      "salón",
-      "estilista",
-      "niños",
-    ],
-    images: ["/images/svc-salon.png"],
-    phone: "+506 8888-1007",
-    schedule: "Mar a Sáb · 8:00 a. m. – 5:00 p. m.",
-    location: "Casa 11 · Entrada lateral",
-    description:
-      "Cortes de cabello para damas, caballeros y niños, tintes, mechas, peinados y maquillaje para eventos. Con cita previa por teléfono o WhatsApp.",
-  },
-  {
-    id: "masajes-aura",
-    title: "Masajes & Terapias Aura",
-    tagline: "Relájate sin salir de casa: atención en tu hogar",
-    category: "salud",
-    keywords: [
-      "masajes",
-      "relajación",
-      "terapias",
-      "espalda",
-      "estrés",
-      "masaje deportivo",
-      "bienestar",
-    ],
-    images: ["/images/svc-masajes.png"],
-    phone: "+506 8888-1008",
-    schedule: "Lun a Sáb · 9:00 a. m. – 7:00 p. m.",
-    location: "Servicio a domicilio",
-    description:
-      "Masajes relajantes, descontracturantes y deportivos a domicilio dentro del condominio. Sesiones de 60 o 90 minutos con aceites esenciales y música de relajación.",
-  },
-  {
-    id: "yoga-larueda",
-    title: "Yoga Comunitario La Rueda",
-    tagline: "Clases al amanecer en el jardín central",
-    category: "salud",
-    keywords: [
-      "yoga",
-      "estiramientos",
-      "meditación",
-      "ejercicio",
-      "clase grupal",
-      "bienestar",
-      "respiración",
-    ],
-    images: ["/images/svc-yoga.png"],
-    phone: "+506 8888-1009",
-    schedule: "Lun, Mié y Vie · 5:30 a. m. – 6:30 a. m.",
-    location: "Jardín central del condominio",
-    description:
-      "Clases de yoga para todos los niveles en el jardín central. Trae tu colchoneta; la primera clase de prueba es gratuita para vecinos y sus visitas.",
-    featured: true,
-  },
-  {
-    id: "clases-sofia",
-    title: "Clases Particulares con Sofía",
-    tagline: "Refuerzo escolar de matemáticas e inglés",
-    category: "educacion",
-    keywords: [
-      "clases",
-      "tutoría",
-      "matemáticas",
-      "inglés",
-      "tarea",
-      "refuerzo escolar",
-      "primaria",
-      "secundaria",
-      "estudio",
-    ],
-    images: ["/images/svc-clases.png"],
-    phone: "+506 8888-1010",
-    schedule: "Lun a Vie · 3:00 p. m. – 7:00 p. m.",
-    location: "Torre B · Apartamento 201",
-    description:
-      "Tutorías personalizadas de matemáticas e inglés para primaria y secundaria. Refuerzo de tareas y preparación para exámenes, presencial o virtual.",
-  },
-  {
-    id: "guitarra-andres",
-    title: "Guitarra con Andrés",
-    tagline: "Aprende tus primeras canciones en un mes",
-    category: "educacion",
-    keywords: [
-      "guitarra",
-      "música",
-      "clases de música",
-      "acordes",
-      "acústica",
-      "niños",
-      "adultos",
-    ],
-    images: ["/images/svc-clases.png"],
-    phone: "+506 8888-1011",
-    schedule: "Mar y Jue · 4:00 p. m. – 7:00 p. m.",
-    location: "Casa 7 · Terraza",
-    description:
-      "Clases de guitarra acústica para niños y adultos, desde cero o para perfeccionar técnica. Método práctico: tocas una canción completa desde la primera lección.",
-  },
-  {
-    id: "petspa-guau-miau",
-    title: "Pet Spa Guau & Miau",
-    tagline: "Baño, corte y mimos para los peluditos",
-    category: "mascotas",
-    keywords: [
-      "grooming",
-      "baño de mascotas",
-      "corte de pelo",
-      "perros",
-      "gatos",
-      "uñas de mascotas",
-      "peluquería canina",
-    ],
-    images: ["/images/svc-mascotas.png"],
-    phone: "+506 8888-1012",
-    schedule: "Lun a Sáb · 8:00 a. m. – 5:00 p. m.",
-    location: "Casa 19 · Retral frontal",
-    description:
-      "Baño, corte de pelo, limpieza de oídos y corte de uñas para perros y gatos de todas las razas. Recogida y entrega a la puerta de tu casa sin costo.",
-    featured: true,
-  },
-  {
-    id: "taxi-don-rigo",
-    title: "Taxi de Confianza · Don Rigo",
-    tagline: "Aeropuerto, trámites y rutas seguras",
-    category: "transporte",
-    keywords: [
-      "taxi",
-      "transporte",
-      "aeropuerto",
-      "trámites",
-      "bancos",
-      "médico",
-      "chofer",
-      "ruta segura",
-    ],
-    images: ["/images/svc-taxi.png"],
-    phone: "+506 8888-1013",
-    schedule: "Todos los días · 5:00 a. m. – 9:00 p. m.",
-    location: "Servicio a domicilio",
-    description:
-      "Transporte privado en sedán con aire acondicionado. Viajes al aeropuerto, bancos, hospitales y trámites. Conoce al conductor: es tu vecino de la Casa 23.",
-  },
-  {
-    id: "delivery-veloz",
-    title: "Delivery Veloz La Rueda",
-    tagline: "Mandados, farmacia y sobres: lo llevamos por ti",
-    isNew: true,
-    category: "transporte",
-    keywords: [
-      "delivery",
-      "mandados",
-      "recados",
-      "farmacia",
-      "sobres",
-      "compras",
-      "mensajería",
-      "encargos",
-    ],
-    images: ["/images/svc-delivery.png"],
-    phone: "+506 8888-1014",
-    schedule: "Todos los días · 7:00 a. m. – 8:00 p. m.",
-    location: "Servicio a domicilio",
-    description:
-      "Servicio de mandados dentro y fuera del condominio: farmacia, súper, sobres y encargos. Tarifa fija dentro del condominio y tarifas preferenciales para vecinos.",
-  },
-];
+import servicesData from "@/data/services.json";
+
+export const SERVICES: ServiceListing[] = servicesData as ServiceListing[];
 
 /* ───────────────────────────────────────────────────────────────────
  *  HELPERS (los componentes los usan; normalmente no hace falta editar)
@@ -588,9 +264,11 @@ function haystack(service: ServiceListing): Array<{ weight: number; text: string
   const category = CATEGORIES.find((c) => c.id === service.category);
   return [
     { weight: 10, text: service.title },
-    { weight: 7, text: service.keywords.join(" ") },
+    { weight: 8, text: service.keywords.join(" ") },
+    { weight: 7, text: service.phone },
     { weight: 5, text: category?.label ?? "" },
     { weight: 4, text: service.tagline ?? "" },
+    { weight: 3, text: service.price ?? "" },
     { weight: 2, text: service.description },
     { weight: 2, text: service.location ?? "" },
   ];

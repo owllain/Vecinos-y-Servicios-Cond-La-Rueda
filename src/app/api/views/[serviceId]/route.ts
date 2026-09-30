@@ -1,13 +1,12 @@
 import { NextResponse } from "next/server";
 
-import { db } from "@/lib/db";
 import { SERVICES } from "@/lib/data/services";
+import { incrementViewCount } from "@/lib/views-storage";
 
 /**
  * POST /api/views/[serviceId]
- * Incrementa en 1 el contador de vistas del anuncio (upsert) y devuelve
- * el total actualizado. Los ids desconocidos se rechazan para no
- * inflar la tabla con basura.
+ * Incrementa en 1 el contador de vistas del anuncio y devuelve
+ * el total actualizado en el archivo JSON.
  */
 export async function POST(
   _request: Request,
@@ -23,13 +22,9 @@ export async function POST(
   }
 
   try {
-    const row = await db.serviceView.upsert({
-      where: { serviceId },
-      update: { views: { increment: 1 } },
-      create: { serviceId, views: 1 },
-    });
+    const views = await incrementViewCount(serviceId);
 
-    return NextResponse.json({ serviceId, views: row.views });
+    return NextResponse.json({ serviceId, views });
   } catch (error) {
     console.error("[api/views] POST", error);
     return NextResponse.json(

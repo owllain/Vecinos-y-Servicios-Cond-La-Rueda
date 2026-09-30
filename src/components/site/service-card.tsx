@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type KeyboardEvent } from "react";
-import { Eye, Heart, MessageCircle, Phone, Share2, Sparkles, Star } from "lucide-react";
+import { Eye, Heart, MessageCircle, Phone, Share2, Sparkles, Star, ZoomIn } from "lucide-react";
 
 import { categoryUi, type ServiceListing } from "@/lib/data/services";
 import { telHref, groupHref } from "@/lib/site-config";
@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { SafeImage } from "@/components/safe-image";
 import { HighlightText } from "@/components/site/highlight-text";
 import { ServiceDialog } from "@/components/site/service-dialog";
+import { ImageLightbox } from "@/components/site/image-lightbox";
 import { cn } from "@/lib/utils";
 
 /** Tamaños de la imagen según el grid de resultados */
@@ -36,6 +37,7 @@ export function ServiceCard({
   priority?: boolean;
 }) {
   const [selected, setSelected] = useState<ServiceListing | null>(null);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
   const query = useSearchStore((state) => state.query);
   const viewCounts = useViewCounts();
   const isFavorite = useFavoritesStore((state) =>
@@ -147,13 +149,28 @@ export function ServiceCard({
             />
           </button>
 
-          {/* Contador de vistas del anuncio */}
-          {typeof views === "number" && views > 0 && (
-            <span className="absolute bottom-3 left-3 inline-flex items-center gap-1.5 rounded-full bg-black/35 px-2.5 py-1 text-[11px] font-medium text-white backdrop-blur-sm">
-              <Eye className="h-3.5 w-3.5" aria-hidden="true" />
-              {views}
-            </span>
-          )}
+          {/* Botón Zoom directo y contador de vistas */}
+          <div className="absolute bottom-3 left-3 z-10 flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation();
+                setLightboxOpen(true);
+              }}
+              aria-label={`Ver imagen completa de ${service.title}`}
+              className="flex h-8 items-center gap-1 rounded-full bg-black/60 px-2.5 text-[11px] font-semibold text-white shadow-md backdrop-blur-md transition-all hover:bg-black/85 hover:scale-105 active:scale-95"
+            >
+              <ZoomIn className="h-3.5 w-3.5" />
+              <span>Zoom</span>
+            </button>
+
+            {typeof views === "number" && views > 0 && (
+              <span className="inline-flex h-8 items-center gap-1 rounded-full bg-black/35 px-2.5 text-[11px] font-medium text-white backdrop-blur-sm">
+                <Eye className="h-3 w-3" aria-hidden="true" />
+                {views}
+              </span>
+            )}
+          </div>
         </div>
 
         {/* Cuerpo */}
@@ -247,6 +264,14 @@ export function ServiceCard({
         service={selected}
         open={selected !== null}
         onOpenChange={closeDialog}
+      />
+
+      {/* Visor Lightbox para ampliar imagen directamente desde la tarjeta */}
+      <ImageLightbox
+        images={service.images}
+        title={service.title}
+        isOpen={lightboxOpen}
+        onClose={() => setLightboxOpen(false)}
       />
     </article>
   );
