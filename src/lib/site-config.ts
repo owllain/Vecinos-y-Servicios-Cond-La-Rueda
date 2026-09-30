@@ -32,13 +32,13 @@ export const SITE = {
   description:
     "La guía hecha por y para los vecinos del Condominio La Rueda: descubre los productos y servicios que ofrece tu propia comunidad. Administrada por los vecinos y con todas las solicitudes por el grupo de WhatsApp.",
   /**
-   * Grupo de WhatsApp de los vecinos: el ÚNICO canal de solicitud.
+   * Grupo de WhatsApp de los vecinos para solicitudes generales de la comunidad.
    * ▶ REEMPLAZA el enlace provisional por el enlace de invitación real
    *   de tu grupo (WhatsApp → Información del grupo → Invitar enlace).
    */
   whatsappGroup: {
-    url: "https://chat.whatsapp.com/invito-vecinos-la-rueda",
-    label: "Grupo de WhatsApp de los vecinos",
+    url: "https://chat.whatsapp.com/invite/LaRuedaVecinos",
+    label: "Grupo de WhatsApp vecinal",
   },
   /** Secciones del sitio de una sola página (anclas) */
   anchors: [

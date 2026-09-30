@@ -1,6 +1,5 @@
 import { Navbar } from "@/components/site/navbar";
 import { Hero } from "@/components/site/hero";
-import { SearchSection } from "@/components/site/search-section";
 import { ServiceCarousel } from "@/components/site/service-carousel";
 import { CategoriesSection } from "@/components/site/categories-section";
 import { DirectorySection } from "@/components/site/directory-section";
@@ -21,8 +20,7 @@ export default function Home() {
       <main id="contenido" className="flex-1 pb-20 md:pb-0">
         {/* Portada de la guía con doble ruta (Ley de Hick) */}
         <Hero />
-        {/* Híper-buscador: el corazón del sitio */}
-        <SearchSection />
+
         {/* Carrusel de destacados estilo guía turística */}
         <ServiceCarousel />
         {/* Categorías predefinidas (Ley de Miller) */}

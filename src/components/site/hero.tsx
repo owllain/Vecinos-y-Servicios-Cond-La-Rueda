@@ -11,7 +11,8 @@ import {
 } from "lucide-react";
 import { SafeImage } from "@/components/safe-image";
 import { CATEGORIES, SERVICES } from "@/lib/data/services";
-import { scrollToSection } from "@/lib/search-store";
+import { scrollToSection, useSearchStore } from "@/lib/search-store";
+import { Input } from "@/components/ui/input";
 import { groupHref } from "@/lib/site-config";
 
 const stagger: Variants = {
@@ -30,6 +31,7 @@ const fadeUp: Variants = {
  */
 export function Hero() {
   const reduce = useReducedMotion();
+  const setQuery = useSearchStore((state) => state.setQuery);
 
   const stats = [
     { icon: BookOpen, value: `${SERVICES.length} anuncios`, label: "publicados por vecinos" },
@@ -78,30 +80,43 @@ export function Hero() {
           >
             Descubre los productos y servicios que ofrecen los propios vecinos del
             condominio: pan caliente, plomero de confianza, clases, uñas, mascotas y más.
-            La guía la escriben y la administran los vecinos, y todo se solicita
-            por el grupo de WhatsApp.
+            La guía la escriben los vecinos, y puedes contactar a cada proveedor directamente
+            o hacer tus solicitudes en el grupo vecinal de WhatsApp.
           </motion.p>
 
-          {/* Hick: máximo 2 CTAs principales */}
-          <motion.div variants={fadeUp} className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <button
-              type="button"
-              onClick={() => scrollToSection("buscador")}
-              className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-brand-terracotta-dark px-7 text-base font-semibold text-white shadow-lg shadow-brand-terracotta/25 transition-all duration-200 hover:brightness-90 active:scale-[0.98]"
-            >
-              <Search className="h-5 w-5" aria-hidden />
-              Buscar servicios
-            </button>
-            <a
-              href={groupHref()}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Abrir el grupo de WhatsApp de los vecinos (se abre en una pestaña nueva)"
-              className="inline-flex h-12 items-center justify-center gap-2 rounded-full border-2 border-brand-teal/60 bg-brand-teal-soft px-7 text-base font-semibold text-brand-teal-dark transition-colors duration-200 hover:bg-brand-teal-dark hover:text-white"
-            >
-              <MessageCircle className="h-5 w-5" aria-hidden />
-              Grupo de WhatsApp
-            </a>
+          {/* Buscador integrado en Hero */}
+          <motion.div variants={fadeUp} className="mt-8 relative max-w-xl">
+            <Search className="pointer-events-none absolute left-4 top-[28px] h-6 w-6 -translate-y-1/2 text-brand-teal" aria-hidden />
+            <Input
+              type="text"
+              autoComplete="off"
+              enterKeyHint="search"
+              placeholder="Busca pan, plomero, uñas, taxi..."
+              onChange={(e) => {
+                setQuery(e.target.value);
+                if (e.target.value) {
+                  document.getElementById("servicios")?.scrollIntoView({ behavior: "smooth", block: "start" });
+                }
+              }}
+              className="h-14 rounded-2xl border-2 border-brand-pine/15 bg-card pl-14 pr-4 text-lg shadow-lg focus-visible:border-brand-teal md:h-14 w-full"
+            />
+            {/* Sugerencias */}
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              <span className="text-sm text-muted-foreground">Sugerencias:</span>
+              {["pan", "plomero", "uñas", "yoga"].map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => {
+                    setQuery(s);
+                    document.getElementById("servicios")?.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }}
+                  className="inline-flex h-8 items-center rounded-full border border-border bg-card/60 px-3 text-xs text-foreground/80 hover:border-brand-teal hover:text-brand-teal-dark"
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
           </motion.div>
 
           {/* Mini-estadísticas */}
@@ -121,12 +136,12 @@ export function Hero() {
           </motion.dl>
         </motion.div>
 
-        {/* ── Columna derecha: tarjeta guía con píldoras flotantes ── */}
+        {/* ── Columna derecha: tarjeta guía con píldoras flotantes (Oculta en móvil) ── */}
         <motion.div
           initial={reduce ? false : { opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
-          className="relative"
+          className="relative hidden lg:block"
         >
           <div className="relative aspect-[4/3] rotate-1 overflow-hidden rounded-[2rem] border-4 border-white shadow-2xl">
             <SafeImage
@@ -156,13 +171,13 @@ export function Hero() {
             <Star className="h-4 w-4 fill-brand-gold text-brand-gold" aria-hidden />
           </div>
 
-          {/* Píldora flotante: todo se solicita por el grupo */}
+          {/* Píldora flotante: contacto directo */}
           <div
             className="animate-floaty absolute -right-3 bottom-10 hidden items-center gap-2 rounded-full bg-brand-teal-dark px-4 py-2.5 text-xs text-white shadow-xl sm:flex"
             style={{ animationDelay: "1.5s" }}
           >
             <MessageCircle className="h-3.5 w-3.5 text-brand-gold" aria-hidden />
-            <span className="font-semibold">Solicitudes por el grupo de WhatsApp</span>
+            <span className="font-semibold">Contacta directamente al vecino</span>
           </div>
         </motion.div>
       </div>

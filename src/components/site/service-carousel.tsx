@@ -28,7 +28,7 @@ import { SafeImage } from "@/components/safe-image";
 import { ServiceDialog } from "@/components/site/service-dialog";
 import {
   categoryUi,
-  getFeaturedServices,
+  SERVICES,
   type ServiceListing,
 } from "@/lib/data/services";
 import { telHref } from "@/lib/site-config";
@@ -44,7 +44,7 @@ const IMAGEN_SIZES =
   "(min-width: 1280px) 38vw, (min-width: 640px) 72vw, 100vw";
 
 export function ServiceCarousel() {
-  const featured = useMemo(() => getFeaturedServices(), []);
+  const featured = SERVICES;
 
   const [reducedMotion, setReducedMotion] = useState(false);
   const [selected, setSelected] = useState<ServiceListing | null>(null);
@@ -139,7 +139,7 @@ export function ServiceCarousel() {
           <div className="min-w-0">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-gold-soft px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wide text-brand-pine">
               <Map className="h-3.5 w-3.5" aria-hidden="true" />
-              Carrusel de destacados
+              Explora nuestra comunidad
             </span>
             <h2 className="mt-4 font-display text-3xl leading-tight text-brand-pine md:text-4xl">
               Lo que nuestros vecinos ofrecen
@@ -154,7 +154,7 @@ export function ServiceCarousel() {
             <button
               type="button"
               onClick={scrollPrev}
-              aria-label="Destacado anterior"
+              aria-label="Anterior"
               className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-border bg-card text-foreground shadow-sm transition-colors hover:border-brand-teal hover:text-brand-teal-dark focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-teal focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
               <ChevronLeft className="h-5 w-5" aria-hidden="true" />
@@ -162,7 +162,7 @@ export function ServiceCarousel() {
             <button
               type="button"
               onClick={scrollNext}
-              aria-label="Destacado siguiente"
+              aria-label="Siguiente"
               className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-border bg-card text-foreground shadow-sm transition-colors hover:border-brand-teal hover:text-brand-teal-dark focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-teal focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
               <ChevronRight className="h-5 w-5" aria-hidden="true" />
@@ -188,7 +188,7 @@ export function ServiceCarousel() {
                     key={service.id}
                     role="group"
                     aria-roledescription="diapositiva"
-                    aria-label={`Destacado ${index + 1} de ${featured.length}: ${service.title}`}
+                    aria-label={`Servicio ${index + 1} de ${featured.length}: ${service.title}`}
                     className="min-w-0 shrink-0 basis-full pl-[2px] sm:basis-[72%] lg:basis-[55%] xl:basis-[38%]"
                   >
                     <article className="group relative h-[430px] overflow-hidden rounded-[1.75rem] border border-border bg-card shadow-xl md:h-[480px]">
@@ -230,15 +230,6 @@ export function ServiceCarousel() {
                           />
                           {ui.label}
                         </span>
-                        {service.featured && (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-brand-gold/95 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wide text-brand-pine">
-                            <Star
-                              className="h-3 w-3 fill-current"
-                              aria-hidden="true"
-                            />
-                            Destacado
-                          </span>
-                        )}
                       </div>
 
                       {/* Información inferior sobre la foto */}
@@ -291,7 +282,7 @@ export function ServiceCarousel() {
                     key={service.id}
                     type="button"
                     onClick={() => scrollTo(index)}
-                    aria-label={`Ir al destacado ${index + 1}`}
+                    aria-label={`Ir al servicio ${index + 1}`}
                     aria-current={index === current ? "true" : undefined}
                     className={cn(
                       "relative h-2.5 rounded-full transition-all after:absolute after:-inset-2 after:content-['']",

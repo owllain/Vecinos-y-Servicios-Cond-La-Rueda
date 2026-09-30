@@ -158,15 +158,15 @@ export function ServiceCard({
                 setLightboxOpen(true);
               }}
               aria-label={`Ver imagen completa de ${service.title}`}
-              className="flex h-8 items-center gap-1 rounded-full bg-black/60 px-2.5 text-[11px] font-semibold text-white shadow-md backdrop-blur-md transition-all hover:bg-black/85 hover:scale-105 active:scale-95"
+              className="flex h-10 items-center gap-1.5 rounded-full bg-black/60 px-3.5 text-xs font-semibold text-white shadow-md backdrop-blur-md transition-all hover:bg-black/85 hover:scale-105 active:scale-95"
             >
               <ZoomIn className="h-3.5 w-3.5" />
               <span>Zoom</span>
             </button>
 
             {typeof views === "number" && views > 0 && (
-              <span className="inline-flex h-8 items-center gap-1 rounded-full bg-black/35 px-2.5 text-[11px] font-medium text-white backdrop-blur-sm">
-                <Eye className="h-3 w-3" aria-hidden="true" />
+              <span className="inline-flex h-10 items-center gap-1.5 rounded-full bg-black/35 px-3 text-xs font-medium text-white backdrop-blur-sm">
+                <Eye className="h-3.5 w-3.5" aria-hidden="true" />
                 {views}
               </span>
             )}
@@ -192,9 +192,9 @@ export function ServiceCard({
             href={telHref(service.phone)}
             onClick={(event) => event.stopPropagation()}
             aria-label={`Llamar al ${service.phone}`}
-            className="inline-flex w-fit items-center gap-1.5 rounded-full bg-accent/50 px-2.5 py-1 text-xs font-medium text-foreground/80 transition-colors hover:bg-accent hover:text-accent-foreground"
+            className="inline-flex h-10 w-fit items-center gap-1.5 rounded-full bg-accent/50 px-4 text-sm font-medium text-foreground/80 transition-colors hover:bg-accent hover:text-accent-foreground"
           >
-            <Phone className="h-3 w-3 shrink-0 text-brand-teal-dark" aria-hidden="true" />
+            <Phone className="h-3.5 w-3.5 shrink-0 text-brand-teal-dark" aria-hidden="true" />
             <span className="whitespace-nowrap tabular-nums">{shortPhone(service.phone)}</span>
           </a>
 
@@ -226,20 +226,14 @@ export function ServiceCard({
           )}
 
           {/* Pie: teléfono del vecino + pedir por el grupo (canal oficial) */}
-          <div className="mt-auto flex items-center justify-between gap-2 border-t border-border pt-2">
-
-            {/* Compartir rápido desde la tarjeta (respaldo: portapapeles) */}
-            <button
-              type="button"
-              onClick={(event) => {
-                event.stopPropagation();
-                void handleShare();
-              }}
-              aria-label={`Compartir el anuncio de ${service.title}`}
-              className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:border-brand-teal hover:text-brand-teal-dark"
+          <div className="mt-auto flex items-center justify-between gap-2 border-t border-border pt-3">
+            {/* Botón explícito para ver la ficha (usamos span por accesibilidad ya que está dentro de un div con role=button) */}
+            <span
+              aria-hidden="true"
+              className="inline-flex h-11 flex-1 items-center justify-center rounded-full border border-border bg-card px-4 text-sm font-semibold text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
             >
-              <Share2 className="h-4 w-4" aria-hidden="true" />
-            </button>
+              Ver detalles
+            </span>
 
             {/* Solicitudes por WhatsApp directo al número */}
             <a
@@ -247,11 +241,11 @@ export function ServiceCard({
               target="_blank"
               rel="noopener noreferrer"
               onClick={(event) => event.stopPropagation()}
-              aria-label={`Pedir ${service.title} por WhatsApp`}
-              className="inline-flex h-11 items-center gap-1.5 rounded-full bg-brand-teal px-4 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-teal-dark"
+              aria-label={`Contactar proveedor ${service.title} por WhatsApp`}
+              className="inline-flex h-11 flex-1 items-center justify-center gap-1.5 rounded-full bg-brand-teal px-4 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-teal-dark"
             >
               <MessageCircle className="h-4 w-4" aria-hidden="true" />
-              Pedir
+              Contactar
             </a>
           </div>
         </div>
