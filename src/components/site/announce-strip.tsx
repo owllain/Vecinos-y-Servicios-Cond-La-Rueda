@@ -80,22 +80,12 @@ export function AnnounceStrip() {
                 2
               </span>
               <h3 className="mt-3 text-base font-semibold text-brand-pine">
-                Escríbelo al grupo de WhatsApp
+                Comunícate con un administrador
               </h3>
               <p className="mb-4 mt-1.5 text-sm leading-relaxed text-muted-foreground">
-                Pega tu información en el grupo de los vecinos y el equipo vecinal
-                la revisa contigo.
+                Envía tu información a un vecino administrador y el equipo vecinal
+                la revisará contigo.
               </p>
-              <a
-                href={groupHref()}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Abrir el grupo de WhatsApp de los vecinos para enviar tu información (se abre en una pestaña nueva)"
-                className="mt-auto inline-flex h-11 items-center justify-center gap-2 rounded-full bg-brand-teal-dark px-5 text-sm font-semibold text-white shadow-md shadow-brand-teal/25 transition-all duration-200 hover:brightness-90 active:scale-[0.98]"
-              >
-                <MessageCircle className="h-4 w-4" aria-hidden />
-                Abrir el grupo de WhatsApp
-              </a>
             </li>
 
             {/* Paso 3 */}

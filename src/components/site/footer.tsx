@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, MessageCircle } from "lucide-react";
+import { Check, Coffee, MessageCircle } from "lucide-react";
 import { Logo } from "@/components/brand/logo";
 import { CATEGORIES, categoryCounts } from "@/lib/data/services";
 import { useSearchStore, scrollToSection } from "@/lib/search-store";
@@ -54,7 +54,7 @@ export function Footer() {
 
       {/* ── (B) Cuerpo del pie sobre pino profundo ── */}
       <div className="bg-brand-pine-deep text-brand-cream/80">
-        <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 md:grid-cols-2 lg:grid-cols-4">
+        <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 md:grid-cols-2 lg:grid-cols-3">
           {/* 1 · Marca */}
           <div className="space-y-3">
             <Logo tone="light" />
@@ -110,37 +110,7 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* 4 · Grupo de WhatsApp: único canal de solicitudes */}
-          <div>
-            <h3 className="font-display text-lg text-brand-gold">Grupo de WhatsApp de los vecinos</h3>
-            <p className="mt-3 text-sm text-brand-cream/70">
-              La guía la administran los vecinos y todo se solicita escribiendo al
-              grupo (secretaría incluida):
-            </p>
-            <ul className="mt-2 space-y-0.5">
-              {["Pedir servicios y productos", "Trámites de la secretaría", "Publicar o editar tu anuncio"].map(
-                (item) => (
-                  <li
-                    key={item}
-                    className="flex min-h-9 items-center gap-2 text-sm text-brand-cream/80"
-                  >
-                    <Check className="h-4 w-4 shrink-0 text-brand-gold" aria-hidden />
-                    {item}
-                  </li>
-                ),
-              )}
-            </ul>
-            <a
-              href={groupHref()}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-4 inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-brand-teal px-5 text-sm font-semibold text-white shadow-md shadow-brand-teal/25 transition-all duration-200 hover:bg-brand-teal-dark active:scale-[0.98]"
-              aria-label="Abrir el grupo de WhatsApp de los vecinos (se abre en una pestaña nueva)"
-            >
-              <MessageCircle className="h-4 w-4" aria-hidden />
-              Unirme al grupo de WhatsApp
-            </a>
-          </div>
+
         </div>
 
         {/* ── Barra inferior ── */}
@@ -153,6 +123,17 @@ export function Footer() {
               <p className="max-w-md text-brand-cream/60">
                 La guía es informativa: precios y transacciones se acuerdan
                 directamente entre vecinos.
+              </p>
+              <p className="max-w-md text-brand-cream/60 flex items-center gap-1.5 pt-1">
+                Elaborado con <Coffee className="h-3.5 w-3.5 text-brand-gold" aria-hidden="true" /> por{" "}
+                <a
+                  href="https://www.linkedin.com/in/enrique-cascante/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium hover:text-brand-gold hover:underline transition-colors"
+                >
+                  Ing. Enrique Cascante
+                </a>
               </p>
             </div>
             <nav aria-label="Enlaces de ayuda" className="flex items-center gap-6">

@@ -59,13 +59,7 @@ export function Hero() {
           initial={reduce ? false : "hidden"}
           animate="show"
         >
-          <motion.p
-            variants={fadeUp}
-            className="inline-flex items-center gap-1.5 rounded-full border border-brand-teal/40 bg-brand-teal-soft px-3.5 py-1.5 text-xs font-semibold text-brand-teal-dark"
-          >
-            <HeartHandshake className="h-3.5 w-3.5" aria-hidden />
-            Hecha por y para los vecinos · Condominio La Rueda
-          </motion.p>
+
 
           <motion.h1
             variants={fadeUp}
@@ -81,7 +75,7 @@ export function Hero() {
             Descubre los productos y servicios que ofrecen los propios vecinos del
             condominio: pan caliente, plomero de confianza, clases, uñas, mascotas y más.
             La guía la escriben los vecinos, y puedes contactar a cada proveedor directamente
-            o hacer tus solicitudes en el grupo vecinal de WhatsApp.
+            por WhatsApp.
           </motion.p>
 
           {/* Buscador integrado en Hero */}
@@ -157,19 +151,7 @@ export function Hero() {
             </p>
           </div>
 
-          {/* Tarjeta flotante: servicio de vecino (oculta en móvil para no desbordar) */}
-          <div className="animate-floaty absolute -left-4 top-8 hidden items-center gap-3 rounded-2xl bg-white p-3 shadow-xl sm:flex">
-            <SafeImage
-              src="/images/svc-mascotas.png"
-              alt="Pet Spa Guau & Miau"
-              className="h-12 w-12 rounded-xl object-cover"
-            />
-            <div className="leading-tight">
-              <p className="text-xs font-semibold text-brand-ink">Pet Spa Guau &amp; Miau</p>
-              <p className="text-[10px] text-muted-foreground">Servicio de vecino</p>
-            </div>
-            <Star className="h-4 w-4 fill-brand-gold text-brand-gold" aria-hidden />
-          </div>
+
 
           {/* Píldora flotante: contacto directo */}
           <div
