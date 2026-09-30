@@ -177,9 +177,7 @@ export function SearchSection() {
       />
 
       <div className="mx-auto w-full max-w-6xl px-4 text-center">
-        <span className="inline-flex items-center rounded-full bg-brand-teal-soft px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-brand-teal-dark">
-          Híper-buscador vecinal
-        </span>
+
 
         <h2 className="mt-4 font-display text-3xl font-semibold text-brand-pine md:text-4xl">
           ¿Qué necesitas hoy?
@@ -249,43 +247,7 @@ export function SearchSection() {
           ))}
         </div>
 
-        {/* Filtros de categoría */}
-        <div
-          role="group"
-          aria-label="Filtrar por categoría"
-          className="scrollbar-fina -mx-4 mt-6 flex gap-2 overflow-x-auto px-4 pb-2 md:mx-0 md:flex-wrap md:justify-center md:overflow-x-visible md:px-0 md:pb-0"
-        >
-          {FILTER_CHIPS.map((chip) => {
-            const active = category === chip.id;
-            return (
-              <button
-                key={chip.id}
-                type="button"
-                aria-pressed={active}
-                onClick={() => setCategory(chip.id)}
-                className={cn(
-                  "inline-flex h-11 shrink-0 items-center gap-1.5 rounded-full border px-4 text-sm font-medium transition-all duration-200",
-                  active
-                    ? chip.id === "todas"
-                      ? "border-transparent bg-brand-pine text-brand-cream shadow-md"
-                      : cn("border-transparent shadow-md", categoryUi(chip.id).classes.solid)
-                    : "border-border bg-card text-foreground/75 hover:border-brand-teal hover:text-brand-teal-dark",
-                )}
-              >
-                <chip.icon className="h-4 w-4" aria-hidden="true" />
-                <span>{chip.label}</span>
-                <span
-                  className={cn(
-                    "rounded-full px-1.5 text-[11px] font-semibold leading-4",
-                    active ? "bg-white/20 text-white" : "bg-muted text-muted-foreground",
-                  )}
-                >
-                  {chip.count}
-                </span>
-              </button>
-            );
-          })}
-        </div>
+
 
         {/* Resultados */}
         {!showWelcome && (
@@ -309,8 +271,7 @@ export function SearchSection() {
                   Sin resultados para «{query}»
                 </p>
                 <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">
-                  Ningún vecino lo publica todavía. Pídelo en el grupo de WhatsApp —la
-                  comunidad te ayuda, secretaría incluida— o anúnciate si lo ofreces tú.
+                  Ningún vecino lo publica todavía. Pídelo en el grupo de WhatsApp o anúnciate si lo ofreces tú.
                 </p>
                 <div className="mt-5 flex flex-wrap items-center justify-center gap-2.5">
                   <a

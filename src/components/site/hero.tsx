@@ -77,10 +77,9 @@ export function Hero() {
             className="mt-5 max-w-xl text-lg leading-relaxed text-muted-foreground"
           >
             Descubre los productos y servicios que ofrecen los propios vecinos del
-            condominio: pan caliente, plomero de confianza, clases, uñas, mascotas y
-            más. La guía la escriben y la administran los vecinos, y todo se solicita
-            por el grupo de WhatsApp: servicios, pedidos y trámites de secretaría
-            incluidos.
+            condominio: pan caliente, plomero de confianza, clases, uñas, mascotas y más.
+            La guía la escriben y la administran los vecinos, y todo se solicita
+            por el grupo de WhatsApp.
           </motion.p>
 
           {/* Hick: máximo 2 CTAs principales */}
@@ -163,7 +162,7 @@ export function Hero() {
             style={{ animationDelay: "1.5s" }}
           >
             <MessageCircle className="h-3.5 w-3.5 text-brand-gold" aria-hidden />
-            <span className="font-semibold">Solicitudes por WhatsApp · secretaría incluida</span>
+            <span className="font-semibold">Solicitudes por el grupo de WhatsApp</span>
           </div>
         </motion.div>
       </div>

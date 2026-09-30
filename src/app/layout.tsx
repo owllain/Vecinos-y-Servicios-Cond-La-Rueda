@@ -94,7 +94,7 @@ const jsonLd = {
       slogan: SITE.tagline,
       description: SITE.description,
       // La guía la administran los vecinos; el canal oficial de contacto
-      // y de solicitudes (secretaría incluida) es el grupo de WhatsApp.
+      // y de solicitudes es el grupo de WhatsApp.
       sameAs: [SITE.whatsappGroup.url],
     },
     {

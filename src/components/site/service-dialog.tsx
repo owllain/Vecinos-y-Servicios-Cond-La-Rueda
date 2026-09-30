@@ -43,9 +43,6 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 
-/* Nota fija que acompaña a los botones de contacto de la ficha */
-const NOTA_GRUPO =
-  "Las solicitudes —secretaría incluida— se atienden escribiendo al grupo de WhatsApp de los vecinos.";
 
 /* ────────────────────────────────────────────────────────────────────
  * Galería interna: carrusel embla (loop, sin autoplay) si hay varias
@@ -476,10 +473,10 @@ export function ServiceDialog({ service, open, onOpenChange }: ServiceDialogProp
                 {/* Contacto: pedir por el grupo (canal oficial) o llamar */}
                 <div className="grid gap-3 pt-1 sm:grid-cols-2">
                   <a
-                    href={groupHref()}
+                    href={`https://wa.me/${service.phone.replace(/\D/g, "")}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    aria-label={`Pedir ${service.title} en el grupo de WhatsApp de los vecinos (se abre en una pestaña nueva)`}
+                    aria-label={`Pedir ${service.title} por WhatsApp`}
                     className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-brand-teal px-4 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-teal-dark"
                   >
                     <MessageCircle className="h-4 w-4" aria-hidden="true" />
@@ -524,13 +521,6 @@ export function ServiceDialog({ service, open, onOpenChange }: ServiceDialogProp
                   </Button>
                 </div>
 
-                <p className="flex items-start gap-2 rounded-xl bg-brand-teal-soft/60 px-3.5 py-2.5 text-xs leading-relaxed text-brand-pine">
-                  <MessageCircle
-                    className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand-teal-dark"
-                    aria-hidden="true"
-                  />
-                  {NOTA_GRUPO}
-                </p>
               </div>
             </div>
           </div>

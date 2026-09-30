@@ -58,7 +58,7 @@ export function MobileStickyBar() {
           <span className="text-[11px] font-medium text-brand-ink">Directorio</span>
         </button>
 
-        {/* WhatsApp: grupo de los vecinos (solicitudes, secretaría incluida) */}
+        {/* WhatsApp: grupo de los vecinos (solicitudes) */}
         <a
           href={groupHref()}
           target="_blank"

@@ -53,7 +53,7 @@ export const FAQ_ITEMS: FaqItem[] = [
     id: "cada-cuanto-actualiza",
     question: "¿Cada cuánto se actualiza la guía?",
     answer:
-      "Constantemente. Cuando un vecino publica, edita o retira un servicio, la guía se actualiza de inmediato: el buscador, las categorías, el carrusel y el mapa del sitio siempre reflejan la información más reciente.",
+      "La guía se actualiza a la brevedad posible. Cuando un vecino publica, edita o retira un servicio, los cambios se reflejarán pronto en el buscador, las categorías y el carrusel.",
     category: "general",
   },
   {
@@ -74,7 +74,7 @@ export const FAQ_ITEMS: FaqItem[] = [
     id: "como-publicar",
     question: "¿Cómo publico mi servicio o producto?",
     answer:
-      "Tres pasos: 1) Prepara tu información (título, categoría, palabras clave, fotos, número de contacto y descripción). 2) Escríbela al grupo de WhatsApp de los vecinos. 3) Los vecinos administradores la revisan y en menos de 48 horas tu anuncio aparece en la guía, listo para que tus vecinos te encuentren.",
+      "Tres pasos: 1) Prepara tu información (título, categoría, palabras clave, fotos, número de contacto y descripción). 2) Escríbela al grupo de WhatsApp de los vecinos. 3) Los vecinos administradores la revisan y a la brevedad posible su anuncio aparece en la guía, listo para que tus vecinos te encuentren.",
     category: "publicar",
   },
   {
@@ -102,7 +102,7 @@ export const FAQ_ITEMS: FaqItem[] = [
     id: "editar-o-eliminar",
     question: "¿Puedo editar o eliminar mi anuncio después?",
     answer:
-      "Sí. Escríbelo en el grupo de WhatsApp de los vecinos indicando el nombre de tu anuncio y el cambio (nuevo horario, nuevo teléfono, nuevas fotos o retirarlo). Los vecinos administradores aplican los cambios en menos de 48 horas.",
+      "Sí. Escríbelo en el grupo de WhatsApp de los vecinos indicando el nombre de tu anuncio y el cambio (nuevo horario, nuevo teléfono, nuevas fotos o retirarlo). Los vecinos administradores lo aplicarán a la brevedad posible.",
     category: "publicar",
   },
   {
@@ -144,16 +144,10 @@ export const FAQ_ITEMS: FaqItem[] = [
     id: "como-contactar-vecino",
     question: "¿Cómo contacto a un vecino vendedor?",
     answer:
-      "Para solicitar cualquier servicio —secretaría incluida— escribe al grupo de WhatsApp de los vecinos: el botón verde «Pedir por WhatsApp» de cada tarjeta te lleva directo al grupo. Cada anuncio también muestra el número del vecino por si prefieres llamar, y la ficha completa incluye horario, ubicación y descripción detallada.",
+      "Para solicitar cualquier servicio escribe al grupo de WhatsApp de los vecinos: el botón verde «Pedir por WhatsApp» de cada tarjeta te lleva directo al grupo. Cada anuncio también muestra el número del vecino por si prefieres llamar, y la ficha completa incluye horario, ubicación y descripción detallada.",
     category: "contacto",
   },
-  {
-    id: "tramites-secretaria",
-    question: "¿Cómo solicito un trámite de la secretaría?",
-    answer:
-      "Igual que un servicio: escribiendo al grupo de WhatsApp de los vecinos. Constancias de residencia, cartas, reservas de espacios y cualquier gestión con la secretaría se piden únicamente por el grupo; los vecinos encargados reciben y responden ahí mismo, y así queda registro para toda la comunidad.",
-    category: "contacto",
-  },
+
   {
     id: "como-entrar-al-grupo",
     question: "¿Cómo me uno al grupo de WhatsApp?",

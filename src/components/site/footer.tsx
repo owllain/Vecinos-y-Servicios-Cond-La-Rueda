@@ -157,7 +157,7 @@ export function Footer() {
             </div>
             <nav aria-label="Enlaces de ayuda" className="flex items-center gap-6">
               <a
-                href="#faq"
+                href="/faq"
                 className="flex min-h-11 items-center py-3 text-brand-cream/80 transition-colors duration-200 hover:text-brand-gold md:py-0"
               >
                 Preguntas frecuentes

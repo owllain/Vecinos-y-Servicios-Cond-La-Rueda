@@ -103,7 +103,7 @@ export function ImageLightbox({
       role="dialog"
       aria-modal="true"
       aria-label={`Visualizador de imagen: ${title}`}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 p-3 backdrop-blur-md transition-opacity duration-300 md:p-6"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 p-3 backdrop-blur-md transition-opacity duration-300 md:p-6"
       onClick={onClose}
     >
       {/* Barra superior de controles */}

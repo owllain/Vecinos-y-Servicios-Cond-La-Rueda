@@ -102,7 +102,7 @@ export function Navbar() {
             aria-label="Abrir el grupo de WhatsApp de los vecinos (se abre en una pestaña nueva)"
           >
             <MessageCircle className="h-3.5 w-3.5" aria-hidden />
-            Solicitudes por WhatsApp · secretaría incluida
+            Solicitudes por WhatsApp
           </a>
         </div>
       </div>
@@ -240,7 +240,7 @@ export function Navbar() {
                     Grupo de WhatsApp de los vecinos
                   </a>
                   <p className="text-center text-[11px] text-muted-foreground">
-                    Solicitudes, publicaciones y secretaría: todo por el grupo.
+                    Solicitudes y publicaciones: todo por el grupo.
                   </p>
                 </div>
               </SheetContent>

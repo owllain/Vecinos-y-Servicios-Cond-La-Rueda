@@ -4,8 +4,7 @@
  *  Vecinos y Servicios · Condominio La Rueda
  * ═══════════════════════════════════════════════════════════════════
  *  Guía HECHA POR Y PARA LOS VECINOS y administrada por los propios
- *  vecinos. TODAS las solicitudes —servicios, pedidos y trámites de
- *  secretaría incluidos— se hacen escribiendo al grupo de WhatsApp.
+ *  vecinos. TODAS las solicitudes se hacen escribiendo al grupo de WhatsApp.
  *
  *  Edita aquí el nombre, el lema y el enlace del grupo. El resto del
  *  sitio se actualiza solo.
@@ -31,7 +30,7 @@ export const SITE = {
   tagline: "La guía hecha por y para los vecinos",
   /** Descripción SEO */
   description:
-    "La guía hecha por y para los vecinos del Condominio La Rueda: descubre los productos y servicios que ofrece tu propia comunidad. Administrada por los vecinos y con todas las solicitudes —secretaría incluida— por el grupo de WhatsApp.",
+    "La guía hecha por y para los vecinos del Condominio La Rueda: descubre los productos y servicios que ofrece tu propia comunidad. Administrada por los vecinos y con todas las solicitudes por el grupo de WhatsApp.",
   /**
    * Grupo de WhatsApp de los vecinos: el ÚNICO canal de solicitud.
    * ▶ REEMPLAZA el enlace provisional por el enlace de invitación real

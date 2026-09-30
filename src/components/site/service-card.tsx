@@ -188,6 +188,16 @@ export function ServiceCard({
             )}
           </div>
 
+          <a
+            href={telHref(service.phone)}
+            onClick={(event) => event.stopPropagation()}
+            aria-label={`Llamar al ${service.phone}`}
+            className="inline-flex w-fit items-center gap-1.5 rounded-full bg-accent/50 px-2.5 py-1 text-xs font-medium text-foreground/80 transition-colors hover:bg-accent hover:text-accent-foreground"
+          >
+            <Phone className="h-3 w-3 shrink-0 text-brand-teal-dark" aria-hidden="true" />
+            <span className="whitespace-nowrap tabular-nums">{shortPhone(service.phone)}</span>
+          </a>
+
           {service.tagline && (
             <p className="line-clamp-1 text-sm text-muted-foreground">
               <HighlightText text={service.tagline} query={query} />
@@ -217,18 +227,6 @@ export function ServiceCard({
 
           {/* Pie: teléfono del vecino + pedir por el grupo (canal oficial) */}
           <div className="mt-auto flex items-center justify-between gap-2 border-t border-border pt-2">
-            <a
-              href={telHref(service.phone)}
-              onClick={(event) => event.stopPropagation()}
-              aria-label={`Llamar al ${service.phone}`}
-              className="inline-flex h-11 items-center gap-1.5 rounded-full px-3 text-sm font-medium text-foreground/80 transition-colors hover:bg-accent hover:text-accent-foreground"
-            >
-              <Phone
-                className="h-4 w-4 shrink-0 text-brand-teal-dark"
-                aria-hidden="true"
-              />
-              <span className="whitespace-nowrap tabular-nums">{shortPhone(service.phone)}</span>
-            </a>
 
             {/* Compartir rápido desde la tarjeta (respaldo: portapapeles) */}
             <button
@@ -243,13 +241,13 @@ export function ServiceCard({
               <Share2 className="h-4 w-4" aria-hidden="true" />
             </button>
 
-            {/* Solicitudes por el grupo de WhatsApp — secretaría incluida */}
+            {/* Solicitudes por WhatsApp directo al número */}
             <a
-              href={groupHref()}
+              href={`https://wa.me/${service.phone.replace(/\D/g, "")}`}
               target="_blank"
               rel="noopener noreferrer"
               onClick={(event) => event.stopPropagation()}
-              aria-label={`Pedir ${service.title} en el grupo de WhatsApp de los vecinos (se abre en una pestaña nueva)`}
+              aria-label={`Pedir ${service.title} por WhatsApp`}
               className="inline-flex h-11 items-center gap-1.5 rounded-full bg-brand-teal px-4 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-teal-dark"
             >
               <MessageCircle className="h-4 w-4" aria-hidden="true" />
