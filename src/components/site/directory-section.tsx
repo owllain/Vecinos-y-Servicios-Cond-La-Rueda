@@ -161,36 +161,35 @@ export function DirectorySection() {
               aria-label="Filtrar el directorio por categoría"
               className="scrollbar-fina flex items-center gap-1.5 overflow-x-auto pb-1 md:max-w-[62%] md:pb-0"
             >
-              {FILTER_CHIPS.map((chip) => {
-                const active = category === chip.id;
-                return (
-                  <button
-                    key={chip.id}
-                    type="button"
-                    aria-pressed={active}
-                    onClick={() => setCategory(chip.id)}
-                    className={cn(
-                      "inline-flex h-10 shrink-0 items-center gap-1.5 rounded-full border px-3.5 text-[13px] font-medium transition-all duration-200",
-                      active
-                        ? chip.id === "todas"
-                          ? "border-transparent bg-brand-pine text-brand-cream shadow-sm"
-                          : cn("border-transparent shadow-sm", categoryUi(chip.id).classes.solid)
-                        : "border-border bg-card text-foreground/75 hover:border-brand-teal hover:text-brand-teal-dark",
-                    )}
-                  >
-                    <chip.icon className="h-3.5 w-3.5" aria-hidden="true" />
-                    <span className="whitespace-nowrap">{chip.label}</span>
-                    <span
-                      className={cn(
-                        "rounded-full px-1.5 text-[11px] font-semibold leading-4",
-                        active ? "bg-white/20 text-white" : "bg-muted text-muted-foreground",
-                      )}
+              <Select value={category} onValueChange={(value) => setCategory(value as CategoryFilter)}>
+                <SelectTrigger
+                  aria-label="Filtrar por categoría"
+                  className="h-10 w-[180px] shrink-0 rounded-full border-border bg-card text-[13px] font-medium text-foreground/75 shadow-none transition-colors hover:border-brand-teal hover:text-brand-teal-dark focus-visible:border-brand-teal"
+                >
+                  <LayoutGrid
+                    className="h-3.5 w-3.5 shrink-0 text-brand-teal"
+                    aria-hidden="true"
+                  />
+                  <SelectValue placeholder="Categorías" />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl border-border max-h-[60vh]">
+                  {FILTER_CHIPS.map((chip) => (
+                    <SelectItem
+                      key={chip.id}
+                      value={chip.id}
+                      className="rounded-lg text-[13px]"
                     >
-                      {chip.count}
-                    </span>
-                  </button>
-                );
-              })}
+                      <div className="flex items-center gap-2">
+                        <chip.icon className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
+                        <span>{chip.label}</span>
+                        <span className="ml-auto rounded-full bg-muted px-1.5 text-[10px] font-semibold text-muted-foreground">
+                          {chip.count}
+                        </span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
 
               <div className="mx-1 h-6 w-px shrink-0 bg-border" aria-hidden="true" />
 
