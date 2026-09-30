@@ -89,21 +89,11 @@ export function Navbar() {
     <header className="sticky top-0 z-50">
       {/* ── Barra superior fina: identidad vecinal + grupo de WhatsApp ── */}
       <div className="hidden bg-brand-pine-deep text-brand-cream/90 sm:block">
-        <div className="mx-auto flex h-9 max-w-7xl items-center justify-between px-4 text-xs">
+        <div className="mx-auto flex h-9 max-w-7xl items-center justify-center px-4 text-xs">
           <p className="flex items-center gap-1.5">
             <HeartHandshake className="h-3.5 w-3.5 text-brand-gold" aria-hidden />
             Guía hecha por y para los vecinos · Condominio La Rueda
           </p>
-          <a
-            href={groupHref()}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="-my-1 inline-flex items-center gap-1.5 rounded-full px-2 py-1.5 transition-colors duration-200 hover:bg-white/10 hover:text-brand-gold"
-            aria-label="Abrir el grupo de WhatsApp de los vecinos (se abre en una pestaña nueva)"
-          >
-            <MessageCircle className="h-3.5 w-3.5" aria-hidden />
-            Solicitudes por WhatsApp
-          </a>
         </div>
       </div>
 
@@ -228,21 +218,7 @@ export function Navbar() {
                   </ul>
                 </nav>
 
-                <div className="space-y-2.5 border-t border-border p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
-                  <a
-                    href={groupHref()}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-brand-teal-dark text-sm font-semibold text-white shadow-md shadow-brand-teal/25 transition-all duration-200 hover:brightness-90 active:scale-[0.98]"
-                    aria-label="Abrir el grupo de WhatsApp de los vecinos (se abre en una pestaña nueva)"
-                  >
-                    <MessageCircle className="h-4 w-4" aria-hidden />
-                    Grupo de WhatsApp de los vecinos
-                  </a>
-                  <p className="text-center text-[11px] text-muted-foreground">
-                    Solicitudes y publicaciones: todo por el grupo.
-                  </p>
-                </div>
+
               </SheetContent>
             </Sheet>
           </div>
