@@ -7,11 +7,13 @@ import {
   LayoutGrid,
   MessageCircle,
   Search,
+  SearchX,
   Star,
 } from "lucide-react";
 import { SafeImage } from "@/components/safe-image";
 import { CATEGORIES, SERVICES } from "@/lib/data/services";
 import { scrollToSection, useSearchStore } from "@/lib/search-store";
+import { useNativeInputSync } from "@/hooks/use-native-input-sync";
 import { Input } from "@/components/ui/input";
 import { groupHref } from "@/lib/site-config";
 
@@ -31,7 +33,12 @@ const fadeUp: Variants = {
  */
 export function Hero() {
   const reduce = useReducedMotion();
+  const query = useSearchStore((state) => state.query);
   const setQuery = useSearchStore((state) => state.setQuery);
+  const clear = useSearchStore((state) => state.clear);
+  const inputRef = useNativeInputSync(setQuery);
+  
+  const hasQuery = query.trim().length > 0;
 
   const stats = [
     { icon: BookOpen, value: `${SERVICES.length} anuncios`, label: "publicados por vecinos" },
@@ -81,19 +88,36 @@ export function Hero() {
           {/* Buscador integrado en Hero */}
           <motion.div variants={fadeUp} className="mt-8 relative max-w-xl">
             <Search className="pointer-events-none absolute left-4 top-[28px] h-6 w-6 -translate-y-1/2 text-brand-teal" aria-hidden />
-            <Input
-              type="text"
-              autoComplete="off"
-              enterKeyHint="search"
-              placeholder="Busca pan, plomero, uñas, taxi..."
-              onChange={(e) => {
-                setQuery(e.target.value);
-                if (e.target.value) {
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (query) {
                   document.getElementById("servicios")?.scrollIntoView({ behavior: "smooth", block: "start" });
                 }
               }}
-              className="h-14 rounded-2xl border-2 border-brand-pine/15 bg-card pl-14 pr-4 text-lg shadow-lg focus-visible:border-brand-teal md:h-14 w-full"
-            />
+              className="relative w-full"
+            >
+              <Input
+                ref={inputRef}
+                type="search"
+                autoComplete="off"
+                enterKeyHint="search"
+                placeholder="Busca pan, plomero, uñas, taxi..."
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                className="h-14 rounded-2xl border-2 border-brand-pine/15 bg-card pl-14 pr-12 text-lg shadow-lg focus-visible:border-brand-teal md:h-14 w-full"
+              />
+              {hasQuery && (
+                <button
+                  type="button"
+                  onClick={clear}
+                  aria-label="Borrar búsqueda"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+                >
+                  <SearchX className="h-5 w-5" aria-hidden="true" />
+                </button>
+              )}
+            </form>
             {/* Sugerencias */}
             <div className="mt-4 flex flex-wrap items-center gap-2">
               <span className="text-sm text-muted-foreground">Sugerencias:</span>

@@ -144,6 +144,7 @@ export function DirectorySection() {
                 aria-hidden="true"
               />
               <Input
+                id="input-buscador"
                 ref={directoryInputRef}
                 type="text"
                 autoComplete="off"
@@ -160,6 +161,39 @@ export function DirectorySection() {
               aria-label="Filtrar el directorio por categoría"
               className="scrollbar-fina flex items-center gap-1.5 overflow-x-auto pb-1 md:max-w-[62%] md:pb-0"
             >
+              {FILTER_CHIPS.map((chip) => {
+                const active = category === chip.id;
+                return (
+                  <button
+                    key={chip.id}
+                    type="button"
+                    aria-pressed={active}
+                    onClick={() => setCategory(chip.id)}
+                    className={cn(
+                      "inline-flex h-10 shrink-0 items-center gap-1.5 rounded-full border px-3.5 text-[13px] font-medium transition-all duration-200",
+                      active
+                        ? chip.id === "todas"
+                          ? "border-transparent bg-brand-pine text-brand-cream shadow-sm"
+                          : cn("border-transparent shadow-sm", categoryUi(chip.id).classes.solid)
+                        : "border-border bg-card text-foreground/75 hover:border-brand-teal hover:text-brand-teal-dark",
+                    )}
+                  >
+                    <chip.icon className="h-3.5 w-3.5" aria-hidden="true" />
+                    <span className="whitespace-nowrap">{chip.label}</span>
+                    <span
+                      className={cn(
+                        "rounded-full px-1.5 text-[11px] font-semibold leading-4",
+                        active ? "bg-white/20 text-white" : "bg-muted text-muted-foreground",
+                      )}
+                    >
+                      {chip.count}
+                    </span>
+                  </button>
+                );
+              })}
+
+              <div className="mx-1 h-6 w-px shrink-0 bg-border" aria-hidden="true" />
+
               {/* Orden del listado (destacados / A-Z / más vistos) */}
               <Select value={sort} onValueChange={(value) => setSort(value as SortMode)}>
                 <SelectTrigger
@@ -211,37 +245,6 @@ export function DirectorySection() {
                   {favorites.length}
                 </span>
               </button>
-
-              {FILTER_CHIPS.map((chip) => {
-                const active = category === chip.id;
-                return (
-                  <button
-                    key={chip.id}
-                    type="button"
-                    aria-pressed={active}
-                    onClick={() => setCategory(chip.id)}
-                    className={cn(
-                      "inline-flex h-10 shrink-0 items-center gap-1.5 rounded-full border px-3.5 text-[13px] font-medium transition-all duration-200",
-                      active
-                        ? chip.id === "todas"
-                          ? "border-transparent bg-brand-pine text-brand-cream shadow-sm"
-                          : cn("border-transparent shadow-sm", categoryUi(chip.id).classes.solid)
-                        : "border-border bg-card text-foreground/75 hover:border-brand-teal hover:text-brand-teal-dark",
-                    )}
-                  >
-                    <chip.icon className="h-3.5 w-3.5" aria-hidden="true" />
-                    <span className="whitespace-nowrap">{chip.label}</span>
-                    <span
-                      className={cn(
-                        "rounded-full px-1.5 text-[11px] font-semibold leading-4",
-                        active ? "bg-white/20 text-white" : "bg-muted text-muted-foreground",
-                      )}
-                    >
-                      {chip.count}
-                    </span>
-                  </button>
-                );
-              })}
             </div>
           </div>
         </div>

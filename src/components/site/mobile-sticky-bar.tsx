@@ -20,7 +20,7 @@ export function MobileStickyBar() {
   }, []);
 
   const handleBuscar = () => {
-    scrollToSection("buscador");
+    scrollToSection("servicios");
     timer.current = setTimeout(() => {
       document.getElementById("input-buscador")?.focus({ preventScroll: true });
     }, 450);
@@ -35,7 +35,7 @@ export function MobileStickyBar() {
       className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card/95 backdrop-blur-md md:hidden"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
-      <div className="grid grid-cols-3 divide-x divide-border">
+      <div className="grid grid-cols-2 divide-x divide-border">
         {/* Buscar */}
         <button
           type="button"
@@ -58,17 +58,7 @@ export function MobileStickyBar() {
           <span className="text-[11px] font-medium text-brand-ink">Directorio</span>
         </button>
 
-        {/* WhatsApp: grupo de los vecinos (solicitudes) */}
-        <a
-          href={groupHref()}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Abrir el grupo de WhatsApp de los vecinos (se abre en una pestaña nueva)"
-          className={actionClass}
-        >
-          <MessageCircle className="h-5 w-5" aria-hidden />
-          <span className="text-[11px] font-medium text-brand-ink">WhatsApp</span>
-        </a>
+
       </div>
     </nav>
   );
