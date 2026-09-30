@@ -7,6 +7,7 @@ import { SiteMapSection } from "@/components/site/site-map-section";
 import { AnnounceStrip } from "@/components/site/announce-strip";
 import { Footer } from "@/components/site/footer";
 import { MobileStickyBar } from "@/components/site/mobile-sticky-bar";
+import { SharedServiceHandler } from "@/components/site/shared-service-handler";
 
 /**
  * Vecinos y Servicios · Condominio La Rueda
@@ -46,6 +47,7 @@ export default function Home() {
       {/* Espacio para la barra fija móvil (Ley de Fitts) sin tapar el footer */}
       <div aria-hidden className="h-[72px] md:hidden" />
       <MobileStickyBar />
+      <SharedServiceHandler />
     </div>
   );
 }

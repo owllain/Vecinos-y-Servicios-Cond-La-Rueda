@@ -9,7 +9,7 @@ import { SITE } from "@/lib/site-config";
 /** Enlace profundo: abre la guía con la búsqueda del anuncio ya hecha */
 export function listingShareUrl(service: ServiceListing): string {
   if (typeof window === "undefined") return SITE.url;
-  return `${window.location.origin}/?q=${encodeURIComponent(service.title)}#buscador`;
+  return `${window.location.origin}/?anuncio=${encodeURIComponent(service.id)}`;
 }
 
 function shareDataFor(service: ServiceListing): ShareData {
