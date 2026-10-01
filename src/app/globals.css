@@ -70,6 +70,8 @@
   --color-cat-comercio-soft: var(--cat-comercio-soft);
   --color-cat-transporte: var(--cat-transporte);
   --color-cat-transporte-soft: var(--cat-transporte-soft);
+  --color-cat-asesoria: var(--cat-asesoria);
+  --color-cat-asesoria-soft: var(--cat-asesoria-soft);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -104,6 +106,7 @@
   --cat-mascotas: #6b8f3e;          --cat-mascotas-soft: #eaf1dc;
   --cat-comercio: #52796f;          --cat-comercio-soft: #e2eeeb;
   --cat-transporte: #6d6875;        --cat-transporte-soft: #ebe9ee;
+  --cat-asesoria: #3d5a80;          --cat-asesoria-soft: #e6eef5;
 
   --background: #fbf7ef;
   --foreground: #23312d;

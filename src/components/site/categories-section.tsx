@@ -47,6 +47,7 @@ const HOVER_TEXT_POR_CATEGORIA: Record<CategoryId, string> = {
   mascotas: "group-hover:text-cat-mascotas",
   comercio: "group-hover:text-cat-comercio",
   transporte: "group-hover:text-cat-transporte",
+  asesoria: "group-hover:text-cat-asesoria",
 };
 
 const RING_POR_CATEGORIA: Record<CategoryId, string> = {
@@ -58,6 +59,7 @@ const RING_POR_CATEGORIA: Record<CategoryId, string> = {
   mascotas: "focus-visible:ring-cat-mascotas",
   comercio: "focus-visible:ring-cat-comercio",
   transporte: "focus-visible:ring-cat-transporte",
+  asesoria: "focus-visible:ring-cat-asesoria",
 };
 
 export function CategoriesSection() {

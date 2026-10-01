@@ -25,6 +25,7 @@ import {
   Scissors,
   ShoppingBag,
   UtensilsCrossed,
+  Briefcase,
   type LucideIcon,
 } from "lucide-react";
 
@@ -41,6 +42,7 @@ export const CATEGORY_IDS = [
   "mascotas",
   "comercio",
   "transporte",
+  "asesoria",
 ] as const;
 
 export type CategoryId = (typeof CATEGORY_IDS)[number];
@@ -104,6 +106,12 @@ export const CATEGORIES: Category[] = [
     description: "Taxi de confianza, mandados y delivery",
     icon: CarFront,
   },
+  {
+    id: "asesoria",
+    label: "Asesorías y Legal",
+    description: "Servicios legales, profesionales y asesorías especializadas",
+    icon: Briefcase,
+  },
 ];
 
 /** Mapa de clases Tailwind por categoría (usa los tokens --cat-* de globals.css) */
@@ -166,6 +174,13 @@ const CAT_CLASSES: Record<
     solid: "bg-cat-transporte text-white",
     text: "text-cat-transporte",
     border: "border-cat-transporte/40",
+  },
+  asesoria: {
+    badge: "bg-cat-asesoria-soft text-cat-asesoria",
+    soft: "bg-cat-asesoria-soft",
+    solid: "bg-cat-asesoria text-white",
+    text: "text-cat-asesoria",
+    border: "border-cat-asesoria/40",
   },
 };
 
