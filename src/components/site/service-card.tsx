@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type KeyboardEvent } from "react";
+import { memo, useState, type KeyboardEvent } from "react";
 import { Eye, Heart, MessageCircle, Phone, Share2, Sparkles, Star, ZoomIn } from "lucide-react";
 
 import { categoryUi, type ServiceListing } from "@/lib/data/services";
@@ -8,7 +8,7 @@ import { telHref, groupHref } from "@/lib/site-config";
 import { shareListing } from "@/lib/share";
 import { useSearchStore } from "@/lib/search-store";
 import { useFavoritesStore } from "@/lib/favorites-store";
-import { useViewCounts } from "@/lib/views-store";
+import { useServiceViewCount } from "@/lib/views-store";
 import { useToast } from "@/hooks/use-toast";
 import { SafeImage } from "@/components/safe-image";
 import { HighlightText } from "@/components/site/highlight-text";
@@ -29,7 +29,7 @@ function shortPhone(phone: string): string {
  * y abre la ficha completa (ServiceDialog). El pie mantiene accesos
  * rápidos de teléfono y "Ver detalles" sin disparar la ficha dos veces.
  */
-export function ServiceCard({
+export const ServiceCard = memo(function ServiceCard({
   service,
   priority,
 }: {
@@ -39,13 +39,12 @@ export function ServiceCard({
   const [selected, setSelected] = useState<ServiceListing | null>(null);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const query = useSearchStore((state) => state.query);
-  const viewCounts = useViewCounts();
+  const views = useServiceViewCount(service.id);
   const isFavorite = useFavoritesStore((state) =>
     state.favorites.includes(service.id),
   );
   const toggleFavorite = useFavoritesStore((state) => state.toggleFavorite);
   const { toast } = useToast();
-  const views = viewCounts[service.id];
 
   const ui = categoryUi(service.category);
   const CategoryIcon = ui.icon;
@@ -267,4 +266,4 @@ export function ServiceCard({
       />
     </article>
   );
-}
+});

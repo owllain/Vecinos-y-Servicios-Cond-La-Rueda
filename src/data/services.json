@@ -422,5 +422,135 @@
     "description": "Cuidado profesional de manos y pies en estudio privado: manicura y pedicura spa colombiana con tratamiento de ozono, manta caliente y exfoliación, esmaltados de larga duración y sistemas en acrílico o polygel y productos libres de TPO.",
     "featured": true,
     "isNew": true
+  },
+  {
+    "id": "ariel-mantenimiento-zacate",
+    "title": "Ariel – Corte y mantenimiento de Zacate",
+    "tagline": "Corte de zacate, chapea de lotes y limpieza de terrenos",
+    "category": "hogar",
+    "keywords": [
+      "ariel",
+      "corte de zacate",
+      "chapea de lotes",
+      "limpieza de terrenos",
+      "limpieza de maleza",
+      "mantenimiento de fincas",
+      "jardineria manual",
+      "trabajos agricolas",
+      "72816166",
+      "7281-6166",
+      "7281 6166"
+    ],
+    "images": [
+      "/images/72816166.jpg"
+    ],
+    "phone": "+506 7281-6166",
+    "schedule": "Atención de lunes a sábado",
+    "location": "Servicios en el área",
+    "description": "Servicio de corte de zacate, chapea de lotes, limpieza de terrenos, limpieza de maleza, mantenimiento de fincas y jardinería manual.",
+    "featured": false,
+    "isNew": true
+  },
+  {
+    "id": "el-sabor-de-mama",
+    "title": "El Sabor de Mamá",
+    "tagline": "Donde cada bocado sabe a hogar",
+    "category": "alimentos",
+    "keywords": [
+      "el sabor de mama",
+      "comida casera",
+      "desayunos",
+      "desayunos tradicionales",
+      "gallo pinto",
+      "tortillas de queso",
+      "tortillas aliñadas",
+      "burritos",
+      "tortipinto",
+      "mini full",
+      "wrap",
+      "comida para llevar",
+      "a domicilio",
+      "88190385",
+      "8819-0385",
+      "8819 0385"
+    ],
+    "images": [
+      "/images/88190385.jpeg",
+      "/images/88190385 (2).jpeg"
+    ],
+    "phone": "+506 8819-0385",
+    "schedule": "Servicio a domicilio y pedidos para llevar",
+    "location": "Entregas en el condominio",
+    "description": "Comida casera y desayunos tradicionales costarricenses. Ofrecemos gallo pinto, tortillas de queso, burritos y más, con empaques ecológicos. ¡Nuevos empaques, misma sazón de siempre!",
+    "featured": true,
+    "isNew": true
+  },
+  {
+    "id": "victorino-pan-artesanal",
+    "title": "Victorino - Pan forjado a mano",
+    "tagline": "Pan forjado a mano",
+    "category": "alimentos",
+    "keywords": [
+      "victorino",
+      "pan forjado a mano",
+      "pan",
+      "pan artesanal",
+      "panaderia",
+      "pan hecho a mano",
+      "panaderia artesanal",
+      "72118812",
+      "7211-8812",
+      "7211 8812"
+    ],
+    "images": [
+      "/images/72118812.jpeg"
+    ],
+    "phone": "+506 7211-8812",
+    "schedule": "Pedidos artesanales",
+    "location": "Entregas en el condominio",
+    "description": "Panadería artesanal con enfoque en pan hecho y forjado a mano. Disfruta de la mejor calidad en pan artesanal.",
+    "featured": false,
+    "isNew": true
+  },
+  {
+    "id": "la-cuchara-de-la-abuela",
+    "title": "La Cuchara de la Abuela",
+    "tagline": "Sabor casero como el de la abuela",
+    "category": "alimentos",
+    "keywords": [
+      "la cuchara de la abuela",
+      "comida rapida",
+      "antojitos",
+      "especialidades",
+      "salchipapas",
+      "papas fritas",
+      "tacos",
+      "doraditas",
+      "perros calientes",
+      "empanadas",
+      "hamburguesas",
+      "burritos",
+      "chalupas",
+      "super tacos",
+      "fajitas",
+      "nachos",
+      "servicio a domicilio",
+      "pedidos express",
+      "71923310",
+      "7192-3310",
+      "7192 3310"
+    ],
+    "images": [
+      "/images/71923310.jpeg",
+      "/images/71923310 (2).jpeg",
+      "/images/71923310 (3).jpeg",
+      "/images/71923310 (4).jpeg"
+    ],
+    "phone": "+506 7192-3310",
+    "schedule": "Pedidos express y servicio a domicilio",
+    "location": "Entregas en el condominio",
+    "description": "Comida deliciosa, hecha con ingredientes naturales llenos de amor. Ofrecemos comida rápida, antojitos, empanadas, hamburguesas, tacos, nachos y mucho más. ¡Delicias con el auténtico sabor casero!",
+    "featured": true,
+    "isNew": true
   }
 ]

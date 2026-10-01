@@ -33,9 +33,7 @@ export const useViewsStore = create<ViewsState>()((set) => ({
 /** Carga única de los contadores (patrón singleton de promesa) */
 let countsPromise: Promise<void> | null = null;
 
-export function useViewCounts(): Record<string, number> {
-  const counts = useViewsStore((state) => state.counts);
-
+function useLoadViewCounts(): void {
   useEffect(() => {
     if (!countsPromise) {
       countsPromise = fetch("/api/views")
@@ -49,5 +47,18 @@ export function useViewCounts(): Record<string, number> {
     }
   }, []);
 
+}
+
+/** Suscripción al contador de un solo anuncio, sin escuchar los demás. */
+export function useServiceViewCount(serviceId: string): number | undefined {
+  const count = useViewsStore((state) => state.counts[serviceId]);
+  useLoadViewCounts();
+  return count;
+}
+
+/** Todos los contadores para ordenar el directorio por vistas. */
+export function useViewCounts(): Record<string, number> {
+  const counts = useViewsStore((state) => state.counts);
+  useLoadViewCounts();
   return counts;
 }

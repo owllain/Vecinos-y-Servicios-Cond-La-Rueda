@@ -43,8 +43,11 @@ function telefonoCorto(phone: string): string {
 const IMAGEN_SIZES =
   "(min-width: 1280px) 38vw, (min-width: 640px) 72vw, 100vw";
 
+// Los anuncios nuevos se agregan al final de services.json.
+const RECENT_SERVICES = SERVICES.slice(-6).reverse();
+
 export function ServiceCarousel() {
-  const featured = SERVICES;
+  const featured = RECENT_SERVICES;
 
   const [reducedMotion, setReducedMotion] = useState(false);
   const [selected, setSelected] = useState<ServiceListing | null>(null);
@@ -145,7 +148,7 @@ export function ServiceCarousel() {
               Lo que nuestros vecinos ofrecen
             </h2>
             <p className="mt-2 max-w-xl text-balance text-muted-foreground">
-              Una vuelta por los favoritos de la comunidad. Desliza, toca y
+              Descubre los últimos anuncios de la comunidad. Desliza, toca y
               contacta directo.
             </p>
           </div>
