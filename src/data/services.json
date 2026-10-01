@@ -552,5 +552,181 @@
     "description": "Comida deliciosa, hecha con ingredientes naturales llenos de amor. Ofrecemos comida rápida, antojitos, empanadas, hamburguesas, tacos, nachos y mucho más. ¡Delicias con el auténtico sabor casero!",
     "featured": true,
     "isNew": true
+  },
+  {
+    "id": "licda-fanny-prado-garro",
+    "title": "Licda. Fanny Prado Garro – Abogada & Notaria Pública",
+    "tagline": "Compromiso, ética y resultados",
+    "category": "comercio",
+    "keywords": [
+      "licda. fanny prado garro",
+      "fanny prado garro",
+      "fanny prado",
+      "abogada",
+      "notaria publica",
+      "notaria",
+      "abogacia",
+      "servicios legales",
+      "notariado",
+      "atencion en ingles",
+      "spoken english",
+      "89238701",
+      "8923-8701"
+    ],
+    "images": [
+      "/images/89238701.jpeg",
+      "/images/89238701 (2).jpeg"
+    ],
+    "phone": "+506 8923-8701",
+    "schedule": "Lunes a domingo",
+    "location": "Condominio La Rueda, filial T30",
+    "description": "Servicios de abogacía y notariado. Atención en inglés (Spoken English). Compromiso, ética y resultados para todos sus trámites legales.",
+    "socialLinks": {
+      "email": "fannypg_18@hotmail.com"
+    },
+    "featured": false,
+    "isNew": true
+  },
+  {
+    "id": "subli-art-cr",
+    "title": "SubliArtCR",
+    "tagline": "¡Todo lo que imaginas, lo personalizamos!",
+    "category": "comercio",
+    "keywords": [
+      "subliartcr",
+      "subli art cr",
+      "sublimacion",
+      "articulos personalizados",
+      "regalos personalizados",
+      "pijamas personalizadas",
+      "tazas personalizadas",
+      "vasos",
+      "botellas",
+      "ropa personalizada",
+      "disenos infantiles",
+      "camisetas para toda la familia",
+      "almohadones",
+      "fotos personalizadas",
+      "ropa interior",
+      "stickers",
+      "61924650",
+      "6192-4650"
+    ],
+    "images": [
+      "/images/61924650.jpeg"
+    ],
+    "phone": "+506 6192-4650",
+    "schedule": "Pedidos personalizados",
+    "location": "Envíos a todo Costa Rica",
+    "description": "Sublimación y artículos personalizados de excelente calidad y diseños únicos. Regalos, pijamas, tazas, vasos, ropa para toda la familia, almohadones y más. ¡Todo lo que imaginas, lo personalizamos!",
+    "featured": false,
+    "isNew": true
+  },
+  {
+    "id": "griega-joyeria",
+    "title": "GRIEGA - Joyería",
+    "tagline": "Joyería personalizada y accesorios",
+    "category": "belleza",
+    "keywords": [
+      "griega",
+      "joyeria griega",
+      "joyeria",
+      "bisuteria",
+      "collares",
+      "cadenas",
+      "pulseras",
+      "esclavas",
+      "aretes",
+      "dijes redondos",
+      "dijes de corazon",
+      "relicarios",
+      "locket con foto",
+      "joyeria personalizada",
+      "grabado de nombres",
+      "grabado de iniciales",
+      "grabado de fechas",
+      "dia de la madre",
+      "oro",
+      "plata",
+      "acero",
+      "accesorios",
+      "72184114",
+      "7218-4114"
+    ],
+    "images": [
+      "/images/72184114.jpeg"
+    ],
+    "phone": "+506 7218-4114",
+    "schedule": "Pedidos de joyería y accesorios",
+    "location": "Entregas en el condominio",
+    "description": "Joyería y bisutería personalizada. Collares, cadenas, pulseras, esclavas, aretes, dijes y relicarios. Grabado de nombres, iniciales y fechas en accesorios de oro, plata o acero.",
+    "featured": false,
+    "isNew": true
+  },
+  {
+    "id": "transporte-privado-scottrod",
+    "title": "Servicio de transporte privado ScottRod",
+    "tagline": "Privacidad, confort, comodidad y seguridad",
+    "category": "transporte",
+    "keywords": [
+      "scottrod",
+      "jossette rodriguez",
+      "jason scott",
+      "transporte privado",
+      "servicio de transporte",
+      "aeropuerto",
+      "traslados al trabajo",
+      "traslados lejanos",
+      "viajes largos",
+      "viajes corporativos",
+      "viajes estudiantiles",
+      "mensajeria",
+      "uber",
+      "taxi",
+      "87880290",
+      "8788-0290",
+      "89630356",
+      "8963-0356"
+    ],
+    "images": [
+      "/images/87880290 y 89630356.jpeg"
+    ],
+    "phone": "+506 8788-0290",
+    "schedule": "Viajes programados y personalizados",
+    "location": "Traslados al aeropuerto y todo el país",
+    "description": "Servicio de transporte privado, al aeropuerto, traslados al trabajo, viajes corporativos y estudiantiles. También ofrecemos servicio de mensajería. Privacidad, confort, comodidad y seguridad con precios personalizados o de aplicación. Contactos: 8788-0290 (Jossette) / 8963-0356 (Jason).",
+    "featured": false,
+    "isNew": true
+  },
+  {
+    "id": "sublimaciones-del-cielo",
+    "title": "Sublimaciones del Cielo",
+    "tagline": "Tus ideas, en cada detalle",
+    "category": "comercio",
+    "keywords": [
+      "sublimaciones del cielo",
+      "sublimacion",
+      "articulos personalizados",
+      "tazas",
+      "botellas",
+      "jarras",
+      "vasos tequileros",
+      "copas",
+      "bolsos de compras",
+      "tote bags",
+      "camisetas",
+      "regalos",
+      "88410924",
+      "8841-0924"
+    ],
+    "images": [
+      "/images/88410924.jpeg"
+    ],
+    "phone": "+506 8841-0924",
+    "schedule": "Pedidos y personalización de artículos",
+    "location": "Entregas a coordinar",
+    "description": "Sublimación y artículos personalizados: tazas, botellas, jarras, vasos tequileros, copas, bolsos de compras (tote bags), camisetas y más. ¡Gracias por apoyar lo local! Los sueños también se subliman.",
+    "featured": false,
+    "isNew": true
   }
 ]
