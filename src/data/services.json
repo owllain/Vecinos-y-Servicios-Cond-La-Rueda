@@ -729,5 +729,69 @@
     "description": "Sublimación y artículos personalizados: tazas, botellas, jarras, vasos tequileros, copas, bolsos de compras (tote bags), camisetas y más. ¡Gracias por apoyar lo local! Los sueños también se subliman.",
     "featured": false,
     "isNew": true
+  },
+  {
+    "id": "bufete-silex-paula-ramirez",
+    "title": "Bufete Sílex - Licda. Paula Ramírez",
+    "tagline": "Abogada y Notaria, divorcios, matrimonios, testamentos y más",
+    "category": "asesoria",
+    "keywords": [
+      "bufete silex",
+      "silex",
+      "licda paula ramirez",
+      "paula ramirez",
+      "abogada",
+      "notaria",
+      "divorcios",
+      "donaciones",
+      "matrimonios",
+      "testamentos",
+      "traspasos de vehiculos",
+      "traspasos de propiedades",
+      "constitucion de usufructos",
+      "85255253",
+      "8525-5253"
+    ],
+    "images": [
+      "/images/85255253.jpeg"
+    ],
+    "phone": "+506 8525-5253",
+    "schedule": "Atención profesional",
+    "location": "Atención a vecinos",
+    "description": "Servicios legales profesionales: Abogada y Notaria, divorcios, donaciones, matrimonios, testamentos, traspasos de vehículos y propiedades, constitución de usufructos. Contáctenos para asesoría.",
+    "featured": false,
+    "isNew": true
+  },
+  {
+    "id": "arcoiris-val",
+    "title": "Arcoíris Val",
+    "tagline": "¡Llévate un pedacito de arcoíris contigo! Pulseras personalizables",
+    "category": "belleza",
+    "keywords": [
+      "arcoiris val",
+      "arcoirisval",
+      "pulseras artesanas",
+      "pulseras hechas a mano",
+      "charms",
+      "pulseras de hilos de colores",
+      "dijes divertidos",
+      "bisuteria artesanal",
+      "pulseras personalizables",
+      "pulseras",
+      "dijes",
+      "85619173",
+      "8561-9173",
+      "63233751",
+      "6323-3751"
+    ],
+    "images": [
+      "/images/85619173 Y 63233751.jpeg"
+    ],
+    "phone": "+506 8561-9173",
+    "schedule": "Pedidos personalizados",
+    "location": "Entregas en el condominio",
+    "description": "Cada pulsera está hecha a mano con mucho cariño y toneladas de magia. Elige tus colores favoritos, charms y dale un toque superbrillante a tus días con nuestra bisutería artesanal.",
+    "featured": false,
+    "isNew": true
   }
 ]
