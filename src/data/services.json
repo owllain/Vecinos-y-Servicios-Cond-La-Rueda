@@ -861,10 +861,14 @@
       "/images/71399239 img 4.png"
     ],
     "phone": "+506 7139-9239",
-    "price": "Consultas desde ₡20.000",
+    "price": "Consultas a domicilio",
     "schedule": "Atención veterinaria a domicilio previa cita · Coordinación por WhatsApp",
     "location": "Atención a domicilio en el condominio",
-    "description": "Atención veterinaria profesional en la comodidad del hogar por la Dra. Junibeth González Ramírez. Menos estrés y más bienestar para tus peluditos en cada etapa de su vida. Consultas a domicilio: Médica general ₡30.000, con énfasis en geriatría ₡40.000, seguimiento/control (dentro de los 15 días posteriores) ₡20.000. Vacunación canina: Múltiple/polivalente ₡18.000, antirrábica ₡12.000, tos de perreras (Bordetella) ₡15.000, paquete anual ₡28.000. Vacunación felina: Triple felina ₡18.000, leucemia (FeLV) ₡18.000, antirrábica ₡12.000, paquete anual ₡35.000. Cuidados preventivos para perros, gatos y mascotas geriátricas. ¡Contáctanos al WhatsApp +506 7139-9239 o escanea el código QR!",
+    "description": "Atención médica veterinaria profesional en la comodidad del hogar por la Dra. Junibeth González Ramírez. Cuidado cercano y dedicado con menos estrés y más bienestar para tus mascotas en cada etapa de su vida. Ofrecemos consulta médica general, medicina geriátrica especializada para mascotas adultas mayores y consultas de control y seguimiento. Servicios completos de vacunación canina (múltiple séxtuple/polivalente, antirrábica, tos de perreras Bordetella) y felina (triple felina, leucemia FeLV, antirrábica), además de paquetes anuales de vacunación y programas de cuidados preventivos integrales para perros y gatos.",
+    "socialLinks": {
+      "instagram": "https://www.instagram.com/longevetcr",
+      "website": "https://www.longevet.site"
+    },
     "featured": true,
     "isNew": true
   }
